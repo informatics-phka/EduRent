@@ -1,0 +1,5 @@
+*.log
+README.md
+.DS_Store
+*.jpeg
+*.jpg

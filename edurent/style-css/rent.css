@@ -1,0 +1,23 @@
+/*Page Layout*/
+.main     
+{
+  width:100%; 
+  max-width: 80ch; 
+  margin: 0 auto;
+}
+
+.btn-radius {
+  border-radius: 100px;
+}
+
+body.modal-open {
+  overflow: auto;
+}
+
+.form-rounded {
+  border-radius: 0.5rem;
+}
+
+.error_text {
+  color: red;
+}
