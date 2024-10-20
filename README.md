@@ -42,14 +42,13 @@ To install EduRent on Moodle, follow these steps:
 
 ### Configuration
 1. Import the database from `edurent.sql` to initialize the required tables.
-2. Upon visiting the platform for the first time, a user will be created.
-3. Set a Super Admin in the database under the `admins` table, and set the department as `0`.
-4. Reload the page for the Super Admin. If everything works, the user will see the **Admin Page** button.
-5. Open the **Admin Page**.
-6. Navigate to **Departments** and add a new department, then save the changes.
-7. Add devices for the department by clicking on **Add**, then saving after each entry.
-8. Under **Pickup Days**, define the available days for the department, following the guided process.
-9. You can assign department admins by navigating to **Admin Page** and clicking on **Admins**. Super Admins can create and assign multiple admins to different departments.
+2. Upon visiting the platform for the first time, a user will be created as Super Admin.
+3. After the initial setup, you can safely remove the initialization code in `index.php` after line 29.
+4. Open the **Admin Page**.
+5. Navigate to **Departments** and add a new department, then save the changes.
+6. Add devices for the department by clicking on **Add**, then saving after each entry.
+7. Under **Pickup Days**, define the available days for the department, following the guided process.
+8. You can assign department admins by navigating to **Admin Page** and clicking on **Admins**. Super Admins can create and assign multiple admins to different departments.
 
 <!-- USAGE -->
 
@@ -72,6 +71,13 @@ If you encounter any issues during installation or configuration, here are some 
 - Permissions:
   - Ensure that the edurent directory and files have the appropriate permissions for the web server to read and execute.
 
+### Errors
+
+#### php_network_getaddresses: getaddrinfo failed: No address associated with hostname
+Double-check the database host configuration in db_connect.php. If using "localhost", ensure your MySQL server is running locally or update the host to the correct database server address.
+
+#### Message could not be sent. Mailer Error
+Verify that the correct SMTP credentials are provided in mailer.php. Ensure you have configured the correct host, port, and security settings (e.g., SSL/TLS).
 
 <!-- CONTRIBUTING -->
 

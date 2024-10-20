@@ -26,6 +26,48 @@
     unset($_SESSION['selected_department']);
     // ----------------------------------
 
+    // REMOVE ME AFTER INITIAL SETUP
+    $check_query = "SELECT COUNT(*) as count FROM user";
+    if ($result = mysqli_query($link, $check_query)) {
+        $row = mysqli_fetch_assoc($result);
+
+        if ($row['count'] == 0) {
+            // crete user
+            $query = "INSERT IGNORE INTO user (username, fn, ln, email) VALUES (?,?,?,?)";
+            if ($stmt = mysqli_prepare($link, $query)) {
+                mysqli_stmt_bind_param($stmt, "ssss", $user_username, $user_firstname, $user_lastname, $user_email);
+
+                if (!mysqli_stmt_execute($stmt)) {
+                    throw new Exception("ERROR: Could not able to execute: " . $query . ": " . mysqli_error($link));
+                }
+            } else {
+                throw new Exception("ERROR: Could not prepare statement. " . mysqli_error($link));
+            }
+            save_in_logs("Erster Benutzer erfolgreich erstellt.");
+
+            $user_id = get_user_id($user_username, $admin_mail, $lang);
+
+            //set user as admin
+            $query = "INSERT INTO admins (u_id, department) VALUES (?, 0)";
+            if ($stmt = mysqli_prepare($link, $query)) {
+                mysqli_stmt_bind_param($stmt, "i", $user_id);
+
+                if (!mysqli_stmt_execute($stmt)) {
+                    save_in_logs("ERROR: " . mysqli_error($link));
+                    save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
+                }
+            } else {
+                save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
+            }
+            $stmt->close();
+            save_in_logs("Erster Benutzer als Admin erfolgreich erstellt.");
+        }
+    } else {
+        throw new Exception("ERROR: Could not able to execute: " . $check_query . ": " . mysqli_error($link));
+    }
+    //REMOVE ME AFTER INITIAL SETUP
+
+
     /* reservation gets storned */
     if(exists_and_not_empty('ret', $_GET)){
         try {
