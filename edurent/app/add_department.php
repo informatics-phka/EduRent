@@ -61,7 +61,7 @@
             </div>
 
             <div class="input-control">
-                <label for="department_en"><?php echo translate('text_departmenteng'); ?></label>
+                <label for="department_en"><?php echo translate('text_departmentEng'); ?></label>
                 <input type="text" class="form-control" id="department_en" name="department_en" placeholder='Institute for Computer Science and Digital Education' maxlength='<?php echo $limits['department_en']; ?>'>
 
                 <div class="error error_text"></div>
