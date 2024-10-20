@@ -44,6 +44,14 @@ CREATE TABLE `blocked` (
   `reason` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO `blocked` (`id`, `reason`) VALUES
+(0, 'Frei'),
+(1, 'Dauerhaft Belegt'),
+(2, 'Braucht Updates'),
+(3, 'Fehlfunktion'),
+(4, 'Reparatur'),
+(5, 'Vor-Ort');
+
 -- --------------------------------------------------------
 
 --
@@ -59,6 +67,10 @@ CREATE TABLE `departments` (
   `mail` varchar(40) NOT NULL,
   `room` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `departments` (`department_id`, `department_de`, `department_en`, `announce1_de`, `announce1_en`, `mail`, `room`) VALUES
+(-1, 'Deaktiviert', 'Deactivated', '', '', 'technikausleihe@ph-karlsruhe.de', 'keiner'),
+(0, 'Alle', 'All', '', '', 'technikausleihe@ph-karlsruhe.de', 'keiner');
 
 -- --------------------------------------------------------
 
@@ -151,6 +163,9 @@ CREATE TABLE `server` (
   `max_loan_duration` int(11) NOT NULL,
   `debug` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `server` (`id`, `days_bookable_in_advance`, `lead_time_days`, `max_loan_duration`, `debug`) VALUES
+(1, 30, 8, 14, 0);
 
 -- --------------------------------------------------------
 
