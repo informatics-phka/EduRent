@@ -28,7 +28,10 @@ check_is_admin($user_username);
 		<!-- JavaScript -->
 		<script src="js/clickablerow.js"></script>
 
-		<!-- Toast -->
+		<!-- Font Awesome -->
+    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+    	<!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
 
 		<style>

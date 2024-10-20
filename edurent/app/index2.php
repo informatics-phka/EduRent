@@ -139,15 +139,22 @@ function before_opening_day($date, $depart, $opening_days){
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
     <!-- stylesheet -->
     <link rel="stylesheet" href="style-css/rent.css">
     <link rel="stylesheet" href="style-css/toasty.css">
     <link rel="stylesheet" href="style-css/page_colors.scss">
     <link rel="stylesheet" href="style-css/table.scss">
+    
     <!-- moment -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
     <!-- Tooltip -->
     <script type="text/javascript" src="js/tooltip.js"></script>
+    
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
