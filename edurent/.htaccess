@@ -1,5 +1,9 @@
 RewriteEngine On
 
+# URL-Rewrite Rules
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
+
+# Block subfolder access
+RewriteRule ^([^/]+)/ - [F,L]
