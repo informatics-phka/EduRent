@@ -364,11 +364,11 @@
                 else $max_loan_duration_text = $max_loan_duration_text . " Tage";
             }
             require "Controller/Rules.php"; 
-            new Rules(translate('rules_1'),
-            translate('rules_2', ['a' => $days_bookable_in_advance_text]),
-            translate('rules_3', ['a' => $max_loan_duration_text]),
-            translate('rules_4'),
-            translate('rules_5')); ?>
+            new Rules(translate('text_rules_1'),
+            translate('text_rules_2', ['a' => $days_bookable_in_advance_text]),
+            translate('text_rules_3', ['a' => $max_loan_duration_text]),
+            translate('text_rules_4'),
+            translate('text_rules_5')); ?>
         <br>
         <form action="index2.php" name="getdepartment" method="post" style="text-align:center; width:100%; margin: 0 auto;" onsubmit="return checkinputs()">
 

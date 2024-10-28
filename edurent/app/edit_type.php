@@ -360,14 +360,14 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			<div class="form-check">
 				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=1 checked>
 				<label class="form-check-label" for="change_pic">
-					<?php echo translate('word_oldPic'); ?>
+					<?php echo translate('text_oldPic'); ?>
 				</label>
 			</div>
 
 			<div class="form-check">
 				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=2>
 				<label class="form-check-label" for="change_pic">
-					<?php echo translate('word_newPic'); ?>
+					<?php echo translate('text_newPic'); ?>
 				</label>
 			</div>
 			<br>

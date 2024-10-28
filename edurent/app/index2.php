@@ -373,11 +373,11 @@ function before_opening_day($date, $depart, $opening_days){
         <br>
         <br>
             <?php require "Controller/Rules.php"; 
-            new Rules(translate('rules_1'),
-            translate('rules_2', ['a' => $days_bookable_in_advance_text]),
-            translate('rules_3', ['a' => $max_loan_duration_text]),
-            translate('rules_4'),
-            translate('rules_5')); ?>
+            new Rules(translate('text_rules_1'),
+            translate('text_rules_2', ['a' => $days_bookable_in_advance_text]),
+            translate('text_rules_3', ['a' => $max_loan_duration_text]),
+            translate('text_rules_4'),
+            translate('text_rules_5')); ?>
         <br>
         <form action="index.php" name="theForm" id="theForm" METHOD="POST">
             <?php

@@ -64,18 +64,18 @@
                     "<?php echo translate('weekday_short_6'); ?>"
                 ],
                 "monthNames": [
-                    "<?php echo translate('month_1'); ?>",
-                    "<?php echo translate('month_2'); ?>",
-                    "<?php echo translate('month_3'); ?>",
-                    "<?php echo translate('month_4'); ?>",
-                    "<?php echo translate('month_5'); ?>",
-                    "<?php echo translate('month_6'); ?>",
-                    "<?php echo translate('month_7'); ?>",
-                    "<?php echo translate('month_8'); ?>",
-                    "<?php echo translate('month_9'); ?>",
-                    "<?php echo translate('month_10'); ?>",
-                    "<?php echo translate('month_11'); ?>",
-                    "<?php echo translate('month_12'); ?>"
+                    "<?php echo translate('word_month_1'); ?>",
+                    "<?php echo translate('word_month_2'); ?>",
+                    "<?php echo translate('word_month_3'); ?>",
+                    "<?php echo translate('word_month_4'); ?>",
+                    "<?php echo translate('word_month_5'); ?>",
+                    "<?php echo translate('word_month_6'); ?>",
+                    "<?php echo translate('word_month_7'); ?>",
+                    "<?php echo translate('word_month_8'); ?>",
+                    "<?php echo translate('word_month_9'); ?>",
+                    "<?php echo translate('word_month_10'); ?>",
+                    "<?php echo translate('word_month_11'); ?>",
+                    "<?php echo translate('word_month_12'); ?>"
                 ],
                 "firstDay": 1
             },

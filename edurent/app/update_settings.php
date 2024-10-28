@@ -43,23 +43,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2>Server Einstellungen</h2>
         <form action="update_settings.php" method="post">
             <div class="mb-3">
-                <label for="days_bookable_in_advance" class="form-label">Days Bookable in Advance:</label>
+                <label for="days_bookable_in_advance" class="form-label"><?php echo translate('text_daysBookableInAdvance'); ?>:</label>
                 <input type="number" class="form-control" id="days_bookable_in_advance" name="days_bookable_in_advance" value="<?php echo $days_bookable_in_advance; ?>">
             </div>
 
             <div class="mb-3">
-                <label for="lead_time_days" class="form-label">Lead Time Days:</label>
+                <label for="lead_time_days" class="form-label"><?php echo translate('text_leadTimeDays'); ?>:</label>
                 <input type="number" class="form-control" id="lead_time_days" name="lead_time_days" value="<?php echo $lead_time_days; ?>">
             </div>
 
             <div class="mb-3">
-                <label for="max_loan_duration" class="form-label">Max Loan Duration:</label>
+                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureation'); ?>:</label>
                 <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration; ?>">
             </div>
 
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="debug" name="debug" <?php if($debug) echo "checked"; ?>>
-                <label class="form-check-label" for="debug">Debug Mode</label>
+                <label class="form-check-label" for="debug"><?php echo translate('word_serviceMode'); ?></label>
             </div>
 
             <div class='row justify-content-center'>
