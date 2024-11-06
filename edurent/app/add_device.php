@@ -68,11 +68,13 @@ else{
 					<label for="device_tag"><?php echo translate('text_enterDevicetag'); ?></label>
 				</div>
 				<div class='col'>
-					<div class="input-group mb-3">
-						<div class="input-group-prepend">
-							<span class="input-group-text"><?php echo $type[$_GET['type']]['indicator']; ?></span>
+					<div class="input-control">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><?php echo $type[$_GET['type']]['indicator']; ?></span>
+							</div>
+							<input id="device_tag" class="form-control" name="device_tag" type="text" placeholder="device_tag eingeben" value="<?php echo $number; ?>" maxlength='<?php echo $limits['device_tag']; ?>'>
 						</div>
-						<input id="device_tag" class="form-control" name="device_tag" type="text" placeholder="device_tag eingeben" value="<?php echo $number; ?>" maxlength='<?php echo $limits['device_tag']; ?>'>
 						<div class="error error_text"></div>
 					</div>
 				</div>
@@ -117,10 +119,11 @@ else{
 					</a>
 				</div>
 				<div class='col-md-6 mb-3'>
-					<button type="button" class="btn btn-success btn-block" disabled onclick='document.form.submit()'><?php echo translate('word_confirm'); ?></button>
+					<button type="submit" id="submit" class="btn btn-success btn-block" onclick='document.form.submit()'><?php echo translate('word_confirm'); ?></button>
 				</div>
 			</div>
 		</form>	
+
 	</body>
 	<script>
 		//Check for valide input
@@ -167,10 +170,10 @@ else{
 		tag.addEventListener('propertychange', inputHandler);
 
 		function isUnic(value) {
-			if (devices_array[selected_type_id] === undefined) {
+			if (devices_array[device_type] === undefined) {
 				return true
 			}
-			if (devices_array[selected_type_id].includes(value)) {
+			if (devices_array[device_type].includes(value)) {
 				return false
 			}
 			return true
