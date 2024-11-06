@@ -5,5 +5,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
 
-# Block subfolder access
+# Block subfolder access exept img
+RewriteCond %{REQUEST_URI} !\.(jpeg|jpg|png|gif)$
 RewriteRule ^([^/]+)/ - [F,L]
