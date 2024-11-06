@@ -81,7 +81,7 @@ check_is_admin_of_department($user_username, $device_department);
 	<div class="main">
 		<h3><?php echo translate('text_deviceEdit'); ?> '<?php echo $type[$_GET['type']]['indicator']; ?><?php echo $devices[$selected_type_id][$selected_id][0]; ?>'</h3>
 		<form id="form" name="form" action="edit_type.php?type=<?php echo $_GET['type']; ?>" method="post">
-			<label for="serialnumber"><?php echo translate('text_enterSerialnumber'); ?></label>
+			<label for="serialnumber"><?php echo translate('text_enterSerialNumber'); ?></label>
 			<input type="text" class="form-control rounded" id="serialnumber" name="serialnumber" value="<?php echo $devices[$selected_type_id][$selected_id][1]; ?>" maxlength='<?php echo $limits['serialnumber']; ?>'>
 			<br>
 

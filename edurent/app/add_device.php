@@ -60,7 +60,7 @@ else{
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.bootstrapvalidator/0.5.2/js/bootstrapValidator.min.js"></script>
 	</head>
 	<div class="main">
-		<h3 style='text-align:center; width:100%;'><?php echo translate('text_edittype', ['a' => $type[$selected_type_id]['name']]) ?></h3>
+		<h3 style='text-align:center; width:100%;'><?php echo translate('text_editType', ['a' => $type[$selected_type_id]['name']]) ?></h3>
 		<br>
 		<form class="needs-validation" id="form" action="edit_type.php?type=<?php echo $selected_type_id; ?>" method="post" novalidate>
 			<div class='row no-gutters' style='text-align:center;'>
@@ -80,10 +80,10 @@ else{
 			<br>
 			<div class='row no-gutters' style='text-align:center;'>
 				<div class='col'>
-					<label for="serialnumber"><?php echo translate('text_enterSerialnumber'); ?></label>
+					<label for="serialnumber"><?php echo translate('text_enterSerialNumber'); ?></label>
 				</div>
 				<div class='col'>
-					<input type="text" class="form-control" id="serialnumber" name="serialnumber" placeholder='<?php echo translate('text_enterserialnumber'); ?>' maxlength='<?php echo $limits['serialnumber']; ?>'>
+					<input type="text" class="form-control" id="serialnumber" name="serialnumber" placeholder='<?php echo translate('text_enterSerialNumber'); ?>' maxlength='<?php echo $limits['serialnumber']; ?>'>
 				</div>
 			</div>
 			<br>
