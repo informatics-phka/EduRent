@@ -13,6 +13,10 @@ $departments = get_departmentnames();
 $admins = get_all_admins();
 $user = get_all_user();
 
+usort($user, function($a, $b) {
+    return strcmp($a['ln'], $b['ln']);
+});
+
 for ($i = 0; $i < count($user); $i++) {
 	for ($o = 0; $o < count($admins); $o++) {
 		if (array_keys($user)[$i] == array_keys($admins)[$o]) {
