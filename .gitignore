@@ -4,4 +4,3 @@
 *.jpg
 edurent/Controller/mailer.php
 edurent/Controller/db_connect.php
-edurent/Controller/mailer.php
