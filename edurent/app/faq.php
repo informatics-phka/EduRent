@@ -16,15 +16,15 @@
 	<div class="main">
 		<h3>Initial Configuration</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_1_1">
+				<div class="accordion-item" id="heading_1_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_1_1" aria-expanded="false" aria-controls="collapse_1_1">
 							How to configure EduRent after the installation?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_1_1" class="collapse" aria-labelledby="heading_1_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">Navigate to <a href="https://innovationspace.ph-karlsruhe.de/edurent/departments">departments</a></li>
@@ -44,15 +44,15 @@
 		<br/>
 		<h3>Super Admin</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_2_1">
+				<div class="accordion-item" id="heading_2_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_2_1" aria-expanded="false" aria-controls="collapse_2_1">
 							How to change the lead time?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_2_1" class="collapse" aria-labelledby="heading_2_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -60,15 +60,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_2_2">
+				<div class="accordion-item" id="heading_2_2">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_2_2" aria-expanded="false" aria-controls="collapse_2_2">
 							How to change the maximum rent days?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_2_2" class="collapse" aria-labelledby="heading_2_2" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -76,15 +76,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_2_3">
+				<div class="accordion-item" id="heading_2_3">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_2_3" aria-expanded="false" aria-controls="collapse_2_3">
 							How to change the service status?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_2_3" class="collapse" aria-labelledby="heading_2_3" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -96,15 +96,15 @@
 		<br/>
 		<h3>Department</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_3_1">
+				<div class="accordion-item" id="heading_3_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_3_1" aria-expanded="false" aria-controls="collapse_3_1">
 							How to delete a department?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_3_1" class="collapse" aria-labelledby="heading_3_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">Navigate to <a href="https://innovationspace.ph-karlsruhe.de/edurent/departments">departments</a></li>
@@ -115,15 +115,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_3_2">
+				<div class="accordion-item" id="heading_3_2">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_3_2" aria-expanded="false" aria-controls="collapse_3_2">
 							How to add a department?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_3_2" class="collapse" aria-labelledby="heading_3_2" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -131,15 +131,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_3_3">
+				<div class="accordion-item" id="heading_3_3">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_3_3" aria-expanded="false" aria-controls="collapse_3_3">
 							How to edit a department?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_3_3" class="collapse" aria-labelledby="heading_3_3" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -147,15 +147,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_3_4">
+				<div class="accordion-item" id="heading_3_4">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_3_4" aria-expanded="false" aria-controls="collapse_3_4">
 							How to change the pick up days?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_3_4" class="collapse" aria-labelledby="heading_3_4" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">empty</li>
@@ -167,15 +167,15 @@
 		<br/>
 		<h3>Device type</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion1">
-				<div class="accordion-item" id="heading1">
+			<div class="accordion w-100" id="basicAccordion_4_1">
+				<div class="accordion-item" id="heading_4_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_4_1" aria-expanded="false" aria-controls="collapse_4_1">
 							How to add a new device type?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordion">
+				<div id="collapse_4_1" class="collapse" aria-labelledby="heading_4_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							
@@ -188,15 +188,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion2">
-				<div class="accordion-item" id="heading2">
+			<div class="accordion w-100" id="basicAccordion_4_2">
+				<div class="accordion-item" id="heading_4_2">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_4_2" aria-expanded="false" aria-controls="collapse_4_2">
 							How to edit a device type?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#accordion">
+				<div id="collapse_4_2" class="collapse" aria-labelledby="heading_4_2" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">connect to the <a href="https://innovationspace.ph-karlsruhe.de/edurent/admini">admin page</a></li>
@@ -212,15 +212,15 @@
 		<br/>
 		<h3>Device</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion3">
-				<div class="accordion-item" id="heading3">
+			<div class="accordion w-100" id="basicAccordion_5_1">
+				<div class="accordion-item" id="heading_5_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_5_1" aria-expanded="false" aria-controls="collapse_5_1">
 							How to add a new device?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordion">
+				<div id="collapse_5_1" class="collapse" aria-labelledby="heading_5_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">connect to the <a href="https://innovationspace.ph-karlsruhe.de/edurent/admini">admin page</a></li>
@@ -233,15 +233,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="accordion w-100" id="basicAccordion4">
-				<div class="accordion-item" id="heading4">
+			<div class="accordion w-100" id="basicAccordion_5_2">
+				<div class="accordion-item" id="heading_5_2">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_5_2" aria-expanded="false" aria-controls="collapse_5_2">
 							How to edit a device?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#accordion">
+				<div id="collapse_5_2" class="collapse" aria-labelledby="heading_5_2" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">connect to the <a href="https://innovationspace.ph-karlsruhe.de/edurent/admini">admin page</a></li>
@@ -258,15 +258,15 @@
 		<br/>
 		<h3>Reservation</h3>
 		<div id="accordion">
-			<div class="accordion w-100" id="basicAccordion5">
-				<div class="accordion-item" id="heading5">
+			<div class="accordion w-100" id="basicAccordion_6_1">
+				<div class="accordion-item" id="heading_6_1">
 					<h5 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+						<button class="accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse_6_1" aria-expanded="false" aria-controls="collapse_6_1">
 							What is the reservation procedure and how is it performed?
 						</button>
 					</h5>
 				</div>
-				<div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#accordion">
+				<div id="collapse_6_1" class="collapse" aria-labelledby="heading_6_1" data-parent="#accordion">
 					<div class="card-body">
 						<ul>
 							<li class="mb-2">connect to the <a href="https://innovationspace.ph-karlsruhe.de/edurent/admini">admin page</a></li>
