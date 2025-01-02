@@ -103,5 +103,5 @@ If you have any questions or need further information, feel free to contact:
   [Institute of Informatics and Digital Education](https://en.ph-karlsruhe.de/research/institute-of-informatics-and-digital-education) | [PHKA Profile](https://www.ph-karlsruhe.de/personen/detail/Nico_Hillah_6117)  
   📧 **Email:** [nico.hillah@ph-karlsruhe.de](mailto:nico.hillah@ph-karlsruhe.de)
 - **Norbert Varney**  
-  [Institute of Informatics and Digital Education](https://en.ph-karlsruhe.de/research/institute-of-informatics-and-digital-education) | 
-  📧 **Email:** [norbert.varney@stud.ph-karlsruhe.de](mailto:norbert.varney@stud.ph-karlsruhe.de)
+  [Institute of Informatics and Digital Education](https://en.ph-karlsruhe.de/research/institute-of-informatics-and-digital-education) | [PHKA Profile](https://www.ph-karlsruhe.de/personen/detail/Norbert_Varney_9255)  
+  📧 **Email:** [norbert.varney@ph-karlsruhe.de](mailto:norbert.varney@ph-karlsruhe.de)
