@@ -272,7 +272,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			}
 		</script>
 		<h3><?php echo translate('word_type'); ?> '<?php echo $type[$_GET['type']]['device_type_name']; ?>' <?php echo translate('word_edit'); ?></h3>
-		<form id="myForm" name="myForm" action="../Controller/simple-upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
 			<input style="display:none;" class="form-control" type="text" id="device_type_id" name="device_type_id">
 
 			<div class="input-control">

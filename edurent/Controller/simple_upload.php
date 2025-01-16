@@ -144,7 +144,7 @@ if ($_POST['change_pic'] == 1) { //img not changed
 				}
 			} else {
 				$errors = error_get_last();
-				error_to_superadmin(get_superadmins(), $mail, "ERROR: in 145 simple-upload: " . $errors['type'] . " " . $errors['message']);
+				error_to_superadmin(get_superadmins(), $mail, "ERROR: in 145 simple_upload: " . $errors['type'] . " " . $errors['message']);
 			}
 		} else {
 			$error = "ERROR: file with same name exists: " . $filename;
@@ -182,7 +182,7 @@ if ($_POST['change_pic'] == 1) { //img not changed
 				}
 			} else {
 				$errors = error_get_last();
-				error_to_superadmin(get_superadmins(), $mail, "ERROR: in 145 simple-upload: " . $errors['type'] . " " . $errors['message']);
+				error_to_superadmin(get_superadmins(), $mail, "ERROR: in 145 simple_upload: " . $errors['type'] . " " . $errors['message']);
 			}
 		} else {
 			$error = "ERROR: file with same name exists: " . $filename;

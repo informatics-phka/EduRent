@@ -156,7 +156,7 @@ $(document).ready(function() {
                 var file = $(this).data("file");
                 var line = $(this).data("line");
                 $.ajax({
-                    url: 'delete_line.php',
+                    url: '../Controller/delete_line.php',
                     type: 'POST',
                     data: { file: file, line: line },
                     success: function(response) {

@@ -84,7 +84,7 @@ for ($i = 0; $i < count($combinations); $i++) {
 	</head>
 	<div class="main">
 		<h3><?php echo translate('text_pickup'); ?></h3>
-		<form id="myForm" name="myForm" action="../Controller/simple-upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
 
 			<div class="input-control">
 				<label for="device_type_name"><?php echo translate('text_deviceTypeName'); ?></label>
