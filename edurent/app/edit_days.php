@@ -6,6 +6,13 @@ if($debug){
 	error_reporting(E_ALL);
 }
 
+//redirect when empty
+if (isEmpty($_GET['depart'])) {
+    check_is_admin($user_username);
+    echo "<script>window.location.href = 'admini';</script>";
+    exit;
+}
+
 $device_department= $_GET['depart'];
 check_is_admin_of_department($user_username, $device_department);
 
