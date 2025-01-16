@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<?php 
+<?php
+check_is_admin($user_username);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (
         isset($_POST['days_bookable_in_advance']) &&
