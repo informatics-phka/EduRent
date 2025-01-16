@@ -32,6 +32,7 @@ $limits = get_limits_of("rent_days");
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
+    <link rel="stylesheet" href="style-css/accessability.css">
 	
 	<!-- Bootstrap Validator -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.bootstrapvalidator/0.5.2/css/bootstrapValidator.min.css" />

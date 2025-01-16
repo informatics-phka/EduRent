@@ -42,6 +42,7 @@
         <!-- stylesheet -->
         <link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
         
         <!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">

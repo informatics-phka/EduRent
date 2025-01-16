@@ -13,6 +13,7 @@
 	<!-- stylesheet -->
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
+    <link rel="stylesheet" href="style-css/accessability.css">
 	<style>
         body {
             font-family: Arial, sans-serif;

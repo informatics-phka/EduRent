@@ -86,6 +86,7 @@ if ($result = mysqli_query($link, $sql)) {
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
 		<link rel="stylesheet" href="style-css/page_colors.scss">
+        <link rel="stylesheet" href="style-css/accessability.css">
 		
 		<!-- searchbar -->
 		<script type="text/javascript" src="js/searchbar.js"></script>

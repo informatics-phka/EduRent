@@ -70,6 +70,7 @@ for ($i = 0; $i < count($combinations); $i++) {
 		<!-- stylesheet -->
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
 		
 		<!-- html editor -->
 		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -83,7 +84,7 @@ for ($i = 0; $i < count($combinations); $i++) {
 	</head>
 	<div class="main">
 		<h3><?php echo translate('text_pickup'); ?></h3>
-		<form id="myForm" name="myForm" action="simple-upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="../Controller/simple-upload.php" method="post" enctype="multipart/form-data">
 
 			<div class="input-control">
 				<label for="device_type_name"><?php echo translate('text_deviceTypeName'); ?></label>
