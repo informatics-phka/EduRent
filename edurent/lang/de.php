@@ -83,6 +83,7 @@ $translations = [
     'text_questionMail' => 'Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an:',
     'text_reachout' => 'Sie erreichen die zuständige Person unter der Mail:',
     'text_reason' => 'Warum wollen Sie die Reservierung stornieren?',
+    'text_regards' => 'Mit freundlichen Grüßen,<br/>Euer Edurent Team',
     'text_request' => 'Im Zeitraum vom ...',
     'text_rentMultipleDays' => 'Für 1-{$a} Tage ausleihen',
     'text_rentSingleDay' => 'Für 1 Tag ausleihen',
