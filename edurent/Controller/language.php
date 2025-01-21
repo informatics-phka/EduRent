@@ -42,7 +42,7 @@
         return $translation;
     }
     
-    function getlanguage()
+    function get_language()
     {
         return $_SESSION['lang'];
     }

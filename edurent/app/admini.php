@@ -662,7 +662,7 @@ if ($result = mysqli_query($link, $sql)) {
 									$button = "btn-danger";
 								}
 								?>
-								<td> <button type="button" class="btn rounded <?php echo $button; ?> mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][getlanguage()]; ?>','<?php echo $row['time_from']; ?>','<?php echo $row['time_to']; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
+								<td> <button type="button" class="btn rounded <?php echo $button; ?> mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>','<?php echo $row['time_from']; ?>','<?php echo $row['time_to']; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
 								<td style="vertical-align: middle"><?php echo $status; ?></td>
 
 								<?php
@@ -753,7 +753,7 @@ if ($result = mysqli_query($link, $sql)) {
 						<tbody class="collapsed">
 							<?php while ($row = mysqli_fetch_array($result)) { ?>
 								<tr>
-									<td> <button type="button" class="btn rounded btn-outline-dark mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][getlanguage()]; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
+									<td> <button type="button" class="btn rounded btn-outline-dark mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
 								<?php
 								switch (!is_null($row['date_from'])) { //column from
 									case true:

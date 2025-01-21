@@ -316,8 +316,8 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 				for ($i = 0; $i < count($departments); $i++) {
 					if (array_keys($departments)[$i] == $all_institutes) continue;
 					if (array_keys($departments)[$i] == $unassigned_institute) continue;
-					if (array_keys($departments)[$i] == $type[$_GET['type']]['home_department']) echo "<option selected value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][getlanguage()] . "</option>";
-					else echo "<option value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][getlanguage()] . "</option>";
+					if (array_keys($departments)[$i] == $type[$_GET['type']]['home_department']) echo "<option selected value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][get_language()] . "</option>";
+					else echo "<option value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][get_language()] . "</option>";
 				}
 				?>
 			</select>
@@ -327,21 +327,34 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			<input class="form-control rounded" type="text" id="storage_info" name="storage_info" placeholder="Im Schrank 4, drittes Fach von unten" maxlength='<?php echo $limits['device_type_storage']; ?>'>
 			<br>
 
-			<?php echo "Ausleihbar für:"; ?>
-			<div id="checks">
-				<?php
-				for ($i = 0; $i < count($departments); $i++) {
-					if (array_keys($departments)[$i] == $unassigned_institute || array_keys($departments)[$i] == $all_institutes) {
-						echo "<div class='form-check form-switch'>";
-						if (in_array(array_keys($departments)[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
-						else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
-					} else {
-						echo "<div class='form-check form-switch'>";
-						if (in_array(array_keys($departments)[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
-						else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
-					}
 
-					if (getlanguage() == "de") echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['de'] . "</label>";
+			<?php
+            echo "Ausleihbar für:";
+                //List of departments starting with all departments and no departments and listing all other departments
+            ?>
+            
+            <div id="checks">
+				<?php
+                $main_options = [0,-1];
+                for ($i = 0; $i < count($main_options); $i++) {
+                    echo "<div class='form-check form-switch'>";
+                    if (in_array($main_options[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . $main_options[$i] . "'>";
+                    else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . $main_options[$i] . "'>";
+
+                    if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . $main_options[$i] . "'>" . $departments[$main_options[$i]]['de'] . "</label>";
+                    else echo "<label class='form-check-label' for='switch_" . $main_options[$i] . "'>" . $departments[$main_options[$i]]['en'] . "</label>";
+                    echo "</div>";
+                }
+
+
+				for ($i = 0; $i < count($departments); $i++) {
+					if (array_keys($departments)[$i] == $unassigned_institute || array_keys($departments)[$i] == $all_institutes) continue;
+
+					echo "<div class='form-check form-switch'>";
+					if (in_array(array_keys($departments)[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
+					else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
+
+					if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['de'] . "</label>";
 					else echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['en'] . "</label>";
 					echo "</div>";
 				}

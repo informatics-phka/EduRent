@@ -206,7 +206,7 @@ if ($result = mysqli_query($link, $sql)) {
             </div>
         <?php }?>
         <h3>
-            '<?php if (getlanguage() == "de") {
+            '<?php if (get_language() == "de") {
                     echo $department_name_de;
                 } else {
                     echo $department_name_en;

@@ -285,7 +285,7 @@ function before_opening_day($date, $depart, $opening_days){
             for (let department of all_departments) { //for all selected departments
                 department_id = selected_departments[department];
                 var puffer1 = "";
-                puffer1 += departments[department_id]['<?php echo getlanguage(); ?>'] + "<br><br>";
+                puffer1 += departments[department_id]['<?php echo get_language(); ?>'] + "<br><br>";
 
                 var name = "date_from_" + selected_departments[department];
                 if (!document.getElementById(name)) {
@@ -389,7 +389,7 @@ function before_opening_day($date, $depart, $opening_days){
                 if(array_key_exists($department_id, $ordered_by_department)) $amount = count($ordered_by_department[$department_id]);
                 if ($amount == 0) continue; //skip departments without pickup days
 
-                echo "<h5 class='title' style='text-align:center; width:100%;'>" . $departments[$department_id][getlanguage()] . "</h5><br>"; //departmentname
+                echo "<h5 class='title' style='text-align:center; width:100%;'>" . $departments[$department_id][get_language()] . "</h5><br>"; //departmentname
                 echo "<h5 style='text-align:center; width:100%;'>" . translate("text_deviceTypeInfos") . "</h5><br>"; //departmentname
 
                 //pickup

@@ -84,7 +84,7 @@
         echo "<select class='form-select' name='selected_department' id='selected_department' onchange='get_department(device_type)' style='width:100%; max-width: 40ch; margin: 0 auto;'>";
             echo "<option selected disabled hidden value=''>" . translate('word_none2') . "</option>";
             for ($i = 0; $i < count(array_keys($departments)); $i++) {
-                if (array_keys($departments)[$i] != $unassigned_institute && array_keys($departments)[$i] != $all_institutes) echo "<option value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][getlanguage()] . "</option>"; //if can rent any device + all
+                if (array_keys($departments)[$i] != $unassigned_institute && array_keys($departments)[$i] != $all_institutes) echo "<option value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][get_language()] . "</option>"; //if can rent any device + all
             }
         echo "</select>";
         echo "<p id='mail-contact' style='display:none;'>Text text</p>";
@@ -103,7 +103,7 @@
                         //department name
                         echo "<tr id='d_" . $all_departments[$i] . "'>";
                             echo "<td class='band' colspan='5'>";
-                                echo "<b class='band'>" . $departments[$all_departments[$i]][getlanguage()] . "</b>";
+                                echo "<b class='band'>" . $departments[$all_departments[$i]][get_language()] . "</b>";
                                 echo "<input class='form-check-input' type='hidden' id='department_" . $all_departments[$i] . "' name='department_" . $all_departments[$i]. "' value='1'>";
                             echo "</td>";
                         echo "</tr>";
