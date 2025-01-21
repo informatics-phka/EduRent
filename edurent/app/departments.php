@@ -24,6 +24,7 @@ check_is_admin($user_username);
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
 		<link rel="stylesheet" href="style-css/ahover.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
 
 		<!-- JavaScript -->
 		<script src="js/clickablerow.js"></script>

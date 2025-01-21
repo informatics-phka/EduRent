@@ -6,6 +6,13 @@ if($debug){
 	error_reporting(E_ALL);
 }
 
+//redirect when empty
+if (isEmpty($_GET['depart'])) {
+    check_is_admin($user_username);
+    echo "<script>window.location.href = 'admini';</script>";
+    exit;
+}
+
 $device_department= $_GET['depart'];
 check_is_admin_of_department($user_username, $device_department);
 
@@ -62,6 +69,7 @@ $stmt->close();
 		<!-- stylesheet -->
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
 		
 		<!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">

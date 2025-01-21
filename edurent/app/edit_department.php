@@ -124,6 +124,7 @@ if ($result = mysqli_query($link, $sql)) {
         <link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
         <link rel="stylesheet" href="style-css/ahover.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
         
         <!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -205,7 +206,7 @@ if ($result = mysqli_query($link, $sql)) {
             </div>
         <?php }?>
         <h3>
-            '<?php if (getlanguage() == "de") {
+            '<?php if (get_language() == "de") {
                     echo $department_name_de;
                 } else {
                     echo $department_name_en;

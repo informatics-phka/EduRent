@@ -108,6 +108,7 @@ $translations = [
     'text_timespan' => 'Please return the reservation within the specified period.',
     'text_titleIndex2' => 'Reservation for the period from {$a} to {$a}',
     'text_welcome' => 'Welcome {$a} to EduRent',
+    'text_withdrawError' => 'Reservation could not be canceled',
     'toast_confirm' => 'Reservation request #{$a} has been confirmed.',
     'weekday_long_1' => 'Monday',
     'weekday_long_2' => 'Tuesday',

@@ -24,6 +24,7 @@ check_superadmin($user_username);
         <!-- stylesheet -->
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
 		
         <!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -155,7 +156,7 @@ $(document).ready(function() {
                 var file = $(this).data("file");
                 var line = $(this).data("line");
                 $.ajax({
-                    url: 'delete_line.php',
+                    url: '../Controller/delete_line.php',
                     type: 'POST',
                     data: { file: file, line: line },
                     success: function(response) {

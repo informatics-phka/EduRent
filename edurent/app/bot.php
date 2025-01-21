@@ -7,6 +7,7 @@
 
     <!-- css file link -->
     <link rel="stylesheet" href="../bot/style-css/bot.css">
+    <link rel="stylesheet" href="style-css/accessability.css">
 
     <!-- Google Fonts Link For Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />

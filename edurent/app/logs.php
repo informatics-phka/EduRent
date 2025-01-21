@@ -24,6 +24,7 @@ check_superadmin($user_username);
         <!-- stylesheet -->
         <link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
         
         <!-- -->
         <link rel="stylesheet" href="style-css/ahover.css">

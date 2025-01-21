@@ -153,11 +153,12 @@
         }
     }
 
+    //Sorting departments alphabetically depending on the language
     function get_departmentnames(){
         global $mail;
         global $link;
         $departments = array();
-        $sql= "SELECT * FROM departments ORDER BY department_de";
+        $sql= "SELECT * FROM departments ORDER BY department_" . get_language();
         if($result = mysqli_query($link, $sql)){
             if(mysqli_num_rows($result) > 0){
                 while($row = mysqli_fetch_array($result)){
