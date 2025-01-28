@@ -174,6 +174,8 @@
 </head>
 <body>
     <?php
+        //Runs when the reservation process is completed
+
         if(exists_and_not_empty('reservation', $_POST)){
             $all_departments = array_keys($departments);
             for ($i = 0; $i < count($all_departments); $i++) {

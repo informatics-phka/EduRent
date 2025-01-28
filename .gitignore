@@ -4,3 +4,6 @@
 *.jpg
 edurent/Controller/mailer.php
 edurent/Controller/db_connect.php
+.idea/php.xml
+.idea/vcs.xml
+.idea/workspace.xml
