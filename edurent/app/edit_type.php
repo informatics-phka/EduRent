@@ -451,9 +451,11 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 
 	$not_blocked_devices = 0;
 	$blocked_devices = 0;
+	$blocked_and_onsite_devices = 0;
 	for ($i = 0; $i < count($devices); $i++) {
 		if ($devices[array_keys($devices)[$i]]['blocked'] == 0) $not_blocked_devices++;
 		else $blocked_devices ++;
+		if ($devices[array_keys($devices)[$i]]['blocked'] == 5) $blocked_and_onsite_devices++;
 	}
 
 	$reservated_devices = array();
@@ -482,7 +484,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 
 	?>
 	<div>
-		<h3><?php echo translate('word_deviceList'); ?></h3>
+		<h3><?php echo translate('word_deviceList'); ?><a href='#' data-toggle='tooltip' data-html='true' title='red=blocked<br>orange=reserved<br>green=available<br>black and grey=error'>  &#9432;  </a></h3>
 
 		<!-- Devicelist -->
 		<div class='row no-gutters text-center'>
@@ -491,6 +493,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			</div>
 			<div class='col'>
 				<?php echo translate('text_blockedDevices') . ": " . $blocked_devices; ?>
+				<?php echo translate('text_blockedDevices_on-site'). ": " .$blocked_and_onsite_devices; ?>
 			</div>
 			<div class='col'>
 				<?php echo translate('text_thereDevices') . ": " . $devices_on_site; ?>
@@ -514,37 +517,37 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 				}
 			}
 			else{
-				$status = $devices[array_keys($devices)[$i]]['blocked'];
+				$blocked = $devices[array_keys($devices)[$i]]['blocked'];
 				$device_tag = $devices[array_keys($devices)[$i]]['tag'];
 				$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
 				$icon_class = "";
 				
-				switch ($status) {
-					case 0:
-						$background_color = "#6FB40F";
+				switch ($blocked) {
+					case 0: //not blocked
+						$background_color = "#6FB40F"; //green
 						break;
 					case 1:
-						$background_color = "#DC0606";
+						$background_color = "#DC0606"; //red
 						break;
 					case 2:
 						$icon_class = "fa-cloud-arrow-down";
-						$background_color = "#DC0606";
+						$background_color = "#DC0606"; //red
 						break;
 					case 3:
 						$icon_class = "fa-bug";
-						$background_color = "#DC0606";
+						$background_color = "#DC0606"; //red
 						break;
 					case 4:
 						$icon_class = "fa-tools";
-						$background_color = "#DC0606";
+						$background_color = "#DC0606"; //red
 						break;
 					case 5:
 						$icon_class = "fa-building";
-						$background_color = "#DC0606";
+						$background_color = "#DC0606"; //red
 						break;
-					default:
+					default: //debug
 						$icon_class = "fa-question-circle";
-						$background_color = "#CCCCCC";
+						$background_color = "#CCCCCC"; //grey
 						break;
 				}
 
