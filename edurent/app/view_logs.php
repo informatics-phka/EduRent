@@ -147,7 +147,6 @@ check_superadmin($user_username);
 		</div>
 	</div>
 </body>
-<?php require_once("Controller/move_to_top.php"); ?>
 <script>
 $(document).ready(function() {
     $("#deleteSelected").click(function() {

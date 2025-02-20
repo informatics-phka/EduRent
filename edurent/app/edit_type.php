@@ -559,7 +559,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	</div>
 	</div>
 </body>
-<?php require_once("Controller/move_to_top.php"); ?>
 <script>
 	//Quill
 	var options = {
