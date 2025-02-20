@@ -15,7 +15,7 @@
 
         //show department mail
         document.getElementById('mail-contact').innerHTML = "<?php echo translate('text_questionMail'); ?>";
-        document.getElementById('mail-contact').innerHTML += " <a href='mailto:" + departments[document.getElementById("selected_department").value]['mail'] + "'>" + "<?php echo translate('word_department'); ?>" + "</a>";
+        document.getElementById('mail-contact').innerHTML += "<br><a href='mailto:" + departments[document.getElementById("selected_department").value]['mail'] + "'>" + departments[document.getElementById("selected_department").value]['mail'] + "</bra>";
         document.getElementById('mail-contact').style.display = "block";
 
         //show devices of department

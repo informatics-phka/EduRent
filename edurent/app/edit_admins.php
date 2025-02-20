@@ -56,6 +56,9 @@ $departments = get_departmentnames();
 			<div id="checks">
 				<?php
 				for ($i = 0; $i < count($departments); $i++) {
+                    if (array_keys($departments)[$i] == $unassigned_institute) {
+                        continue;
+                    }
 					echo "<div class='form-check form-switch'>";
 					if (in_array(array_keys($departments)[$i],$admins[$_GET['u_id']]['departments'])) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
 					else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
