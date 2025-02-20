@@ -8,7 +8,7 @@
     #myBtn {
         position: fixed;
         bottom: 50%;
-        right: 20px;
+        right: 10px;
         transition: opacity 0.3s ease;
         transform: translateY(50%);
         z-index: 99;

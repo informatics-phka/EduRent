@@ -28,8 +28,9 @@
     require_once("Controller/mailer.php");
     require_once("Controller/basic.php");
     require_once("Controller/Device_Select.php");
+    require_once("Controller/move_to_top.php");
 
-    function myErrorHandler($errno, $errstr, $errfile, $errline)
+function myErrorHandler($errno, $errstr, $errfile, $errline)
     {
         if (!(error_reporting() & $errno)) {
             // This error code is not included in error_reporting, so let it fall

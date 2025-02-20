@@ -383,6 +383,5 @@
 </body>
 </html>
 <?php
-require_once("Controller/move_to_top.php");
 echo $OUTPUT->footer();
 ?>

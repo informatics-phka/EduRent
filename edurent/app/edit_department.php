@@ -301,7 +301,6 @@ if ($result = mysqli_query($link, $sql)) {
         <?php } ?>
     </div>
 </body>
-<?php require_once("Controller/move_to_top.php"); ?>
 <script>
     var deparments_array = <?php echo is_null($departments) ? "2" : json_encode($departments); ?>;
 
