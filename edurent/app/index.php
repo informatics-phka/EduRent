@@ -94,8 +94,8 @@
                     throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
                 } else {
                     //email to user 
-                    $messagetext = translate('text_mailcanceled', ['a' => $_GET['ret']]) . "</br></br>" . translate('text_regards');
-                    sendamail($mail, $user_email, translate('myston') . $_GET['ret'], $messagetext);
+                    $messagetext = translate('text_mailCanceled', ['a' => $_GET['ret']]) . "</br></br>" . translate('text_regards');
+                    sendamail($mail, $user_email, translate('text_myston') . $_GET['ret'], $messagetext);
 
                     //email to admin
                     $messagetext = "Die Reservierungsanfrage mit der ID #" . $_GET['ret'] . " wurde von " . $user_firstname . " " . $user_lastname . " storniert.";
