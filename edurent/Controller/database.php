@@ -482,7 +482,11 @@
             return true;
           }
         }
-        if($_SERVER["REQUEST_URI"] != "/edurent/"){
+        if(
+            $_SERVER["REQUEST_URI"] != "/edurent/" &&
+            $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
+            $_SERVER["REQUEST_URI"] != "/edurent/index"
+        ){
             save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"]);
         }
         return false;
@@ -498,6 +502,12 @@
             return true;
           }
         }
-        save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"]);
+        if(
+            $_SERVER["REQUEST_URI"] != "/edurent/" &&
+            $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
+            $_SERVER["REQUEST_URI"] != "/edurent/index"
+        ){
+            save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"]);
+        }
         return false;
       }
