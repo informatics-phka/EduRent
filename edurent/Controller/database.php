@@ -297,13 +297,13 @@
         global $mail;
         global $link;
         $user = array();
-        $sql= "SELECT * FROM user";
+        $sql= "SELECT * FROM user ORDER BY ln";
         if($result = mysqli_query($link, $sql)){
             if(mysqli_num_rows($result) > 0){
                 while($row = mysqli_fetch_array($result)){
                     $user[$row['id']]['fn'] = $row['fn'];
                     $user[$row['id']]['ln'] = $row['ln'];
-                    $user[$row['id']]['email'] = $row['email'];
+                    $user[$row['id']]['email'] = $row['email'];                    
                 }
                 mysqli_free_result($result);
                 return $user;
@@ -485,9 +485,9 @@
         if(
             $_SERVER["REQUEST_URI"] != "/edurent/" &&
             $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
-            $_SERVER["REQUEST_URI"] != "/edurent/index"
+            $_SERVER["REQUEST_URI"] != "/edurent/index.php"
         ){
-            save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"]);
+            save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"], "Server", "", false);            
         }
         return false;
       }
@@ -507,7 +507,7 @@
             $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
             $_SERVER["REQUEST_URI"] != "/edurent/index"
         ){
-            save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"]);
+            save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"], "Server", "", false);            
         }
         return false;
       }

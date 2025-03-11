@@ -11,19 +11,10 @@ check_superadmin($user_username);
 //get data
 $departments = get_departmentnames();
 $admins = get_all_admins();
-$user = get_all_user();
+$users = get_all_user();
+$non_admin = array_diff_key($users, $admins);
 
-usort($user, function($a, $b) {
-    return strcmp($a['ln'], $b['ln']);
-});
-
-for ($i = 0; $i < count($user); $i++) {
-	for ($o = 0; $o < count($admins); $o++) {
-		if (array_keys($user)[$i] == array_keys($admins)[$o]) {
-			unset($user[array_keys($user)[$i]]);
-		}
-	}
-}
+save_in_logs($non_admin);
 
 ?>
 
@@ -52,7 +43,7 @@ for ($i = 0; $i < count($user); $i++) {
 		<?php require_once("Controller/toast.php"); ?>
 	</head>
 	<div class="main">
-	<h3 class="text-center"><?php echo translate('text_createAdmin'); ?></h3>
+		<h3 class="text-center"><?php echo translate('text_createAdmin'); ?></h3>
 
 		<form class="needs-validation" id="form" name="form" action="admins.php" method="post">
 			<div class="mb-3">
@@ -60,8 +51,8 @@ for ($i = 0; $i < count($user); $i++) {
 			<select class="form-select" id="user" name="user" aria-label=".form-select-lg example" required>
 				<option value=""><?php echo translate('word_none3'); ?></option>
 				<?php
-				for ($i = 0; $i < count($user); $i++) {
-					if (array_keys($user)[$i] != $unassigned_institute) echo "<option value='" . array_keys($user)[$i] . "'>" . $user[array_keys($user)[$i]]['fn'] . " " . $user[array_keys($user)[$i]]['ln'] . "</option>";
+				for ($i = 0; $i < count($non_admin); $i++) {
+					if (array_keys($non_admin)[$i] != $unassigned_institute) echo "<option value='" . array_keys($non_admin)[$i] . "'>" . $non_admin[array_keys($non_admin)[$i]]['fn'] . " " . $non_admin[array_keys($non_admin)[$i]]['ln'] . "</option>";
 				}
 
 				?>
