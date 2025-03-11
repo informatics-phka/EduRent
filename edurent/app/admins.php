@@ -50,6 +50,7 @@ $departments = get_departmentnames();
 							$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
 							if ($stmt = mysqli_prepare($link, $query)) {
 								mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], array_keys($departments)[$i]);
+								save_in_logs($_POST['user'], array_keys($departments)[$i]);
 
 								if (!mysqli_stmt_execute($stmt)) {
 									save_in_logs("ERROR: " . mysqli_error($link));

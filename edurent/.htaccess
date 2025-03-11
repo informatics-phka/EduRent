@@ -6,6 +6,13 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
 
 # Block subfolder access exept img
+# RewriteCond %{REQUEST_URI} !\.(jpeg|jpg|png|gif)$
+# RewriteCond %{REQUEST_URI} !\.(css|js|scss)$ 
+# RewriteRule ^([^/]+)/ - [F,L]
+
+RewriteCond %{THE_REQUEST} "\.css" [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?innovationspace\.ph-karlsruhe\.de/ [NC]
 RewriteCond %{REQUEST_URI} !\.(jpeg|jpg|png|gif)$
-RewriteCond %{REQUEST_URI} !\.(css|js|scss)$
-RewriteRule ^([^/]+)/ - [F,L]
+RewriteRule .* - [F]
+
+ 
