@@ -482,11 +482,7 @@
             return true;
           }
         }
-        if(
-            $_SERVER["REQUEST_URI"] != "/edurent/" &&
-            $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
-            $_SERVER["REQUEST_URI"] != "/edurent/index.php"
-        ){
+        if(preg_match('#^/edurent/(add_days|add_device|add_type|admini|days|departments|edit_days|edit_department|edit_device|edit_type|update_settings)(\.php)?$#', $_SERVER["REQUEST_URI"])) { //Checks if the users is on a relevant site
             save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"], "Server", "", false);            
         }
         return false;
@@ -502,11 +498,7 @@
             return true;
           }
         }
-        if(
-            $_SERVER["REQUEST_URI"] != "/edurent/" &&
-            $_SERVER["REQUEST_URI"] != "/edurent/style-css/accessability.css" &&
-            $_SERVER["REQUEST_URI"] != "/edurent/index"
-        ){
+        if(preg_match('#^/edurent/(add_days|add_device|add_type|admini|days|departments|edit_days|edit_department|edit_device|edit_type|update_settings)(\.php)?$#', $_SERVER["REQUEST_URI"])) { //Checks if the users is on a relevant site
             save_in_logs("WARNING: " . $username . " tried to log in as admin at: " . $_SERVER["REQUEST_URI"], "Server", "", false);            
         }
         return false;
