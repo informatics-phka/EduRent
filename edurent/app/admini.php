@@ -244,13 +244,24 @@ if ($result = mysqli_query($link, $sql)) {
 			require_once("Controller/ICS.php");
 
 			//create Event / ICS
-			$time_start = date_format(date_create($row['date_from']), 'Y-m-d');
+
+			$pick_up_date= date_format(date_create($row['date_from']), 'd.m.Y'); //get date
+			$pick_up_times= explode("-", $abholbar_uhrzeit); //splits time
+
+			// create DateTime-objects
+			$pick_up_time_start = new DateTime("$pick_up_date $pick_up_times[0]", new DateTimeZone("Europe/Berlin"));
+			$pick_up_time_end = new DateTime("$pick_up_date $pick_up_times[1]", new DateTimeZone("Europe/Berlin"));
+
+			// convert into UTC-Time
+			$pick_up_time_start->setTimezone(new DateTimeZone("UTC"));
+			$pick_up_time_end->setTimezone(new DateTimeZone("UTC"));
+
 			$properties = array(
 				'summary' => 'Geräteabholung - ' . $departments[$row['department_id']]['de'],
 				'description' => 'Folgende Geräte werden abgeholt: ' . $devices,
 				'location' => 'Raum: ' . $row['room_from'],
-				'dtstart' => $time_start . '7:00 AM',
-				'dtend' => $time_start . '7:00 PM'
+				'dtstart' => $pick_up_time_start->format('Y-m-d H:i'),
+				'dtend' => $pick_up_time_end->format('Y-m-d H:i')
 			);
 			$ics = new ICS($properties);
     		$ics_file_contents = $ics->to_string();
@@ -384,17 +395,30 @@ if ($result = mysqli_query($link, $sql)) {
 				require_once("Controller/ICS.php");
 
 				//create Event / ICS
-				$time_end = date_format(date_create($row['date_to']), 'Y-m-d');
+								
+				$return_date= date_format(date_create($row['date_to']), 'd.m.Y'); //get date
+				$parts = explode(" ", $return, 2); // splits date with time
+				$return_times= explode("-", $parts[1]);	//splits time				
+
+				// create DateTime-objects
+				$return_time_start = new DateTime("$return_date $return_times[0]", new DateTimeZone("Europe/Berlin"));
+				$return_time_end = new DateTime("$return_date $return_times[1]", new DateTimeZone("Europe/Berlin"));
+
+				// convert into UTC-Time
+				$return_time_start->setTimezone(new DateTimeZone("UTC"));
+				$return_time_end->setTimezone(new DateTimeZone("UTC"));		
+
 				$properties = array(
 					'summary' => 'Geräterückgabe - ' . $departments[$row['department_id']]['de'],
 					'description' => 'Folgende Geräte werden zurückgegeben: ' . $devices,
 					'location' => 'Raum: ' . $row['room_to'],
-					'dtstart' => $time_end . '7:00 AM',
-					'dtend' => $time_end . '7:00 PM'
+					'dtstart' => $return_time_start->format('Y-m-d H:i'),
+					'dtend' => $return_time_end->format('Y-m-d H:i')
 				);
 				$ics = new ICS($properties);
 				$ics_file_contents = $ics->to_string();
 
+				// send mail to user
 				$messagetext = "Sie haben ihre Reservierung #" . $_GET['abh'] . " abgeholt.<br /><br />Bitte bringen Sie ihre Reservierung am " . $return . " im Raum " . $row['room_to'] . " zurück.<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $row['email'] . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
 				sendamail($mail, $row['email'], "Reservierung #" . $_GET['abh'] . " wurde abgeholt", $messagetext, $ics_file_contents);
 			} else {
