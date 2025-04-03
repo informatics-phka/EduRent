@@ -517,7 +517,7 @@ function before_opening_day($date, $depart, $opening_days){
             </div>
             <div class='col'>
                 <button type='button' class='btn rounded btn-primary mr-1 mb-1' onclick='show_modal()'>
-                    Submit
+                <?php echo translate('word_submit') ?>
                 </button>
             </div>
         </div>

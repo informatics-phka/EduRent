@@ -419,7 +419,7 @@ if ($result = mysqli_query($link, $sql)) {
 				$ics_file_contents = $ics->to_string();
 
 				// send mail to user
-				$messagetext = "Sie haben ihre Reservierung #" . $_GET['abh'] . " abgeholt.<br /><br />Bitte bringen Sie ihre Reservierung am " . $return . " im Raum " . $row['room_to'] . " zurück.<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $row['email'] . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
+				$messagetext = "Sie haben ihre Reservierung #" . $_GET['abh'] . " abgeholt.<br /><br />Bitte bringen Sie ihre Reservierung am " . $return . " im Raum " . $row['room_to'] . " zurück.<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $departments[$row['department_id']]['mail'] . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
 				sendamail($mail, $row['email'], "Reservierung #" . $_GET['abh'] . " wurde abgeholt", $messagetext, $ics_file_contents);
 			} else {
 				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
@@ -585,10 +585,14 @@ if ($result = mysqli_query($link, $sql)) {
 		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to, time_from, time_to  FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND (status<4 OR status >6) AND user_id=user.id AND " . $ids . " ORDER BY reservation_id";
 	}
 
+	?>
+		<div class="main">
+	<?php
+
 	if ($result = mysqli_query($link, $sql)) {
 		if (mysqli_num_rows($result) > 0) {
 	?>
-		<div class="main">
+		
 			<h3 style='text-align:center;' class="select"> <?php echo translate('word_reservations'); ?> </h3>
 			<div class='table-responsive'>
 				<table class='table table-sortable'>
