@@ -85,8 +85,8 @@ $stmt->close();
 				<?php
 				for ($i = 1; $i < 6; $i++) {
 					$string = "weekday_long_" . $i;
-					if ($day['dayofweek'] == $i) echo "<option selected value='" . $i . "'>" . $lang[$string] . "</option>";
-					else echo "<option value='" . $i . "'>" . $lang[$string] . "</option>";
+					if ($day['dayofweek'] == $i) echo "<option selected value='" . $i . "'>" . translate($string) . "</option>";
+					else echo "<option value='" . $i . "'>" . translate($string) . "</option>";
 				}
 				?>
 			</select>
