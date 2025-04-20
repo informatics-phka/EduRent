@@ -122,4 +122,80 @@ function check_is_admin_of_department($username, $department){
   }
 }
 
+function createEventICS($row, $zeitinfo, $departments, $devices, $isReturn = false) {
+    try {
+        //pickup(date_from) or return(date_to)
+        $date_field = $isReturn ? $row['date_to'] : $row['date_from'];
+
+        $date = date_create($date_field);
+        if (!$date) {
+            save_in_logs('ERROR: Ungültiges Datum: ' . $date_field);
+            $date = new DateTime('today', new DateTimeZone('Europe/Berlin'));
+        }
+        $date_formatted = date_format($date, 'd.m.Y');
+
+        if ($isReturn) {
+            //split Time and Date
+            $parts = explode(" ", $zeitinfo, 2);
+            if (count($parts) < 2) {
+                save_in_logs('ERROR: Ungültiges Rückgabe-Zeitformat: ' . $zeitinfo);
+                $times = ['08:00', '20:00'];
+            } else {
+                $times = explode("-", $parts[1]);
+                if (count($times) !== 2) {
+                    save_in_logs('ERROR: Ungültiges Rückgabe-Zeitformat (nach Split): ' . $zeitinfo);
+                    $times = ['08:00', '20:00'];
+                }
+            }
+        } else {
+            //split Time
+            $times = explode("-", $zeitinfo);
+            if (count($times) !== 2) {
+                save_in_logs('ERROR: Ungültiges Abhol-Zeitformat: ' . $zeitinfo);
+                $times = ['08:00', '20:00'];
+            }
+        }
+
+        //create new DateTime
+        $time_start = DateTime::createFromFormat(
+            'd.m.Y H:i',
+            trim($date_formatted) . ' ' . trim($times[0]),
+            new DateTimeZone("Europe/Berlin")
+        );
+        $time_end = DateTime::createFromFormat(
+            'd.m.Y H:i',
+            trim($date_formatted) . ' ' . trim($times[1]),
+            new DateTimeZone("Europe/Berlin")
+        );
+
+        if (!$time_start || !$time_end) {
+            save_in_logs('ERROR: Fehler beim Erstellen der DateTime-Objekte. Fallback auf Standardzeiten.');
+            $time_start = new DateTime('today 08:00', new DateTimeZone('Europe/Berlin'));
+            $time_end = new DateTime('today 20:00', new DateTimeZone('Europe/Berlin'));
+        }
+
+        //convert into UTC
+        $time_start->setTimezone(new DateTimeZone("UTC"));
+        $time_end->setTimezone(new DateTimeZone("UTC"));
+
+        //ICS settings
+        $properties = array(
+            'summary' => ($isReturn ? 'Geräterückgabe - ' : 'Geräteabholung - ') . ($departments[$row['department_id']]['de'] ?? 'Unbekannt'),
+            'description' => 'Folgende Geräte werden ' . ($isReturn ? 'zurückgegeben' : 'abgeholt') . ': ' . $devices,
+            'location' => 'Raum: ' . ($isReturn ? ($row['room_to'] ?? 'Unbekannt') : ($row['room_from'] ?? 'Unbekannt')),
+            'dtstart' => $time_start->format('Y-m-d H:i'),
+            'dtend' => $time_end->format('Y-m-d H:i')
+        );
+
+        $ics = new ICS($properties);
+        return $ics->to_string();
+
+    } catch (Exception $e) {
+        save_in_logs('ERROR: Exception beim Erstellen des ICS-Events: ' . $e->getMessage());
+        return false;
+    }
+}
+
+
+
 ?>
