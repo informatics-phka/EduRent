@@ -206,12 +206,11 @@ $(document).ready(function() {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    // display current header
+    // display current page in navbar
     const links = document.querySelectorAll('#navbarMenu .nav-link');
     const currentPath = window.location.pathname.toLowerCase()
         .replace(/^\/edurent\//, '')
         .replace(/\.php$/, '');
-    console.log(currentPath);
 
     links.forEach(link => {
         const linkPath = link.getAttribute('href').toLowerCase();
