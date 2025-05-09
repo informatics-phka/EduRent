@@ -9,11 +9,31 @@ if($debug){
 check_superadmin($user_username);
 
 $departments = get_departmentnames();
+$is_superadmin = is_superadmin($user_username);
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
+    }
+}
 
 ?>
 
 <body>
-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		
@@ -31,6 +51,7 @@ $departments = get_departmentnames();
 		<link rel="stylesheet" href="style-css/ahover.css">
 		<link rel="stylesheet" href="js/clickablerow.css">
         <link rel="stylesheet" href="style-css/accessability.css">
+		<link rel="stylesheet" href="style-css/navbar.css">
 		
 		<!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -39,7 +60,16 @@ $departments = get_departmentnames();
 		<?php require_once("Controller/toast.php"); ?>
 	</head>
 	<div class="main">
-	<h3 class="text-center"><?php echo translate('word_admins') ?></h3>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+			<div class="container-fluid">
+				<div class="collapse navbar-collapse" id="navbarNavDropdown">
+					<ul class="navbar-nav ms-auto" id="navbarMenu">
+						<?= $menuItemsHtml ?>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<br>
 		<?php
 		if(exists_and_not_empty('reason', $_POST)){
 			if ($_POST['reason'] == "create") { //create admin
@@ -141,18 +171,26 @@ $departments = get_departmentnames();
 		echo "</div>";
 
 		?>
-		<br>
-		<!-- Buttons -->
-		<div class='row justify-content-center'>
-			<div class='col-md-6 mb-3'>
-				<a class='btn btn-secondary btn-block' href='admini'>
-					<i class="fas fa-arrow-left mr-2"></i>
-					<?php echo translate('word_back'); ?>
-				</a>
-			</div>
-		</div>
 	</div>
 </body>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// display current header
+		const links = document.querySelectorAll('#navbarMenu .nav-link');
+        const currentPath = window.location.pathname.toLowerCase()
+            .replace(/\.php$/, '');
+
+		links.forEach(link => {
+			const linkPath = link.getAttribute('href').toLowerCase();
+
+			if (currentPath.endsWith(linkPath)) {
+				link.classList.add('active');
+			} else {
+				link.classList.remove('active');
+			}
+		});
+	});
+</script>
 <?php
 echo $OUTPUT->footer();
 ?>
