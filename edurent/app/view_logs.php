@@ -7,6 +7,28 @@ if($debug){
 }
 
 check_superadmin($user_username);
+
+$is_superadmin = is_superadmin($user_username);
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
+    }
+}
 ?>
 
 <body>
@@ -25,6 +47,8 @@ check_superadmin($user_username);
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
         <link rel="stylesheet" href="style-css/accessability.css">
+        <link rel="stylesheet" href="style-css/view_logs.css">
+        <link rel="stylesheet" href="style-css/navbar.css">
 		
         <!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -32,24 +56,17 @@ check_superadmin($user_username);
         <!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
 	</head>
-	<style>
-		th, td {
-			border-bottom: 1px solid #ddd;
-			padding: 0.2ch 1ch 0.2ch 0.2ch;
-		}
-
-        .icon-container {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-        }
-        .info .icon-container { color: #007bff; }
-        .warning .icon-container { color: #ffc107; }
-        .error .icon-container { color: #dc3545; }
-        .warning { font-weight: normal; }
-	</style>
 	<div class="main">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ms-auto" id="navbarMenu">
+                        <?= $menuItemsHtml ?>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <br>
 		<h3>View Log</h3>
 
 		<!-- Search bar -->
@@ -127,12 +144,6 @@ check_superadmin($user_username);
 		<!-- Buttons -->
 		<div class='row justify-content-center'>
 			<div class='col-md-6 mb-3'>
-				<a class='btn btn-secondary btn-block' href='logs'>
-					<i class="fas fa-arrow-left mr-2"></i>
-					<?php echo translate('word_back'); ?>
-				</a>
-			</div>
-			<div class='col-md-6 mb-3'>
 				<button type='button' class='btn btn-warning btn-block' id='deleteSelected'>
 					<i class="fas fa-trash mr-2"></i>
                     <?php echo translate('text_delete_row'); ?>
@@ -190,6 +201,23 @@ $(document).ready(function() {
         } else {
             $("table tr:gt(0)").hide();
             $("table tr." + selectedSeverity).show();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // display current header
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+        const currentPath = window.location.pathname.toLowerCase()
+            .replace(/\.php$/, '');
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
+
+        if (currentPath.endsWith(linkPath)) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
         }
     });
 });
