@@ -7,6 +7,28 @@ if($debug){
 }
 
 check_is_admin($user_username);
+
+$is_superadmin = is_superadmin($user_username);
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
+    }
+}
 ?>
 
 <body>
@@ -25,6 +47,8 @@ check_is_admin($user_username);
         <link rel="stylesheet" href="style-css/toasty.css">
 		<link rel="stylesheet" href="style-css/ahover.css">
         <link rel="stylesheet" href="style-css/accessability.css">
+		<link rel="stylesheet" href="style-css/departments.css">
+		<link rel="stylesheet" href="style-css/navbar.css">
 
 		<!-- JavaScript -->
 		<script src="js/clickablerow.js"></script>
@@ -34,34 +58,18 @@ check_is_admin($user_username);
 
     	<!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
-
-		<style>
-			h3 {
-				text-align: center;
-				font-size: 24px;
-				margin-bottom: 20px;
-			}
-
-			.department-link {
-				display: block;
-				margin-bottom: 10px;
-				border-radius: 8px;
-				padding: 10px;
-				text-align: center;
-				background-color: #F0F0F0;
-				text-decoration: none;
-				color: #000000;
-				transition: background-color 0.3s ease;
-			}
-
-			.department-link:hover {
-				background-color: #E0E0E0;
-			}
-
-		</style>
 	</head>
 	<div class="main">
-		<h3><?php echo translate('word_departments'); ?></h3>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+			<div class="container-fluid">
+				<div class="collapse navbar-collapse" id="navbarNavDropdown">
+					<ul class="navbar-nav ms-auto" id="navbarMenu">
+						<?= $menuItemsHtml ?>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<br>
 		<?php
 		//remove
 		if(exists_and_not_empty('remove_id', $_GET)){
@@ -175,7 +183,24 @@ check_is_admin($user_username);
 		</div>
 	</div>
 </body>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// display current header
+		const links = document.querySelectorAll('#navbarMenu .nav-link');
+        const currentPath = window.location.pathname.toLowerCase()
+            .replace(/\.php$/, '');
 
+		links.forEach(link => {
+			const linkPath = link.getAttribute('href').toLowerCase();
+
+			if (currentPath.endsWith(linkPath)) {
+				link.classList.add('active');
+			} else {
+				link.classList.remove('active');
+			}
+		});
+	});
+</script>
 <?php
 echo $OUTPUT->footer();
 ?>
