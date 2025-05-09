@@ -25,10 +25,11 @@ if ($result = mysqli_query($link, $sql)) {
 $pickupdays = get_allopeningdays();
 $admins = get_all_admins();
 $department_ids = get_admin_department($user_username);
+$is_superadmin = is_superadmin($user_username);
 
 //get orders you are allowed to see
 $orders = array();
-if (is_superadmin($user_username)) {
+if ($is_superadmin) {
     $orders = get_all_orders();
 } else {
 	foreach ($department_ids as $department_id) {
@@ -39,13 +40,12 @@ if (is_superadmin($user_username)) {
     }
 }
 
-
 //getlimits
 $limits = get_limits_of("device_list");
 
 $devices_of_deparment = array();;
 $sql;
-if(is_superadmin($user_username)){
+if($is_superadmin){
 	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department ORDER BY home_department";
 }
 else{
@@ -67,10 +67,31 @@ if ($result = mysqli_query($link, $sql)) {
 		mysqli_free_result($result);
 	}
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
+    }
+}
+
 ?>
 
 <body>
-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		
@@ -87,6 +108,7 @@ if ($result = mysqli_query($link, $sql)) {
         <link rel="stylesheet" href="style-css/toasty.css">
 		<link rel="stylesheet" href="style-css/page_colors.scss">
         <link rel="stylesheet" href="style-css/accessability.css">
+		<link rel="stylesheet" href="style-css/navbar.css">
 		
 		<!-- searchbar -->
 		<script type="text/javascript" src="js/searchbar.js"></script>
@@ -535,7 +557,7 @@ if ($result = mysqli_query($link, $sql)) {
 		}
 	}
 
-	if (is_superadmin($user_username)) { //Show the active reservations
+	if ($is_superadmin) { //Show the active reservations
 		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to, time_from, time_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND (status<4 OR status >6) AND user_id=user.id ORDER BY reservation_id";
 	} else {
 		$ids;
@@ -549,13 +571,22 @@ if ($result = mysqli_query($link, $sql)) {
 
 	?>
 		<div class="main">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+				<div class="container-fluid">
+					<div class="collapse navbar-collapse" id="navbarNavDropdown">
+						<ul class="navbar-nav ms-auto" id="navbarMenu">
+							<?= $menuItemsHtml ?>
+						</ul>
+					</div>
+				</div>
+			</nav>
+			<br>
 	<?php
 
 	if ($result = mysqli_query($link, $sql)) {
 		if (mysqli_num_rows($result) > 0) {
 	?>
 		
-			<h3 style='text-align:center;' class="select"> <?php echo translate('word_reservations'); ?> </h3>
 			<div class='table-responsive'>
 				<table class='table table-sortable'>
 					<thead>
@@ -652,8 +683,17 @@ if ($result = mysqli_query($link, $sql)) {
 									$button = "btn-danger";
 								}
 								?>
-								<td> <button type="button" class="btn rounded <?php echo $button; ?> mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>','<?php echo $row['time_from']; ?>','<?php echo $row['time_to']; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
-								<td style="vertical-align: middle"><?php echo $status; ?></td>
+								<td>
+									<form method="POST" action="view_reservation" style="display:inline;">
+										<input type="hidden" name="reservation_id" value="<?php echo $row['reservation_id']; ?>">
+										<button type="submit" class="btn rounded <?php echo $button; ?> mr-1 mb-1">
+										#<?php echo $row['reservation_id']; ?>
+										</button>
+									</form>
+								</td>
+								<td style="vertical-align: middle">
+									<?php echo $status; ?>
+								</td>
 
 								<?php
 								switch ($row['status']) {
@@ -695,136 +735,9 @@ if ($result = mysqli_query($link, $sql)) {
 	}
 	/** END - Show the active reservations **/
 
-	/** START - orderhistory **/
-	$sql;
-
-
-	if ($department_ids[0] == 0) { //is superadmin
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND status>3 AND status <7 AND user_id=user.id ORDER BY reservation_id DESC";
-	} else {
-		$departments_sql = "(reservations.department_id='" . $department_ids[0] . "'";
-		for($i = 1; $i < count($department_ids); $i++) {
-			$departments_sql .= " OR reservations.department_id='" . $department_ids[$i] . "'";
-		}
-		$departments_sql .= ")";
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND status>3 AND status <7 AND user_id=user.id AND " . $departments_sql . " ORDER BY reservation_id DESC";
-	}
-
-	if ($result = mysqli_query($link, $sql)) {
-		if (mysqli_num_rows($result) > 0) {
+		//START - Links
 			?>
-				<br>
-				<div class='row no-gutters text-center'>
-					<div class='col'></div>
-					<h3 class='m-b-0 col select'><?php echo translate('word_orderHistory'); ?></h3>
-					<div class='col'>
-						<input type='text' class='w-100 search' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<?php echo translate('word_search'); ?>' />
-					</div>
-				</div>
-
-				<div class="table-responsive">
-					<table class='table results collapse_me'>
-						<thead>
-							<tr>
-								<th class='band' scope='col'><?php echo translate('word_number'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateFrom'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateTo'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_status'); ?></th>
-							</tr>
-							<tr class='warning no-result' style="display:none;">
-								<td colspan='4'><i class='fa fa-warning'></i><?php echo translate('text_noResult'); ?></td>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td colspan='4' class='clickable'><?php echo translate('text_tablehead'); ?></td>
-							</tr>
-						</tbody>
-						<tbody class="collapsed">
-							<?php while ($row = mysqli_fetch_array($result)) { ?>
-								<tr>
-									<td> <button type="button" class="btn rounded btn-outline-dark mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
-								<?php
-								switch (!is_null($row['date_from'])) { //column from
-									case true:
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_from']), 'd.m.Y') . "</td>";
-										break;
-									case false:
-										echo "<td></td>";
-										break;
-								}
-
-								switch (!is_null($row['date_to'])) { //column to
-									case true:
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_to']), 'd.m.Y') . "</td>";
-										break;
-									case false:
-										echo "<td></td>";
-										break;
-								}
-								$status = get_history_status($row['status']);
-								echo "<td style='vertical-align: middle'>" . $status . "</td>";
-
-								/** hidden infos for searchbar **/
-								echo "<td style='display:none;'>#" . $row['reservation_id'] . "</td>"; //reservation id
-								echo "<td style='display:none;'>" . $row['fn'] . " " . $row['ln'] . "</td>"; //full name
-								if(exists_and_not_empty($row['reservation_id'],$orders)){
-									if(exists_and_not_empty(0,$orders[$row['reservation_id']])){ //devices
-										echo "<td style='display:none;'>" . $orders[$row['reservation_id']][0] . "</td>"; //device ids
-									}
-								}
-								echo "</tr>";
-							}
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
-							mysqli_free_result($result);
-						} else { ?>
-								<br>
-								<br>
-								<h5 style='text-align:center;'>Es gibt keine vergangenen Reservierungen</h5>
-						<?php }
-					} else {
-						error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-					}
-					// END - orderhistory
-
-					//START - Links
-						?>
-						<br>
-						<h3 style='text-align:center;' class="select"><?php echo translate('word_systemmanagement'); ?></h3>
-						<div class='row justify-content-center'>
-						<?php if (is_admin($user_username)) { ?>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='departments'>
-									<i class="fa-solid fa-building"></i> <?php echo translate('word_departments'); ?>
-								</a>
-							</div>
-						<?php } ?>
-						<div class='col-12 col-md-4 mb-3'>
-							<a class='btn btn-outline-dark btn-block' href='faq'>
-								<i class="fas fa-question-circle mr-2"></i> FAQ
-							</a>
-						</div>
-						<?php if (is_superadmin($user_username)) { ?>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='admins'>
-									<i class="fas fa-user-cog mr-2"></i> <?php echo translate('word_admins'); ?>
-								</a>
-							</div>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='logs'>
-									<i class="fas fa-file-alt mr-2"></i> Logs
-								</a>
-							</div>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='update_settings'>
-									<i class="fas fa-cog mr-2"></i> <?php echo translate('word_settings'); ?>
-								</a>
-							</div>
-						<?php } ?>
-					</div>
-				</div>
+	</div>
 	<!-- tablesort -->
 	<script type="text/javascript" src="js/tablesort.js"></script>
 </body>
@@ -835,7 +748,6 @@ echo $OUTPUT->footer();
 mysqli_close($link);
 
 //Functions PHP
-
 function get_history_status($status_id)
 {
 	switch ($status_id) {
@@ -856,6 +768,23 @@ function get_history_status($status_id)
 }
 ?>
 <script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// display current header
+		const links = document.querySelectorAll('#navbarMenu .nav-link');
+        const currentPath = window.location.pathname.toLowerCase()
+            .replace(/\.php$/, '');
+
+		links.forEach(link => {
+			const linkPath = link.getAttribute('href').toLowerCase();
+
+			if (currentPath.endsWith(linkPath)) {
+				link.classList.add('active');
+			} else {
+				link.classList.remove('active');
+			}
+		});
+	});
+
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");
