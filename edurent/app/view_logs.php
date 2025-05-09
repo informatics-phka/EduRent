@@ -208,13 +208,15 @@ $(document).ready(function() {
 document.addEventListener('DOMContentLoaded', () => {
     // display current header
     const links = document.querySelectorAll('#navbarMenu .nav-link');
-        const currentPath = window.location.pathname.toLowerCase()
-            .replace(/\.php$/, '');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
+    console.log(currentPath);
 
     links.forEach(link => {
         const linkPath = link.getAttribute('href').toLowerCase();
 
-        if (currentPath.endsWith(linkPath)) {
+        if (currentPath == linkPath) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');

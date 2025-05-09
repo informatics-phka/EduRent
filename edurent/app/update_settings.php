@@ -119,21 +119,22 @@ foreach ($menuItems as $item) {
 </body>
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
-		// display current header
-		const links = document.querySelectorAll('#navbarMenu .nav-link');
-        const currentPath = window.location.pathname.toLowerCase()
-            .replace(/\.php$/, '');
+    // display current page in navbar
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
 
-		links.forEach(link => {
-			const linkPath = link.getAttribute('href').toLowerCase();
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
 
-			if (currentPath.endsWith(linkPath)) {
-				link.classList.add('active');
-			} else {
-				link.classList.remove('active');
-			}
-		});
-	});
+        if (currentPath == linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
 </script>
 </html>
 <?php
