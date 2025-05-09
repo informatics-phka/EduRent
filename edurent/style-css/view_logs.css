@@ -1,0 +1,15 @@
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding: 0.2ch 1ch 0.2ch 0.2ch;
+}
+
+.icon-container {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+.info .icon-container { color: #007bff; }
+.warning .icon-container { color: #ffc107; }
+.error .icon-container { color: #dc3545; }
+.warning { font-weight: normal; }
