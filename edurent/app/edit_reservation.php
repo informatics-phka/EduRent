@@ -223,7 +223,7 @@ $limits = get_limits_of("device_list");
         }
         ?>
         <br>
-        <!-- Buttons -->
+        <!-- Buttons -->        
         <form method="POST" action="edit_reservation" style="display:inline;">
             <input type="hidden" name="reservation_id" value="<?php echo $reservation_id; ?>">
             <div class='col-md-6 mb-3'>
