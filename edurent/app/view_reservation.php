@@ -30,14 +30,15 @@ foreach ($menuItems as $item) {
     }
 }
 
-$reservation_id = null;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
     $reservation_id = $_POST['reservation_id'];
-    $_SESSION['reservation_id'] = $reservation_id; // speichern
-} elseif (isset($_SESSION['reservation_id'])) {
-    $reservation_id = $_SESSION['reservation_id'];
-}
+    $_SESSION['reservation_id'] = $reservation_id;
+
+    echo "<script>window.location.href = 'view_reservation';</script>";
+    exit;
+} 
+
+$reservation_id = $_SESSION['reservation_id'] ?? null;
 
 //get order
 $sql = "SELECT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND user_id=user.id AND reservations.reservation_id=" . $reservation_id ;
@@ -112,30 +113,26 @@ if ($is_superadmin) {
         </nav>
         <br>
         <?php
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($reservation_id )) {
-                $formatted_from = date_create($date_from)->format('d.m.Y');
-                $formatted_to = date_create($date_to)->format('d.m.Y');
-                echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
-                echo "Von: " . htmlspecialchars($fn) . " " . htmlspecialchars($ln);
-                echo "<br>";
-                echo "Institut: " . htmlspecialchars($department_id);
-                echo "<br>";
-                echo "Zeitraum: " . htmlspecialchars($formatted_from) . " bis " . htmlspecialchars($formatted_to);
-                echo "<br>";
-                $d_ids = explode('|', $orders[$reservation_id][0]);
-				$names = explode('|', $orders[$reservation_id][1]);
-				$geraete = "Geräte:<br>";
-				for ($i = 0; $i < count($d_ids); $i++) {
-					$geraete .= $d_ids[$i] . ", " . $names[$i] . "<br>";
-				}
-                echo $geraete;
-                
-            } else {
-                echo "Keine Reservierungs-ID übermittelt.";
+        if (isset($reservation_id )) {
+            $formatted_from = date_create($date_from)->format('d.m.Y');
+            $formatted_to = date_create($date_to)->format('d.m.Y');
+            echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
+            echo "Von: " . htmlspecialchars($fn) . " " . htmlspecialchars($ln);
+            echo "<br>";
+            echo "Institut: " . htmlspecialchars($department_id);
+            echo "<br>";
+            echo "Zeitraum: " . htmlspecialchars($formatted_from) . " bis " . htmlspecialchars($formatted_to);
+            echo "<br>";
+            $d_ids = explode('|', $orders[$reservation_id][0]);
+            $names = explode('|', $orders[$reservation_id][1]);
+            $geraete = "Geräte:<br>";
+            for ($i = 0; $i < count($d_ids); $i++) {
+                $geraete .= $d_ids[$i] . ", " . $names[$i] . "<br>";
             }
+            echo $geraete;
+            
         } else {
-            echo "Ungültige Anfragemethode.";
+            echo "<script>window.location.href = 'admini';</script>";
         }
         ?>
         <br>
