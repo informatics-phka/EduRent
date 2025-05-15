@@ -124,87 +124,6 @@ foreach ($menuItems as $item) {
 			display: none;
 		}
 	</style>
-	<script>
-		function modal_load(reservation_id, from, to, fn, ln, status, room_from, room_to, department, time_from, time_to) {
-			var mymodal = $('#my_modal');
-			var titel = "<?php echo translate('word_order'); ?> #" + reservation_id;
-			mymodal.find('.modal-title').text(titel);
-
-			var orders = <?php echo is_null($orders) ? "2" : json_encode($orders); ?>;
-
-			$("#button_grey").show();
-			$("#button_green").show();
-			$("#button_yellow").show();
-			$("#button_grey").html('<?php echo translate('word_back'); ?>');
-			$("#button_red").hide();
-			$("#button_yellow").html('<?php echo translate('word_editBig'); ?>');
-
-			if (orders == "2" || orders[reservation_id] == null) { //Error
-				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
-				var department = "<?php echo translate('word_department'); ?>: " + department + "<br>";
-				var translate_pickup = "<?php echo translate('text_pickupReservation'); ?>";
-                var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-                translate_pickup = translate(translate_pickup, [from, time_from, room_from]);
-                translate_return = translate(translate_return, [to, time_to, room_to]);
-
-				var error = '<?php echo translate('text_noDevices'); ?> <br><br>' ;
-
-				var string = '<center>' + error + user + department + translate_pickup + translate_return + '</center>';
-				$("#button_red").hide();
-				$("#button_yellow").hide();
-				$("#button_green").html('<?php echo translate('word_delete'); ?>');
-				$("#button_green").attr("onclick", "order_remove(" + reservation_id + ")");
-			} else {
-				var time;
-				if (status == 2){ //Collectable
-					$("#button_red").html('<?php echo translate('status_3'); ?>');
-					$("#button_red").show();
-					$("#button_red").attr("onclick", "order_pickup(" + reservation_id + ")");
-					$("#button_green").html('<?php echo translate('word_cancel'); ?>');
-					$("#button_green").attr("onclick", "order_cancel(" + reservation_id + ")");
-					var translate_pickup = "<?php echo translate('text_pickupReservation'); ?>";
-					var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-					time = translate(translate_pickup, [from, time_from, room_from]) + "<br>";
-					time += translate(translate_return, [to, time_to, room_to]) + "<br>";
-				} else if (status == 3){ //Retrieved
-					$("#button_green").html('<?php echo translate('word_downgrade'); ?>');
-					$("#button_green").attr("onclick", "order_back(" + reservation_id + ")");
-					$("#button_red").html('<?php echo translate('word_return'); ?>');
-					$("#button_red").attr("onclick", "order_retour(" + reservation_id + ")");
-					$("#button_red").show();
-					var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-					time = translate(translate_return, [to, time_to, room_to]) + "<br>";
-				} else if (status == 1){ //request
-					$("#button_red").html('<?php echo translate('word_confirm'); ?>');
-					$("#button_red").show();
-					$("#button_red").attr("onclick", "order_accept(" + reservation_id + ")");
-					$("#button_green").html('<?php echo translate('word_cancel'); ?>');
-					$("#button_green").attr("onclick", "order_cancel(" + reservation_id + ")");
-					time = "<?php echo translate('word_period'); ?>: " + from + " <?php echo translate('word_to'); ?> " + to + "<br>";
-					time += "<?php echo translate('word_pickupRoom'); ?>: " + room_from + ", <?php echo translate('word_returnRoom'); ?>: " + room_to + "<br>";
-				} else if (status == 4 || status == 6){ //Completed or Cancelled
-					$("#button_green").html('<?php echo translate('word_delete'); ?>');
-					$("#button_green").attr("onclick", "order_remove(" + reservation_id + ")");
-					$("#button_yellow").hide();
-					time = "<?php echo translate('word_period'); ?>: " + from + " <?php echo translate('word_to'); ?> " + to + "<br>";
-				}
-
-				var d_ids = orders[reservation_id][0].split('|');
-				var names = orders[reservation_id][1].split('|');
-				var geraete = "<?php echo translate('word_devices'); ?>:<br>";
-				for (var i = 0; i < d_ids.length; i++) {
-					geraete += d_ids[i] + ", " + names[i] + "<br>";
-				}
-
-				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
-				var department = "<?php echo translate('word_department'); ?>: " + department + "<br>";
-
-				var string = '<center>' + user + department + time + '<br>' + geraete + '</center>';
-			}
-			mymodal.find('.modal-body').html(string);
-			mymodal.modal('show');
-		}
-	</script>
 	<?php
 
 	setlocale(LC_ALL, "de_DE.utf8");
@@ -298,7 +217,6 @@ foreach ($menuItems as $item) {
 
 	if(exists_and_not_empty('abh', $_GET)){ //collected
 		try {
-			$SESSION->toasttext = "collected";
 			/** compare old and new devices and recognize differences **/
 
 			if(!$_GET['new']) throw new Exception("GET(new) is empty");
@@ -337,6 +255,7 @@ foreach ($menuItems as $item) {
 					$query = mysqli_query($link, $sql);
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$new_id = $row['device_id'];
@@ -346,6 +265,7 @@ foreach ($menuItems as $item) {
 					$query = mysqli_query($link, $sql);
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$old_id = $row['id'];
@@ -353,6 +273,7 @@ foreach ($menuItems as $item) {
 					//Update
 					$sql = "UPDATE devices_of_reservations SET devices_of_reservations.device_id= '" . $new_id . "' WHERE devices_of_reservations.id='" . $old_id . "' AND devices_of_reservations.reservation_id=" . $reservation_id . " LIMIT 1";
 					if (!mysqli_query($link, $sql)) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 				}
@@ -385,6 +306,7 @@ foreach ($menuItems as $item) {
 					}
 				}
 				else {
+					$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 					throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 				}
 				
@@ -407,11 +329,12 @@ foreach ($menuItems as $item) {
 			} else {
 				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 			}
-			echo "<script>window.location.href = 'admini';</script>";
+			$SESSION->toasttext = "Die Reservierung wurde abgeholt";
 		}
 		catch (exception $e) {
 			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 409 admini: " . $e->getMessage());			
 		}
+		echo "<script>window.location.href = 'admini';</script>";
 	}
 
 	if(exists_and_not_empty('cancel', $_GET)){ //deleted
@@ -798,10 +721,7 @@ function get_history_status($status_id)
 	});
 
 	var added = 0;
-	function order_cancel(reservation_id) {
-		location.href = "?cancel=" + reservation_id;
-	}
-
+	
 	function order_extend2(reservation_id) {
 		from = document.getElementById("date_from").value;
 		time_from = document.getElementById("time_from").value;
@@ -832,85 +752,5 @@ function get_history_status($status_id)
 		}
 
 		location.href = "?extend=" + reservation_id + "&date_from=" + from + "&date_to=" + to + "&room_from=" + room_from + "&room_to=" + room_to + "&time_to=" + time_to + "&time_from=" + time_from + "&types=" + types + "&amounts=" + amounts + "&values=" + values + "&indicators=" + indicators;
-	}
-
-	function order_remove(reservation_id) {
-		location.href = "?rem=" + reservation_id;
-	}
-
-	function order_accept(reservation_id) {
-		location.href = "?org=" + reservation_id;
-	}
-
-	function order_back(reservation_id) {
-		location.href = "?zu=" + reservation_id;
-	}
-
-	function order_retour(reservation_id) {
-		location.href = "?ret=" + reservation_id;
-	}
-
-	function order_pickup2(reservation_id, amount) {
-		var devices = "";
-		var typs = "";
-		var bouth = "";
-		for (var i = 0; i < amount; i++) {
-			if (devices != "") {
-				devices += ",";
-				typs += ",";
-				bouth += ",";
-			}
-			devices += $("#device" + i).val();
-			typs += document.getElementById("type_indicator" + i).innerText;
-			bouth += document.getElementById("type_indicator" + i).innerText + $("#device" + i).val();
-		}
-		location.href = "?abh=" + reservation_id + "&new_tags=" + devices + "&new_typs=" + typs + "&new=" + bouth;
-	}
-
-	function order_pickup(reservation_id) { //confirm the issued devices
-		console.log("2");
-		var mymodal = $('#my_modal');
-		var titel = "<?php echo translate('word_order'); ?> #" + reservation_id;
-		mymodal.find('.modal-title').text(titel);
-
-		var orders = <?php echo is_null($orders) ? "2" : json_encode($orders); ?>;
-
-		var string = "";
-
-		$("#button_grey").show();
-		$("#button_green").show();
-		$("#button_red").show();
-		$("#button_yellow").hide();
-
-		if (orders == "2") {
-			string = '<center>Es konnten keine zugeordneten Geräte gefunden werden. Bitte untersuchen die die Reservierung in der MySQL Datenbank.</center>';
-			$("#button_red").hide();
-			$("#button_green").hide();
-		} else {
-			var names = orders[reservation_id][1].split('|');
-			var tag = orders[reservation_id][2].split('|');
-			var type_indicator = orders[reservation_id][3].split('|');
-			var geraete = "";
-			var amount = 0;
-
-			string += "<center>Welche Geräte-IDs wurden ausgegeben?<br>";
-
-			for (var i = 0; i < names.length; i++) {
-				string += "<div class='row no-gutters' style='text-align:center;'>";
-				string += "<div class='col'>";
-				string += names[i];
-				string += "</div>";
-				string += "<div class='col input-group'>";
-				string += "<span class='input-group-text' id='type_indicator" + i + "' name = 'type_indicator" + i + "'>" + type_indicator[i] + "</span>";
-				string += "<input type='text' maxlength='<?php echo $limits['device_tag']; ?>' class='form-control rounded' id='device" + i + "' name = 'device" + i + "' value='" + tag[i] + "'>";
-				string += "</div>";
-				string += "</div>";
-				amount++;
-			}
-			$("#button_red").attr("onclick", "order_pickup2(" + reservation_id + "," + amount + ")");
-			string += '</center>';
-		}
-		mymodal.find('.modal-body').html(string);
-		mymodal.modal('show');
 	}
 </script>
