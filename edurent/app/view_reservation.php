@@ -116,7 +116,6 @@ if ($is_superadmin) {
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($reservation_id )) {
-                $reservation_id = $reservation_id ;
                 $formatted_from = date_create($date_from)->format('d.m.Y');
                 $formatted_to = date_create($date_to)->format('d.m.Y');
                 echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
