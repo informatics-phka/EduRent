@@ -8,8 +8,6 @@ if ($debug) {
 
 check_is_admin($user_username);
 
-session_start();
-
 $is_superadmin = is_superadmin($user_username);
 $all_user = get_all_user();
 
@@ -58,15 +56,15 @@ if ($result = mysqli_query($link, $sql)) {
 	}
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 
-
-$reservation_id = null;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
     $reservation_id = $_POST['reservation_id'];
     $_SESSION['reservation_id'] = $reservation_id;
-} elseif (isset($_SESSION['reservation_id'])) {
-    $reservation_id = $_SESSION['reservation_id'];
-}
+
+    echo "<script>window.location.href = 'edit_reservation';</script>";
+    exit;
+} 
+
+$reservation_id = $_SESSION['reservation_id'] ?? null;
 
 //get order
 $sql = "SELECT reservations.reservation_id, date_from, date_to, status, fn, user.id AS user_id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND user_id=user.id AND reservations.reservation_id=" . $reservation_id ;
@@ -112,10 +110,10 @@ uasort($all_user, function($a, $b) {
     return $ln_cmp;
 });
 
-//daterangepicker
-$lead_time_days = 0;
-$days_bookable_in_advance = 365;
-$max_loan_duration = 365;
+$names = 0;
+
+//getlimits
+$limits = get_limits_of("device_list");
 ?>
 
 <body>
@@ -164,64 +162,64 @@ $max_loan_duration = 365;
         </nav>
         <br>
         <?php
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($reservation_id )) {
-                $formatted_from = date_create($date_from)->format('d.m.Y');
-                $formatted_to = date_create($date_to)->format('d.m.Y');
-                echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
-                echo '<label for="user_select">Ausleihende Person wählen:</label>';
-                echo '<select id="user_select" class="form-control" name="selected_user">';
-                foreach ($all_user as $id => $user) {
-                    if (empty($user['fn']) || empty($user['ln'])) {
-                        continue;
-                    }
-                
-                    $value = htmlspecialchars($id);
-                    $label = htmlspecialchars($user['fn'] . " " . $user['ln']);
-                    $selected = ($id == $user_id) ? 'selected' : '';
-                    echo "<option value='$value' $selected>$label</option>";
+        if (isset($reservation_id )) {
+            $formatted_from = date_create($date_from)->format('d.m.Y');
+            $formatted_to = date_create($date_to)->format('d.m.Y');
+            echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
+            echo '<label for="user_select">Ausleihende Person wählen:</label>';
+            echo '<select id="user_select" class="form-control" name="selected_user">';
+            foreach ($all_user as $id => $user) {
+                if (empty($user['fn']) || empty($user['ln'])) {
+                    continue;
                 }
-                echo '</select>';
-                echo "<br>";
-                echo "Zeitraum: ";
-                echo "<input type='text' name='daterange' id='daterange' style='text-align:center; width:100%; max-width: 27ch;' placeholder='Keine Reservierung möglich' />";
-                echo "<br>";
-                echo "<input type='hidden' id='date_from' name='date_from' value=''>";
-                echo "<input type='hidden' id='date_to' name='date_to' value=''>";
-
-                echo "<br>";
-                $d_ids = explode('|', $orders[$reservation_id][0]);
-				$names = explode('|', $orders[$reservation_id][1]);
-                $tag = explode('|', $orders[$reservation_id][2]);
-                $type_indicator = explode('|', $orders[$reservation_id][3]);
-
-                $geraete = translate('word_deviceList') . ":<br>";
-			    $geraete .= "<div id='device_list' name='device_list'>";
-
-				for ($i = 0; $i < count($d_ids); $i++) {
-                    $geraete .= "<div class='row no-gutters' style='text-align:center;' name='device_list_" . $i . "' id='device_list_" . $i . "'>";
-                        $geraete .= "<div class='col col-lg-2' name='type_" . $i . "' id='type_" . $i . "'>";
-                            $geraete .= $names[$i];
-                        $geraete .= "</div>";
-                        $geraete .= "<div class='col input-group'>";
-                            $geraete .= "<span style='width:7ch; justify-content: right; display: flex;' class='input-group-text' id='indicator_" . $i . "' name = 'indicator_" . $i . "'>" . $type_indicator[$i] . "</span>";
-                            $geraete .= "<input type='text' style='height:100%' maxlength='" . $limits['device_tag'] . "' class='form-control rounded' id='device_" . $i . "' name = 'device_" . $i . "' value='" . $tag[$i] . "'>";
-                        $geraete .= "</div>";
-                        $geraete .= "<div class='col col-lg-2' style='align-items: center; justify-content: center;display: flex;'>";
-                            $geraete .= "<button class='btn btn-outline-secondary' style='height: 90%; display: flex; align-items: center;' onclick='remove_device(" . $i . ")'>-</button>";
-                        $geraete .= "</div>";
-                    $geraete .= "</div>";
-				}
-                $geraete .= "</div>";
-			    $geraete .= "<br>";
-			    $geraete .= "<button onclick='add_devices()'>+</button>";
-                echo $geraete;
-
-            } else {
-                echo "Keine Reservierungs-ID übermittelt.";
+            
+                $value = htmlspecialchars($id);
+                $label = htmlspecialchars($user['fn'] . " " . $user['ln']);
+                $selected = ($id == $user_id) ? 'selected' : '';
+                echo "<option value='$value' $selected>$label</option>";
             }
+            echo '</select>';
+            echo "<br>";
+            echo "Zeitraum: ";
+            echo "<input type='text' name='daterange' id='daterange' style='text-align:center; width:100%; max-width: 27ch;' placeholder='Keine Reservierung möglich' />";
+            echo "<br>";
+            echo "<input type='hidden' id='date_from' name='date_from' value=''>";
+            echo "<input type='hidden' id='date_to' name='date_to' value=''>";
+
+            echo "<br>";
+            $d_ids = explode('|', $orders[$reservation_id][0]);
+            $names = explode('|', $orders[$reservation_id][1]);
+            $tag = explode('|', $orders[$reservation_id][2]);
+            $type_indicator = explode('|', $orders[$reservation_id][3]);
+
+            $geraete = translate('word_deviceList') . ":<br>";
+            $geraete .= "<div id='device_list' name='device_list'>";
+
+            for ($i = 0; $i < count($d_ids); $i++) {
+                $geraete .= "<div class='row no-gutters' style='text-align:center;' name='device_list_" . $i . "' id='device_list_" . $i . "'>";
+                    $geraete .= "<div class='col col-lg-5' name='type_" . $i . "' id='type_" . $i . "'>";
+                        $geraete .= $names[$i];
+                    $geraete .= "</div>";
+                    $geraete .= "<div class='col input-group'>";
+                        $geraete .= "<span style='width:7ch; justify-content: right; display: flex;' class='input-group-text' id='indicator_" . $i . "' name = 'indicator_" . $i . "'>" . $type_indicator[$i] . "</span>";
+                        $geraete .= "<input type='text' style='height:100%' maxlength='" . $limits['device_tag'] . "' class='form-control rounded' id='device_" . $i . "' name = 'device_" . $i . "' value='" . $tag[$i] . "'>";
+                    $geraete .= "</div>";
+                    $geraete .= "<div class='col col-lg-2' style='align-items: center; justify-content: center;display: flex;'>";
+                        $geraete .= "<button class='btn btn-outline-secondary' style='height: 90%; display: flex; align-items: center;' onclick='remove_device(" . $i . ")'>-</button>";
+                    $geraete .= "</div>";
+                $geraete .= "</div>";
+            }
+            $geraete .= "</div>";
+            $geraete .= "<br>";
+            $geraete .= "<div class='text-center'>";
+                $geraete .= "<button type='button' class='btn btn-secondary add-btn' onclick='add_devices()'>";
+                    $geraete .= "<i class='fas fa-plus'></i> Gerät hinzufügen";
+                $geraete .= "</button>";
+            $geraete .= "</div>";
+            echo $geraete;
+
         } else {
-            echo "Ungültige Anfragemethode.";
+            echo "<script>window.location.href = 'view_reservation';</script>";
         }
         ?>
         <br>
@@ -342,9 +340,6 @@ $max_loan_duration = 365;
             },
             "startDate": first_day,
             "endDate": last_day,
-            "maxSpan": {
-                "days": <?php echo $max_loan_duration; ?>
-            },
             "opens": "center",
             "drops": "auto",
             isInvalidDate: function(date) {
@@ -377,8 +372,8 @@ $max_loan_duration = 365;
 			string += "<div class='col col-lg-2'>";
 				string += "<input type='number' name='amount_" + added + "' id='amount_" + added + "' class='form-control' value='1'>"; 
 			string += "</div>";
-			string += "<div class='col col-lg-2'>";
-				string += "<button onclick='remove_device(" + added + ")'>-</button>";
+			string += "<div class='col col-lg-2' style='align-items: center; justify-content: center;display: flex;'>";
+                string += "<button class='btn btn-outline-secondary' style='height: 90%; display: flex; align-items: center;' onclick='remove_device(" + added + ")'>-</button>";
 			string += "</div>";
 		string += "</div>";
 
