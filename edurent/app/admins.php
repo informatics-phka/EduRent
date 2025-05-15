@@ -108,27 +108,19 @@ foreach ($menuItems as $item) {
 				}
 				$stmt->close();
 
-				for ($i = 0; $i < count($departments); $i++) {
-					$name = "switch_" . array_keys($departments)[$i];
-					if(exists_and_not_empty($name, $_POST)){
-						if(exists_and_not_empty($name, $_POST)){
-							if($_POST[$name] == "on") {
-								$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
-								if ($stmt = mysqli_prepare($link, $query)) {
-									mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], array_keys($departments)[$i]);
+				$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
+				if ($stmt = mysqli_prepare($link, $query)) {
+					mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], $_POST['selected_department']);
 
-									if (!mysqli_stmt_execute($stmt)) {
-										save_in_logs("ERROR: " . mysqli_error($link));
-										save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-									}
-								} else {
-									save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-								}
-								$stmt->close();
-							}
-						}
+					if (!mysqli_stmt_execute($stmt)) {
+						save_in_logs("ERROR: " . mysqli_error($link));
+						save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 					}
+				} else {
+					save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
 				}
+				$stmt->close();
+
 				save_in_logs("INFO: Der Benutzer mit der ID " . $_POST['user'] . " wurde bearbeitet", $user_firstname, $user_lastname);
 			}
 		}
