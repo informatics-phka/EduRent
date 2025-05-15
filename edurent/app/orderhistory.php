@@ -227,7 +227,7 @@ foreach ($menuItems as $item) {
 			<br>
 			<div class='row no-gutters text-center'>
 				<div>
-					<input type='text' class='w-100 search form-control' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<i class="fa fa-search"></i><?php echo translate('word_search'); ?>' />
+					<input type='text' class='w-100 search form-control' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<?php echo translate('word_search'); ?>' />
 				</div>
 				<br>
 				<br>
