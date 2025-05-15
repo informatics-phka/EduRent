@@ -8,8 +8,6 @@ if ($debug) {
 
 check_is_admin($user_username);
 
-session_start();
-
 $is_superadmin = is_superadmin($user_username);
 
 // define navbar
