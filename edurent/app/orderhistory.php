@@ -225,11 +225,28 @@ foreach ($menuItems as $item) {
 				</div>
 			</nav>
 			<br>
+			<div class='row no-gutters text-center'>
+				<div>
+					<input type='text' class='w-100 search form-control' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<i class="fa fa-search"></i><?php echo translate('word_search'); ?>' />
+				</div>
+				<br>
+				<br>
+				<div class="table-responsive">
+					<table class='table results collapse_me'>
+						<thead>
+							<tr>
+								<th class='band' scope='col'><?php echo translate('word_number'); ?></th>
+								<th class='band' scope='col'><?php echo translate('word_dateFrom'); ?></th>
+								<th class='band' scope='col'><?php echo translate('word_dateTo'); ?></th>
+								<th class='band' scope='col'><?php echo translate('word_status'); ?></th>
+							</tr>
+							<tr class='warning no-result' style="display:none;">
+								<td colspan='4'><i class='fa fa-warning'></i><?php echo translate('text_noResult'); ?></td>
+							</tr>
+						</thead>
+						<tbody>
 	<?php
-
-	/** START - orderhistory **/
 	$sql;
-
 
 	if ($department_ids[0] == 0) { //is superadmin
 		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND status>3 AND status <7 AND user_id=user.id ORDER BY reservation_id DESC";
@@ -245,29 +262,7 @@ foreach ($menuItems as $item) {
 	if ($result = mysqli_query($link, $sql)) {
 		if (mysqli_num_rows($result) > 0) {
 			?>
-				<br>
-				<div class='row no-gutters text-center'>
-					<div class='col'></div>
-					<h3 class='m-b-0 col select'><?php echo translate('word_orderHistory'); ?></h3>
-					<div class='col'>
-						<input type='text' class='w-100 search' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<?php echo translate('word_search'); ?>' />
-					</div>
-				</div>
-
-				<div class="table-responsive">
-					<table class='table results collapse_me'>
-						<thead>
-							<tr>
-								<th class='band' scope='col'><?php echo translate('word_number'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateFrom'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateTo'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_status'); ?></th>
-							</tr>
-							<tr class='warning no-result' style="display:none;">
-								<td colspan='4'><i class='fa fa-warning'></i><?php echo translate('text_noResult'); ?></td>
-							</tr>
-						</thead>
-						<tbody>
+				
 							<?php while ($row = mysqli_fetch_array($result)) { ?>
 								<tr>
 									<td> <button type="button" class="btn rounded btn-outline-dark mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
@@ -302,9 +297,6 @@ foreach ($menuItems as $item) {
 								}
 								echo "</tr>";
 							}
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
 							mysqli_free_result($result);
 						} else { ?>
 								<br>
@@ -314,9 +306,10 @@ foreach ($menuItems as $item) {
 					} else {
 						error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
-					// END - orderhistory
-
 						?>
+							</tbody>
+						</table>
+					</div>
 				</div>
 	<!-- tablesort -->
 	<script type="text/javascript" src="js/tablesort.js"></script>
