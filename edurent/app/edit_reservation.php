@@ -33,6 +33,32 @@ foreach ($menuItems as $item) {
     }
 }
 
+$devices_of_deparment = array();;
+$sql;
+if($is_superadmin){
+	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department ORDER BY home_department";
+}
+else{
+	$ids;
+	for ($i=0; $i < count($department_ids); $i++) {
+		if($i == 0) $ids = "(department_id=" . $department_ids[$i];
+		else $ids .= " OR department_id=" . $department_ids[$i];
+	}
+	$ids .= ")"; 
+	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department AND " . $ids . " ORDER BY home_department";
+}
+if ($result = mysqli_query($link, $sql)) {
+	if (mysqli_num_rows($result) > 0) {
+		while ($row = mysqli_fetch_array($result)) {
+			$id = count($devices_of_deparment);
+			$devices_of_deparment[$id]['device_type_name'] = $row['device_type_name'];
+			$devices_of_deparment[$id]['device_type_indicator'] = $row['device_type_indicator'];
+		}
+		mysqli_free_result($result);
+	}
+} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+
+
 $reservation_id = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
@@ -43,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
 }
 
 //get order
-$sql = "SELECT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND user_id=user.id AND reservations.reservation_id=" . $reservation_id ;
+$sql = "SELECT reservations.reservation_id, date_from, date_to, status, fn, user.id AS user_id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND user_id=user.id AND reservations.reservation_id=" . $reservation_id ;
 if ($result = mysqli_query($link, $sql)) {
     if (mysqli_num_rows($result) > 0) {
         while ($row = mysqli_fetch_assoc($result)) {
@@ -56,6 +82,7 @@ if ($result = mysqli_query($link, $sql)) {
             $ln = $row['ln'];
             $room_from = $row['room_from'];
             $room_to = $row['room_to'];
+            $user_id = $row['user_id'];
         }
     } else {
         echo "No results found.";
@@ -121,7 +148,6 @@ $max_loan_duration = 365;
 		<?php require_once("Controller/toast.php"); ?>
 
         <!-- daterangepicker -->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -140,7 +166,6 @@ $max_loan_duration = 365;
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($reservation_id )) {
-                $reservation_id = $reservation_id ;
                 $formatted_from = date_create($date_from)->format('d.m.Y');
                 $formatted_to = date_create($date_to)->format('d.m.Y');
                 echo "<h1>" . translate('word_reservation') . " " . htmlspecialchars($reservation_id) . "</h1>";
@@ -153,11 +178,10 @@ $max_loan_duration = 365;
                 
                     $value = htmlspecialchars($id);
                     $label = htmlspecialchars($user['fn'] . " " . $user['ln']);
-                    echo "<option value='$value'>$label</option>";
+                    $selected = ($id == $user_id) ? 'selected' : '';
+                    echo "<option value='$value' $selected>$label</option>";
                 }
                 echo '</select>';
-                echo "<br>";
-                echo "Institut: " . htmlspecialchars($department_id);
                 echo "<br>";
                 echo "Zeitraum: ";
                 echo "<input type='text' name='daterange' id='daterange' style='text-align:center; width:100%; max-width: 27ch;' placeholder='Keine Reservierung möglich' />";
@@ -168,11 +192,31 @@ $max_loan_duration = 365;
                 echo "<br>";
                 $d_ids = explode('|', $orders[$reservation_id][0]);
 				$names = explode('|', $orders[$reservation_id][1]);
-				$geraete = "Geräte:<br>";
+                $tag = explode('|', $orders[$reservation_id][2]);
+                $type_indicator = explode('|', $orders[$reservation_id][3]);
+
+                $geraete = translate('word_deviceList') . ":<br>";
+			    $geraete .= "<div id='device_list' name='device_list'>";
+
 				for ($i = 0; $i < count($d_ids); $i++) {
-					$geraete .= $d_ids[$i] . ", " . $names[$i] . "<br>";
+                    $geraete .= "<div class='row no-gutters' style='text-align:center;' name='device_list_" . $i . "' id='device_list_" . $i . "'>";
+                        $geraete .= "<div class='col col-lg-2' name='type_" . $i . "' id='type_" . $i . "'>";
+                            $geraete .= $names[$i];
+                        $geraete .= "</div>";
+                        $geraete .= "<div class='col input-group'>";
+                            $geraete .= "<span style='width:7ch; justify-content: right; display: flex;' class='input-group-text' id='indicator_" . $i . "' name = 'indicator_" . $i . "'>" . $type_indicator[$i] . "</span>";
+                            $geraete .= "<input type='text' style='height:100%' maxlength='" . $limits['device_tag'] . "' class='form-control rounded' id='device_" . $i . "' name = 'device_" . $i . "' value='" . $tag[$i] . "'>";
+                        $geraete .= "</div>";
+                        $geraete .= "<div class='col col-lg-2' style='align-items: center; justify-content: center;display: flex;'>";
+                            $geraete .= "<button class='btn btn-outline-secondary' style='height: 90%; display: flex; align-items: center;' onclick='remove_device(" . $i . ")'>-</button>";
+                        $geraete .= "</div>";
+                    $geraete .= "</div>";
 				}
+                $geraete .= "</div>";
+			    $geraete .= "<br>";
+			    $geraete .= "<button onclick='add_devices()'>+</button>";
                 echo $geraete;
+
             } else {
                 echo "Keine Reservierungs-ID übermittelt.";
             }
@@ -237,21 +281,30 @@ $max_loan_duration = 365;
         });
     });
 
-    //daterangepicker
-    var first_day = new Date();
-    first_day.setDate(first_day.getDate() + <?php echo $lead_time_days; ?>);
+    var names = <?php echo is_null($names) ? "2" : json_encode($names); ?>;
+    var added = names.length-1;
 
-    var dd = String(first_day.getDate()).padStart(2, '0');
-    var mm = String(first_day.getMonth() + 1).padStart(2, '0');
-    var yyyy = first_day.getFullYear();
+    //daterangepicker
+    var first_day =  "<?php echo date_create($date_from)->format('d.m.Y'); ?>";
+    
+    var parts = first_day.split('.');
+    var jsDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var dd = String(jsDate.getDate()).padStart(2, '0');
+    var mm = String(jsDate.getMonth() + 1).padStart(2, '0');
+    var yyyy = jsDate.getFullYear();
+
     first_day = dd + '/' + mm + '/' + yyyy;
 
-    var last_day = new Date();
-    last_day.setDate(last_day.getDate() + <?php echo $days_bookable_in_advance; ?> + <?php echo $lead_time_days; ?>);
+    var last_day =  "<?php echo date_create($date_to)->format('d.m.Y'); ?>";
+    
+    parts = last_day.split('.');
+    jsDate = new Date(parts[2], parts[1] - 1, parts[0]);
 
-    var dd = String(last_day.getDate()).padStart(2, '0');
-    var mm = String(last_day.getMonth() + 1).padStart(2, '0');
-    var yyyy = last_day.getFullYear();
+    dd = String(jsDate.getDate()).padStart(2, '0');
+    mm = String(jsDate.getMonth() + 1).padStart(2, '0');
+    yyyy = jsDate.getFullYear();
+
     last_day = dd + '/' + mm + '/' + yyyy;
 
     $(function() {
@@ -288,9 +341,7 @@ $max_loan_duration = 365;
                 "firstDay": 1
             },
             "startDate": first_day,
-            "endDate": first_day,
-            "minDate": first_day,
-            "maxDate": last_day,
+            "endDate": last_day,
             "maxSpan": {
                 "days": <?php echo $max_loan_duration; ?>
             },
@@ -308,4 +359,35 @@ $max_loan_duration = 365;
         document.getElementById("date_from").value = picker.startDate.format('DD-MM-YYYY');
         document.getElementById("date_to").value = picker.endDate.format('DD-MM-YYYY');
     });
+
+    function add_devices(){
+		var devices_of_deparment = <?php echo is_null($devices_of_deparment) ? "2" : json_encode($devices_of_deparment); ?>;
+		if(devices_of_deparment == "2") return;
+		var string = document.getElementById('device_list').innerHTML;
+		added++;
+
+		var string = "<div class='row no-gutters' style='text-align:center;' name='device_list_" + added + "' id='device_list_" + added + "'>";
+			string += "<div class='col'>";
+				string += "<select class='form-select' name='type_" + added + "' id='type_" + added + "'>";
+					for (var i = 0; i < devices_of_deparment.length; i++) {
+						string += "<option id='device_" + devices_of_deparment[i]['device_type_indicator'] + "' name='device_" + devices_of_deparment[i]['device_type_indicator'] + "'>" + devices_of_deparment[i]['device_type_name'] + "</option>";
+					}
+				string += "</select>";
+			string += "</div>";
+			string += "<div class='col col-lg-2'>";
+				string += "<input type='number' name='amount_" + added + "' id='amount_" + added + "' class='form-control' value='1'>"; 
+			string += "</div>";
+			string += "<div class='col col-lg-2'>";
+				string += "<button onclick='remove_device(" + added + ")'>-</button>";
+			string += "</div>";
+		string += "</div>";
+
+		var str = '<p>Some more <span>text</span> here</p>',
+		div = document.getElementById( 'device_list' );
+		div.insertAdjacentHTML( 'beforeend', string );
+	}
+
+    function remove_device(id){
+		document.getElementById('device_list_' + id).innerHTML = "";
+	}
 </script>
