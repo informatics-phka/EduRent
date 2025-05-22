@@ -99,32 +99,68 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 				color: inherit;
 			}
 
-			/* clickable images */
-			#lightbox {
-				position: absolute;
-				z-index: 999;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width: 80vw;
-				height: 80vh;
+			.img-wrapper {
+				position: relative;
+				width: 128px;
+				height: 128px;
+				margin: 5px;
+				cursor: pointer;
+				border: 1px dashed #ccc;
+				border-radius: 4px;
 				display: flex;
 				align-items: center;
-				visibility: hidden;
-				opacity: 0;
-				transition: opacity ease 0.6s;
+				justify-content: center;
+				background-color: #f9f9f9;
+				overflow: hidden;
 			}
 
-			#lightbox.show {
-				visibility: visible;
+			.img-wrapper img {
+				max-width: 128px;
+				max-height: 128px;
+				width: auto;
+				height: auto;
+				display: block;
+				border-radius: 4px;
+			}
+
+			.edit-icon,
+			.delete-icon {
+				position: absolute;
+				top: 5px;
+				width: 24px;
+				height: 24px;
+				background-color: rgba(0, 0, 0, 0.6);
+				color: white;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 12px;
+				cursor: pointer;
+				opacity: 0;
+				transition: opacity 0.2s;
+			}
+
+			.edit-icon {
+				right: 34px;
+			}
+
+			.delete-icon {
+				right: 5px;
+			}
+
+			.img-wrapper:hover .edit-icon,
+			.img-wrapper:hover .delete-icon {
 				opacity: 1;
 			}
 
-			#lightbox img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-				background: rgba(0, 0, 0, 0.5);
+			.placeholder-icon {
+				font-size: 48px;
+				color: #999;
+			}
+
+			#device_img {
+				display: none;
 			}
 		</style>
 	</head>
@@ -213,32 +249,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	}
 	?>
 	<div class="main">
-		<div id='lightbox'></div>
 		<script>
-			window.onload = () => { //zoom to click
-				// GET LIGHTBOX & ALL .ZOOMD IMAGES
-				let all = document.getElementsByClassName("zoomD"),
-					lightbox = document.getElementById("lightbox");
-
-				// CLICK TO SHOW IMAGE IN LIGHTBOX
-				if (all.length > 0) {
-					for (let i of all) {
-						i.onclick = () => {
-							let clone = i.cloneNode();
-							clone.className = "";
-							lightbox.innerHTML = "";
-							lightbox.appendChild(clone);
-							lightbox.className = "show";
-						};
-					}
-				}
-
-				// CLICK TO CLOSE LIGHTBOX
-				lightbox.onclick = () => {
-					lightbox.className = "";
-				};
-			};
-
 			var type_array = <?php echo json_encode($type); ?>;
 			var old_type = <?php echo $_GET['type']; ?>;
 
@@ -270,10 +281,77 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 					return true
 				}
 			}
+
+			function triggerImageUpload() {
+				document.getElementById('device_img').click();
+			}
+
+			function previewImage(event) {
+				const file = event.target.files[0];
+				if (!file) return;
+
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					const preview = document.getElementById('imagePreview');
+					if (preview.tagName.toLowerCase() === 'img') {
+						preview.src = e.target.result;
+					} else {
+						const img = document.createElement('img');
+						img.src = e.target.result;
+						img.className = 'zoomD';
+						img.id = 'imagePreview';
+
+						const wrapper = document.getElementById('imgWrapper');
+						wrapper.replaceChild(img, preview);
+					}
+					document.getElementById('delete_image').value = '0';
+				};
+				reader.readAsDataURL(file);
+			}
+
+			function deleteImage() {
+				if (!confirm("Möchtest du das Bild wirklich löschen?")) return;
+
+				const wrapper = document.getElementById('imgWrapper');
+				const current = document.getElementById('imagePreview');
+				if (current) wrapper.removeChild(current);
+
+				const icon = document.createElement('i');
+				icon.className = 'fa-solid fa-circle-question placeholder-icon';
+				icon.id = 'imagePreview';
+				wrapper.insertBefore(icon, wrapper.querySelector('.edit-icon'));
+
+				document.getElementById('delete_image').value = '1';
+				document.getElementById('device_img').value = '';
+			}
 		</script>
 		<h3><?php echo translate('word_type'); ?> '<?php echo $type[$_GET['type']]['device_type_name']; ?>' <?php echo translate('word_edit'); ?></h3>
-		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="simple_upload.php" method="post" enctype="multipart/form-data">
 			<input style="display:none;" class="form-control" type="text" id="device_type_id" name="device_type_id">
+
+			<div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 10px;">
+				<div class="img-wrapper" id="imgWrapper">
+					<?php if (!empty($type[$_GET['type']]['device_type_img_path'])): ?>
+						<img src="<?= $type[$_GET['type']]['device_type_img_path'] ?>" alt="Bild des Typs" class="zoomD" id="imagePreview">
+					<?php else: ?>
+						<i class="fa-solid fa-circle-question placeholder-icon" id="imagePreview"></i>
+					<?php endif; ?>
+
+					<!-- Bearbeiten -->
+					<div class="edit-icon" title="Bild ändern" onclick="triggerImageUpload();">
+						<i class="fas fa-pen"></i>
+					</div>
+
+					<!-- Löschen -->
+					<div class="delete-icon" title="Bild löschen" onclick="event.stopPropagation(); deleteImage();">
+						<i class="fas fa-trash"></i>
+					</div>
+				</div>
+			</div>
+
+			<input type="file" name="file" id="device_img" accept="image/*" style="display:none;" onchange="previewImage(event)">
+			<input type="hidden" name="delete_image" id="delete_image" value="0">
+			<br>
 
 			<div class="input-control">
 				<label for="device_type_name"><?php echo translate('text_deviceTypeName'); ?></label>
@@ -359,35 +437,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 					echo "</div>";
 				}
 				?>
-			</div>
-			<br>
-
-			<?php echo translate('word_deviceTypeImg'); ?>
-			<?php
-			//img vorhanden
-			if ($type[$_GET['type']]['device_type_img_path'] != "") {
-				echo "<div id='old_img' class='text-center'>";
-				echo "<img src='" . $type[$_GET['type']]['device_type_img_path'] . "' alt='Bild des Typs' style='width:128px; heigth:auto; margin:5px 5px 5px 5px'; class='zoomD'>";
-				echo "</div>";
-			}
-			?>
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=1 checked>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_oldPic'); ?>
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=2>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_newPic'); ?>
-				</label>
-			</div>
-			<br>
-
-			<div id="input_img" style="display:none;" class="mb-3">
-				<input class="form-control rounded" id=device_img type="file" name="file" max-size="10" accept="image/png, image/jpeg, image/img">
 			</div>
 			<br>
 
@@ -596,24 +645,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 
 		return true;
 	}); 
-
-	//is radiobutton selected?
-	var rad = document.myForm.change_pic;
-	var prev = null;
-	for (var i = 0; i < rad.length; i++) {
-		rad[i].addEventListener('change', function() {
-			if (this !== prev) {
-				prev = this;
-			}
-			if (this.value == 2) {
-				document.getElementById('input_img').style.display = 'block';
-				document.getElementById('old_img').style.display = 'none';
-			} else {
-				document.getElementById('input_img').style.display = 'none';
-				document.getElementById('old_img').style.display = 'block';
-			}
-		});
-	}
 
 	//errorhandle
 	const setError = (element, message) => {
