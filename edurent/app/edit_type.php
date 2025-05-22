@@ -14,30 +14,11 @@ if (isEmpty($_GET['type'])) {
 	exit;
 }
 
-//get limits of types
-$limits = get_limits_of("device_type");
-$type;
-$sql = "SELECT * FROM device_type";
-if ($result = mysqli_query($link, $sql)) {
-	if (mysqli_num_rows($result) > 0) {
-		while ($row = mysqli_fetch_array($result)) {
-			$type[$row['device_type_id']]['device_type_name'] = $row['device_type_name'];
-			$type[$row['device_type_id']]['device_type_indicator'] = $row['device_type_indicator'];
-			$type[$row['device_type_id']]['device_type_info'] = $row['device_type_info'];
-			$type[$row['device_type_id']]['device_type_img_path'] = $row['device_type_img_path'];
-			$type[$row['device_type_id']]['device_type_storage'] = $row['device_type_storage'];
-			$type[$row['device_type_id']]['device_tooltip'] = $row['tooltip'];
-			$type[$row['device_type_id']]['home_department'] = $row['home_department'];
-			$type[$row['device_type_id']]['max_loan_days'] = $row['max_loan_days'];
-		}
-		mysqli_free_result($result);
-	}
-} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-
 //get data
 $departments = get_departmentnames();
+$limits = get_limits_of("device_type");
 
-$part_of_department = array();
+$part_of_department = [];
 $query = "SELECT department_id FROM type_department WHERE type_id = ?";
 if ($stmt = mysqli_prepare($link, $query)) {
 	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
@@ -47,10 +28,10 @@ if ($stmt = mysqli_prepare($link, $query)) {
 		if (mysqli_stmt_num_rows($stmt) > 0) {
 			mysqli_stmt_bind_result($stmt, $department_id);
 			while (mysqli_stmt_fetch($stmt)) {
-				$part_of_department[count($part_of_department)] = $department_id;
+				$part_of_department[] = $department_id;
 			}
 		} else {
-			save_in_logs("ERROR: Kein Datensatz gefunden (" . $query . ") 52");
+			save_in_logs("ERROR: No data found (" . $query . ") 52");
 		}
 	} else {
 		save_in_logs("ERROR: " . mysqli_error($link));
@@ -60,6 +41,29 @@ if ($stmt = mysqli_prepare($link, $query)) {
 	save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
 }
 $stmt->close();
+
+$type = [];
+$sql = "SELECT * FROM device_type";
+if ($result = mysqli_query($link, $sql)) {
+	if (mysqli_num_rows($result) > 0) {
+		while ($row = mysqli_fetch_assoc($result)) {
+            $type[$row['device_type_id']] = [
+                'device_type_name' => $row['device_type_name'],
+                'device_type_indicator' => $row['device_type_indicator'],
+                'device_type_info' => $row['device_type_info'],
+                'device_type_img_path' => $row['device_type_img_path'],
+                'device_type_storage' => $row['device_type_storage'],
+                'device_tooltip' => $row['tooltip'],
+                'home_department' => $row['home_department'],
+                'max_loan_days' => $row['max_loan_days'],
+            ];
+        }
+		mysqli_free_result($result);
+	} else {
+        save_in_logs("ERROR: No data found (" . $sql . ")");
+    }
+} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+
 
 if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_institute;
 ?>
