@@ -54,34 +54,33 @@ for ($i = 0; $i < count($combinations); $i++) {
 	}
 }
 ?>
-
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	
+	<!-- html editor -->
+	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast & Banner -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
 <body>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		
-		<!-- Bootstrap -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		
-		<!-- stylesheet -->
-		<link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-        <link rel="stylesheet" href="style-css/accessability.css">
-		
-		<!-- html editor -->
-		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-		<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-		
-		<!-- Font Awesome -->
-    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-    	
-		<!-- Toast & Banner -->
-		<?php require_once("Controller/toast.php"); ?>
-	</head>
 	<div class="main">
 		<h3><?php echo translate('text_pickup'); ?></h3>
 		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">

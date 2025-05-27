@@ -7,6 +7,8 @@ if($debug){
 	error_reporting(E_ALL);
 }
 
+$is_superadmin = is_superadmin($user_username);
+
 //check if all infos are set
 if (isEmpty($_GET['type'])) {
 	error_to_superadmin(get_superadmins(), $mail, "ERROR: Fehler beim Aufrufen von edit_type.php: _GET[type] isEmpty {" . $_GET['type'] . "}");
@@ -63,71 +65,71 @@ $stmt->close();
 
 if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_institute;
 ?>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- html editor -->
+	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+	<style>
+		a,
+		a:hover,
+		a:focus,
+		a:active {
+			text-decoration: none;
+			color: inherit;
+		}
 
+		/* clickable images */
+		#lightbox {
+			position: absolute;
+			z-index: 999;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 80vw;
+			height: 80vh;
+			display: flex;
+			align-items: center;
+			visibility: hidden;
+			opacity: 0;
+			transition: opacity ease 0.6s;
+		}
+
+		#lightbox.show {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		#lightbox img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			background: rgba(0, 0, 0, 0.5);
+		}
+	</style>
+</head>
 <body>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		
-		<!-- Bootstrap -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		
-		<!-- stylesheet -->
-		<link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-        <link rel="stylesheet" href="style-css/accessability.css">
-		
-		<!-- html editor -->
-		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-		<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-		
-		<!-- Font Awesome -->
-    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-    	
-		<!-- Toast -->
-		<?php require_once("Controller/toast.php"); ?>
-		<style>
-			a,
-			a:hover,
-			a:focus,
-			a:active {
-				text-decoration: none;
-				color: inherit;
-			}
-
-			/* clickable images */
-			#lightbox {
-				position: absolute;
-				z-index: 999;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width: 80vw;
-				height: 80vh;
-				display: flex;
-				align-items: center;
-				visibility: hidden;
-				opacity: 0;
-				transition: opacity ease 0.6s;
-			}
-
-			#lightbox.show {
-				visibility: visible;
-				opacity: 1;
-			}
-
-			#lightbox img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-				background: rgba(0, 0, 0, 0.5);
-			}
-		</style>
-	</head>
 	<?php
 	$device_department= $type[$_GET['type']]['home_department'];
 	check_is_admin_of_department($user_username, $device_department);
@@ -213,6 +215,8 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	}
 	?>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>
+		<br>
 		<div id='lightbox'></div>
 		<script>
 			window.onload = () => { //zoom to click
