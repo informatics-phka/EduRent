@@ -24,6 +24,8 @@ $type = get_type_info();
 $devices;
 $block = get_blocked_devices();
 $limits = get_limits_of("device_list");
+$is_superadmin = is_superadmin($user_username);
+
 
 $sql = "SELECT * FROM device_list ORDER BY device_id";
 if ($result = mysqli_query($link, $sql)) {
@@ -70,6 +72,8 @@ check_is_admin_of_department($user_username, $device_department);
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+
 	
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -79,6 +83,8 @@ check_is_admin_of_department($user_username, $device_department);
 </head>
 <body>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3><?php echo translate('text_deviceEdit'); ?> '<?php echo $type[$_GET['type']]['indicator']; ?><?php echo $devices[$selected_type_id][$selected_id][0]; ?>'</h3>
 		<form id="form" name="form" action="edit_type.php?type=<?php echo $_GET['type']; ?>" method="post">
 			<label for="serialnumber"><?php echo translate('text_enterSerialNumber'); ?></label>

@@ -7,6 +7,8 @@ if($debug){
 }
 
 check_superadmin($user_username);
+$is_superadmin = is_superadmin($user_username);
+
 
 //get data
 $departments = get_departmentnames();
@@ -32,7 +34,8 @@ save_in_logs($non_admin);
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
-	
+	<link rel="stylesheet" href="style-css/navbar.css">
+
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 	
@@ -41,6 +44,8 @@ save_in_logs($non_admin);
 </head>
 <body>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3 class="text-center"><?php echo translate('text_createAdmin'); ?></h3>
 
 		<form class="needs-validation" id="form" name="form" action="admins.php" method="post">

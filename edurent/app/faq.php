@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<<<<<<< Updated upstream
-=======
 <?php
 if($debug){
 	ini_set('display_errors', '1');     
@@ -16,7 +14,6 @@ $is_superadmin = is_superadmin($user_username);
 
 ?>
 
->>>>>>> Stashed changes
 <html lang="en">
 
 <head>
@@ -68,14 +65,10 @@ $is_superadmin = is_superadmin($user_username);
 </head>
 
 <body>
-<<<<<<< Updated upstream
-	<div class="container">	
-=======
 	<div class="main">
 		<?php require_once 'navbar.php'; ?>
 		<br>
 					
->>>>>>> Stashed changes
 		<!-- Searchbar -->
 		<div class="mb-4">
             <div class="input-group">

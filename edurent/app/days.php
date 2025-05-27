@@ -14,6 +14,8 @@ if (isEmpty($_GET['depart'])) {
 }
 
 check_is_admin_of_department($user_username, $_GET['depart']);
+$is_superadmin = is_superadmin($user_username);
+
 
 $depart = $_GET["depart"];
 
@@ -35,6 +37,8 @@ $depart = $_GET["depart"];
 	<link rel="stylesheet" href="style-css/ahover.css">
 	<link rel="stylesheet" href="js/clickablerow.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+
 	
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -44,6 +48,8 @@ $depart = $_GET["depart"];
 </head>
 <body>	
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3 class="text-center"><?php echo translate('word_pickupDays'); ?></h3>
 		<?php
 		//Create

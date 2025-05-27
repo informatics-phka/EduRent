@@ -14,6 +14,8 @@ if (isEmpty($_GET['depart'])) {
 }
 
 check_is_admin_of_department($user_username, $_GET['depart']);
+$is_superadmin = is_superadmin($user_username);
+
 
 //get data
 $type = get_type_info();
@@ -69,6 +71,8 @@ for ($i = 0; $i < count($combinations); $i++) {
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+
 	
 	<!-- html editor -->
 	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -82,6 +86,8 @@ for ($i = 0; $i < count($combinations); $i++) {
 </head>
 <body>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3><?php echo translate('text_pickup'); ?></h3>
 		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
 

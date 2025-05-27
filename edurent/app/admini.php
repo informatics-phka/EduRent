@@ -25,10 +25,11 @@ if ($result = mysqli_query($link, $sql)) {
 $pickupdays = get_allopeningdays();
 $admins = get_all_admins();
 $department_ids = get_admin_department($user_username);
+$is_superadmin = is_superadmin($user_username);
 
 //get orders you are allowed to see
 $orders = array();
-if (is_superadmin($user_username)) {
+if ($is_superadmin) {
     $orders = get_all_orders();
 } else {
 	foreach ($department_ids as $department_id) {
@@ -39,13 +40,12 @@ if (is_superadmin($user_username)) {
     }
 }
 
-
 //getlimits
 $limits = get_limits_of("device_list");
 
 $devices_of_deparment = array();;
 $sql;
-if(is_superadmin($user_username)){
+if($is_superadmin){
 	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department ORDER BY home_department";
 }
 else{
@@ -98,36 +98,6 @@ if ($result = mysqli_query($link, $sql)) {
 	<?php require_once("Controller/toast.php"); ?>
 </head>
 <body>
-<<<<<<< Updated upstream
-
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		
-		<!-- Bootstrap -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		
-		<!-- stylesheet -->
-		<link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-		<link rel="stylesheet" href="style-css/page_colors.scss">
-        <link rel="stylesheet" href="style-css/accessability.css">
-		
-		<!-- searchbar -->
-		<script type="text/javascript" src="js/searchbar.js"></script>
-		
-		<!-- Font Awesome -->
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-		
-		<!-- Toast -->
-		<?php require_once("Controller/toast.php"); ?>
-	</head>
-=======
->>>>>>> Stashed changes
 	<style>
 		.collapsed {
 			display: none;
@@ -147,10 +117,6 @@ if ($result = mysqli_query($link, $sql)) {
 			$("#button_grey").html('<?php echo translate('word_back'); ?>');
 			$("#button_red").hide();
 			$("#button_yellow").html('<?php echo translate('word_editBig'); ?>');
-<<<<<<< Updated upstream
-			$("#button_yellow").attr("onclick", "order_extend(" + reservation_id + ", '" + from + "', '" + to + "', '" + time_from + "', '" + time_to + "', '" + room_from + "', '" + room_to + "')");
-=======
->>>>>>> Stashed changes
 
 			if (orders == "2" || orders[reservation_id] == null) { //Error
 				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
@@ -311,7 +277,6 @@ if ($result = mysqli_query($link, $sql)) {
 
 	if(exists_and_not_empty('abh', $_GET)){ //collected
 		try {
-			$SESSION->toasttext = "collected";
 			/** compare old and new devices and recognize differences **/
 
 			if(!$_GET['new']) throw new Exception("GET(new) is empty");
@@ -350,6 +315,7 @@ if ($result = mysqli_query($link, $sql)) {
 					$query = mysqli_query($link, $sql);
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$new_id = $row['device_id'];
@@ -359,6 +325,7 @@ if ($result = mysqli_query($link, $sql)) {
 					$query = mysqli_query($link, $sql);
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$old_id = $row['id'];
@@ -366,6 +333,7 @@ if ($result = mysqli_query($link, $sql)) {
 					//Update
 					$sql = "UPDATE devices_of_reservations SET devices_of_reservations.device_id= '" . $new_id . "' WHERE devices_of_reservations.id='" . $old_id . "' AND devices_of_reservations.reservation_id=" . $reservation_id . " LIMIT 1";
 					if (!mysqli_query($link, $sql)) {
+						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 				}
@@ -398,6 +366,7 @@ if ($result = mysqli_query($link, $sql)) {
 					}
 				}
 				else {
+					$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
 					throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 				}
 				
@@ -420,11 +389,12 @@ if ($result = mysqli_query($link, $sql)) {
 			} else {
 				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 			}
-			echo "<script>window.location.href = 'admini';</script>";
+			$SESSION->toasttext = "Die Reservierung wurde abgeholt";
 		}
 		catch (exception $e) {
 			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 409 admini: " . $e->getMessage());			
 		}
+		echo "<script>window.location.href = 'admini';</script>";
 	}
 
 	if(exists_and_not_empty('cancel', $_GET)){ //deleted
@@ -569,7 +539,7 @@ if ($result = mysqli_query($link, $sql)) {
 		}
 	}
 
-	if (is_superadmin($user_username)) { //Show the active reservations
+	if ($is_superadmin) { //Show the active reservations
 		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to, time_from, time_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND (status<4 OR status >6) AND user_id=user.id ORDER BY reservation_id";
 	} else {
 		$ids;
@@ -583,18 +553,14 @@ if ($result = mysqli_query($link, $sql)) {
 
 	?>
 		<div class="main">
-<<<<<<< Updated upstream
-=======
 			<?php require_once 'navbar.php'; ?>	
 			<br>
->>>>>>> Stashed changes
 	<?php
 
 	if ($result = mysqli_query($link, $sql)) {
 		if (mysqli_num_rows($result) > 0) {
 	?>
 		
-			<h3 style='text-align:center;' class="select"> <?php echo translate('word_reservations'); ?> </h3>
 			<div class='table-responsive'>
 				<table class='table table-sortable'>
 					<thead>
@@ -691,8 +657,17 @@ if ($result = mysqli_query($link, $sql)) {
 									$button = "btn-danger";
 								}
 								?>
-								<td> <button type="button" class="btn rounded <?php echo $button; ?> mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>','<?php echo $row['time_from']; ?>','<?php echo $row['time_to']; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
-								<td style="vertical-align: middle"><?php echo $status; ?></td>
+								<td>
+									<form method="POST" action="view_reservation" style="display:inline;">
+										<input type="hidden" name="reservation_id" value="<?php echo $row['reservation_id']; ?>">
+										<button type="submit" class="btn rounded <?php echo $button; ?> mr-1 mb-1">
+										#<?php echo $row['reservation_id']; ?>
+										</button>
+									</form>
+								</td>
+								<td style="vertical-align: middle">
+									<?php echo $status; ?>
+								</td>
 
 								<?php
 								switch ($row['status']) {
@@ -734,136 +709,9 @@ if ($result = mysqli_query($link, $sql)) {
 	}
 	/** END - Show the active reservations **/
 
-	/** START - orderhistory **/
-	$sql;
-
-
-	if ($department_ids[0] == 0) { //is superadmin
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND status>3 AND status <7 AND user_id=user.id ORDER BY reservation_id DESC";
-	} else {
-		$departments_sql = "(reservations.department_id='" . $department_ids[0] . "'";
-		for($i = 1; $i < count($department_ids); $i++) {
-			$departments_sql .= " OR reservations.department_id='" . $department_ids[$i] . "'";
-		}
-		$departments_sql .= ")";
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND status>3 AND status <7 AND user_id=user.id AND " . $departments_sql . " ORDER BY reservation_id DESC";
-	}
-
-	if ($result = mysqli_query($link, $sql)) {
-		if (mysqli_num_rows($result) > 0) {
+		//START - Links
 			?>
-				<br>
-				<div class='row no-gutters text-center'>
-					<div class='col'></div>
-					<h3 class='m-b-0 col select'><?php echo translate('word_orderHistory'); ?></h3>
-					<div class='col'>
-						<input type='text' class='w-100 search' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<?php echo translate('word_search'); ?>' />
-					</div>
-				</div>
-
-				<div class="table-responsive">
-					<table class='table results collapse_me'>
-						<thead>
-							<tr>
-								<th class='band' scope='col'><?php echo translate('word_number'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateFrom'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_dateTo'); ?></th>
-								<th class='band' scope='col'><?php echo translate('word_status'); ?></th>
-							</tr>
-							<tr class='warning no-result' style="display:none;">
-								<td colspan='4'><i class='fa fa-warning'></i><?php echo translate('text_noResult'); ?></td>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td colspan='4' class='clickable'><?php echo translate('text_tablehead'); ?></td>
-							</tr>
-						</tbody>
-						<tbody class="collapsed">
-							<?php while ($row = mysqli_fetch_array($result)) { ?>
-								<tr>
-									<td> <button type="button" class="btn rounded btn-outline-dark mr-1 mb-1" onclick="modal_load(<?php echo $row['reservation_id']; ?>,'<?php echo date_format(date_create($row['date_from']), 'd.m.Y'); ?>','<?php echo date_format(date_create($row['date_to']), 'd.m.Y'); ?>','<?php echo $row['fn']; ?>','<?php echo $row['ln']; ?>','<?php echo $row['status']; ?>','<?php echo $row['room_from']; ?>','<?php echo $row['room_to']; ?>','<?php echo $departments[$row['department_id']][get_language()]; ?>')">#<?php echo $row['reservation_id']; ?></button></td>
-								<?php
-								switch (!is_null($row['date_from'])) { //column from
-									case true:
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_from']), 'd.m.Y') . "</td>";
-										break;
-									case false:
-										echo "<td></td>";
-										break;
-								}
-
-								switch (!is_null($row['date_to'])) { //column to
-									case true:
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_to']), 'd.m.Y') . "</td>";
-										break;
-									case false:
-										echo "<td></td>";
-										break;
-								}
-								$status = get_history_status($row['status']);
-								echo "<td style='vertical-align: middle'>" . $status . "</td>";
-
-								/** hidden infos for searchbar **/
-								echo "<td style='display:none;'>#" . $row['reservation_id'] . "</td>"; //reservation id
-								echo "<td style='display:none;'>" . $row['fn'] . " " . $row['ln'] . "</td>"; //full name
-								if(exists_and_not_empty($row['reservation_id'],$orders)){
-									if(exists_and_not_empty(0,$orders[$row['reservation_id']])){ //devices
-										echo "<td style='display:none;'>" . $orders[$row['reservation_id']][0] . "</td>"; //device ids
-									}
-								}
-								echo "</tr>";
-							}
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
-							mysqli_free_result($result);
-						} else { ?>
-								<br>
-								<br>
-								<h5 style='text-align:center;'>Es gibt keine vergangenen Reservierungen</h5>
-						<?php }
-					} else {
-						error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-					}
-					// END - orderhistory
-
-					//START - Links
-						?>
-						<br>
-						<h3 style='text-align:center;' class="select"><?php echo translate('word_systemmanagement'); ?></h3>
-						<div class='row justify-content-center'>
-						<?php if (is_admin($user_username)) { ?>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='departments'>
-									<i class="fa-solid fa-building"></i> <?php echo translate('word_departments'); ?>
-								</a>
-							</div>
-						<?php } ?>
-						<div class='col-12 col-md-4 mb-3'>
-							<a class='btn btn-outline-dark btn-block' href='faq'>
-								<i class="fas fa-question-circle mr-2"></i> FAQ
-							</a>
-						</div>
-						<?php if (is_superadmin($user_username)) { ?>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='admins'>
-									<i class="fas fa-user-cog mr-2"></i> <?php echo translate('word_admins'); ?>
-								</a>
-							</div>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='logs'>
-									<i class="fas fa-file-alt mr-2"></i> Logs
-								</a>
-							</div>
-							<div class='col-12 col-md-4 mb-3'>
-								<a class='btn btn-outline-dark btn-block' href='update_settings'>
-									<i class="fas fa-cog mr-2"></i> <?php echo translate('word_settings'); ?>
-								</a>
-							</div>
-						<?php } ?>
-					</div>
-				</div>
+	</div>
 	<!-- tablesort -->
 	<script type="text/javascript" src="js/tablesort.js"></script>
 </body>
@@ -874,7 +722,6 @@ echo $OUTPUT->footer();
 mysqli_close($link);
 
 //Functions PHP
-
 function get_history_status($status_id)
 {
 	switch ($status_id) {
@@ -908,162 +755,7 @@ function get_history_status($status_id)
 	});
 
 	var added = 0;
-	function order_cancel(reservation_id) {
-		location.href = "?cancel=" + reservation_id;
-	}
-
-	function add_function(){
-		var devices_of_deparment = <?php echo is_null($devices_of_deparment) ? "2" : json_encode($devices_of_deparment); ?>;
-
-		if(devices_of_deparment == "2") return;
-		//var string = document.getElementById('device_list').innerHTML;
-		added++;
-
-		var string = "<div class='row no-gutters' style='text-align:center;' name='device_list_" + added + "' id='device_list_" + added + "'>";
-			string += "<div class='col'>";
-				string += "<select class='form-select' name='type_" + added + "' id='type_" + added + "'>";
-					for (var i = 0; i < devices_of_deparment.length; i++) {
-						string += "<option id='device_" + devices_of_deparment[i]['device_type_indicator'] + "' name='device_" + devices_of_deparment[i]['device_type_indicator'] + "'>" + devices_of_deparment[i]['device_type_name'] + "</option>";
-					}
-				string += "</select>";
-			string += "</div>";
-			string += "<div class='col col-lg-2'>";
-				string += "<input type='number' name='amount_" + added + "' id='amount_" + added + "' class='form-control' value='1'>"; 
-			string += "</div>";
-			string += "<div class='col col-lg-2'>";
-				string += "<button onclick='remove_function(" + added + ")'>-</button>";
-			string += "</div>";
-		string += "</div>";
-
-		var str = '<p>Some more <span>text</span> here</p>',
-		div = document.getElementById( 'device_list' );
-		div.insertAdjacentHTML( 'beforeend', string );
-	}
-
-	function remove_function(id){
-		document.getElementById('device_list_' + id).innerHTML = "";
-	}
-
-	function order_extend(reservation_id, from, to, time_from, time_to, room_from, room_to) { //extend the timespan of a reservation
-		var mymodal = $('#my_modal');
-		titel = translate("<?php echo translate('text_editTitle'); ?>", [reservation_id]);
-		mymodal.find('.modal-title').text(titel);
-
-		var orders = <?php echo is_null($orders) ? "2" : json_encode($orders); ?>;
-
-		var string = "";
-
-		$("#button_yellow").hide();
-		$("#button_green").hide();
-		$("#button_grey").show();
-		$("#button_red").show();
-
-		if (orders == "2") {
-			string = '<center>Es konnten keine zugeordneten Geräte gefunden werden. Bitte untersuchen die die Reservierung in der MySQL Datenbank.</center>';
-			$("#button_red").hide();
-		} else {
-			var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
-			var date_from = from.replace(pattern, '$3-$2-$1');
-			var date_to = to.replace(pattern, '$3-$2-$1');
-
-			var string_translate = translate("<?php echo translate('text_editReservation1'); ?>", [from, time_from, room_from]);
-			string += "<center>" + string_translate + "<br>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_date'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='date' class='form-control rounded' id='date_from' name = 'date_from' value='" + date_from + "'>";
-			string += "</div>";
-			string += "</div>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_time'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='text' class='form-control rounded' id='time_from' name = 'time_from' value='" + time_from + "'>";
-			string += "</div>";
-			string += "</div>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_room'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='text' class='form-control rounded' id='room_from' name = 'room_from' value='" + room_from + "'>";
-			string += "</div>";
-			string += "</div>";
-			string += "<br>";
-
-			var string_translate = translate("<?php echo translate('text_editReservation2'); ?>", [to, time_to, room_to]);
-			string += string_translate + "<br>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_date'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='date' class='form-control rounded' id='date_to' name = 'date_to' value='" + date_to + "'>";
-			string += "</div>";
-			string += "</div>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_time'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='text' class='form-control rounded' id='time_to' name = 'time_to' value='" + time_to + "'>";
-			string += "</div>";
-			string += "</div>";
-
-			string += "<div class='row no-gutters' style='text-align:center;'>";
-			string += "<div class='col'>";
-			string += "<?php echo translate('word_room'); ?>: ";
-			string += "</div>";
-			string += "<div class='col input-group'>";
-			string += "<input type='text' class='form-control rounded' id='room_to' name = 'room_to' value='" + room_to + "'>";
-			string += "</div>";
-			string += "</div>";
-			string += "<br>";
-
-			string += "<?php echo translate('word_deviceList'); ?>:<br>";
-			string += "<div id='device_list' name='device_list'>";
-
-			if(orders[reservation_id] != undefined){
-				var names = orders[reservation_id][1].split('|');
-				var tag = orders[reservation_id][2].split('|');
-				var type_indicator = orders[reservation_id][3].split('|');
-
-				for (var i = 0; i < names.length; i++) {
-					string += "<div class='row no-gutters' style='text-align:center;' name='device_list_" + i + "' id='device_list_" + i + "'>";
-						string += "<div class='col col-lg-2' name='type_" + i + "' id='type_" + i + "'>";
-							string += names[i];
-						string += "</div>";
-						string += "<div class='col input-group'>";
-							string += "<span style='width:7ch; justify-content: right; display: flex;' class='input-group-text' id='indicator_" + i + "' name = 'indicator_" + i + "'>" + type_indicator[i] + "</span>";
-							string += "<input type='text' style='height:100%' maxlength='<?php echo $limits['device_tag']; ?>' class='form-control rounded' id='device_" + i + "' name = 'device_" + i + "' value='" + tag[i] + "'>";
-						string += "</div>";
-						string += "<div class='col col-lg-2' style='align-items: center; justify-content: center;display: flex;'>";
-							string += "<button class='btn btn-outline-secondary' style='height: 90%; display: flex; align-items: center;' onclick='remove_function(" + i + ")'>-</button>";
-						string += "</div>";
-					string += "</div>";
-				}
-				added = names.length-1;
-			}
-			string += "</div>";
-			string += "<br>";
-			string += "<button onclick='add_function()'>+</button>"
-
-			$("#button_red").html('<?php echo translate('word_editBig'); ?>');
-			$("#button_red").attr("onclick", "order_extend2(" + reservation_id + ")");
-			string += '</center>';
-		}
-		mymodal.find('.modal-body').html(string);
-		mymodal.modal('show');
-	}
-
+	
 	function order_extend2(reservation_id) {
 		from = document.getElementById("date_from").value;
 		time_from = document.getElementById("time_from").value;
@@ -1094,85 +786,5 @@ function get_history_status($status_id)
 		}
 
 		location.href = "?extend=" + reservation_id + "&date_from=" + from + "&date_to=" + to + "&room_from=" + room_from + "&room_to=" + room_to + "&time_to=" + time_to + "&time_from=" + time_from + "&types=" + types + "&amounts=" + amounts + "&values=" + values + "&indicators=" + indicators;
-	}
-
-	function order_remove(reservation_id) {
-		location.href = "?rem=" + reservation_id;
-	}
-
-	function order_accept(reservation_id) {
-		location.href = "?org=" + reservation_id;
-	}
-
-	function order_back(reservation_id) {
-		location.href = "?zu=" + reservation_id;
-	}
-
-	function order_retour(reservation_id) {
-		location.href = "?ret=" + reservation_id;
-	}
-
-	function order_pickup2(reservation_id, amount) {
-		var devices = "";
-		var typs = "";
-		var bouth = "";
-		for (var i = 0; i < amount; i++) {
-			if (devices != "") {
-				devices += ",";
-				typs += ",";
-				bouth += ",";
-			}
-			devices += $("#device" + i).val();
-			typs += document.getElementById("type_indicator" + i).innerText;
-			bouth += document.getElementById("type_indicator" + i).innerText + $("#device" + i).val();
-		}
-		location.href = "?abh=" + reservation_id + "&new_tags=" + devices + "&new_typs=" + typs + "&new=" + bouth;
-	}
-
-	function order_pickup(reservation_id) { //confirm the issued devices
-		console.log("2");
-		var mymodal = $('#my_modal');
-		var titel = "<?php echo translate('word_order'); ?> #" + reservation_id;
-		mymodal.find('.modal-title').text(titel);
-
-		var orders = <?php echo is_null($orders) ? "2" : json_encode($orders); ?>;
-
-		var string = "";
-
-		$("#button_grey").show();
-		$("#button_green").show();
-		$("#button_red").show();
-		$("#button_yellow").hide();
-
-		if (orders == "2") {
-			string = '<center>Es konnten keine zugeordneten Geräte gefunden werden. Bitte untersuchen die die Reservierung in der MySQL Datenbank.</center>';
-			$("#button_red").hide();
-			$("#button_green").hide();
-		} else {
-			var names = orders[reservation_id][1].split('|');
-			var tag = orders[reservation_id][2].split('|');
-			var type_indicator = orders[reservation_id][3].split('|');
-			var geraete = "";
-			var amount = 0;
-
-			string += "<center>Welche Geräte-IDs wurden ausgegeben?<br>";
-
-			for (var i = 0; i < names.length; i++) {
-				string += "<div class='row no-gutters' style='text-align:center;'>";
-				string += "<div class='col'>";
-				string += names[i];
-				string += "</div>";
-				string += "<div class='col input-group'>";
-				string += "<span class='input-group-text' id='type_indicator" + i + "' name = 'type_indicator" + i + "'>" + type_indicator[i] + "</span>";
-				string += "<input type='text' maxlength='<?php echo $limits['device_tag']; ?>' class='form-control rounded' id='device" + i + "' name = 'device" + i + "' value='" + tag[i] + "'>";
-				string += "</div>";
-				string += "</div>";
-				amount++;
-			}
-			$("#button_red").attr("onclick", "order_pickup2(" + reservation_id + "," + amount + ")");
-			string += '</center>';
-		}
-		mymodal.find('.modal-body').html(string);
-		mymodal.modal('show');
 	}
 </script>

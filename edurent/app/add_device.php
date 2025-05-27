@@ -23,6 +23,8 @@ $block = get_blocked_devices();
 
 $device_department= $type[$_GET['type']]['home_department'];
 check_is_admin_of_department($user_username, $device_department);
+$is_superadmin = is_superadmin($user_username);
+
 
 //get limits
 $limits = get_limits_of("device_list");
@@ -50,6 +52,8 @@ else{
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+
 	
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -60,6 +64,8 @@ else{
 </head>
 <body>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3 style='text-align:center; width:100%;'><?php echo translate('text_editType', ['a' => $type[$selected_type_id]['name']]) ?></h3>
 		<br>
 		<form class="needs-validation" id="form" action="edit_type.php?type=<?php echo $selected_type_id; ?>" method="post" novalidate>
