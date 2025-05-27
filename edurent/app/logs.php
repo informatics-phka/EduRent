@@ -7,11 +7,8 @@ if ($debug) {
 }
 
 check_superadmin($user_username);
-<<<<<<< Updated upstream
-=======
 
 $is_superadmin = is_superadmin($user_username);
->>>>>>> Stashed changes
 ?>
 
 <body>
@@ -74,12 +71,8 @@ $is_superadmin = is_superadmin($user_username);
     ?>
 
 	<div class="main">
-<<<<<<< Updated upstream
-        <h3 style="text-align: center;">Logs</h3>
-=======
         <?php require_once 'navbar.php'; ?>	
         <br>
->>>>>>> Stashed changes
 
         <?php
         $files = scandir('./log');

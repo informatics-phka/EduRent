@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<<<<<<< Updated upstream
-=======
 <?php
 if($debug){
 	ini_set('display_errors', '1');     
@@ -16,7 +14,6 @@ $is_superadmin = is_superadmin($user_username);
 
 ?>
 
->>>>>>> Stashed changes
 <html lang="en">
 
 <head>

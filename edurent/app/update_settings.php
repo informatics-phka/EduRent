@@ -28,10 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         save_in_logs("All fields are required");
     }
 }
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 ?>
 <html lang="en">
 <head>
@@ -50,13 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="main">
-<<<<<<< Updated upstream
-        <h2>Server Einstellungen</h2>
-=======
    	    <?php require_once 'app/navbar.php'; ?>
         <br>
         	
->>>>>>> Stashed changes
         <form action="update_settings.php" method="post">
             <div class="mb-3">
                 <label for="days_bookable_in_advance" class="form-label"><?php echo translate('text_daysBookableInAdvance'); ?>:</label>

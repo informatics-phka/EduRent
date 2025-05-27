@@ -7,11 +7,8 @@ if($debug){
 }
 
 check_superadmin($user_username);
-<<<<<<< Updated upstream
-=======
 
 $is_superadmin = is_superadmin($user_username);
->>>>>>> Stashed changes
 ?>
 
 <body>
@@ -55,11 +52,8 @@ $is_superadmin = is_superadmin($user_username);
         .warning { font-weight: normal; }
 	</style>
 	<div class="main">
-<<<<<<< Updated upstream
-=======
         <?php require_once 'navbar.php'; ?>	
         <br>
->>>>>>> Stashed changes
 		<h3>View Log</h3>
 
 		<!-- Search bar -->

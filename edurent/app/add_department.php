@@ -5,6 +5,8 @@
     error_reporting(E_ALL);
 
     check_superadmin($user_username);
+    $is_superadmin = is_superadmin($user_username);
+
 
     //get data
     $departments = array();
@@ -43,6 +45,8 @@
     <link rel="stylesheet" href="style-css/rent.css">
     <link rel="stylesheet" href="style-css/toasty.css">
     <link rel="stylesheet" href="style-css/accessability.css">
+    <link rel="stylesheet" href="style-css/navbar.css">
+
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -53,6 +57,8 @@
 </head>
 <body>
     <div class="main">
+        <?php require_once 'navbar.php'; ?>	
+		<br>
         <h3 class="text-center"><?php echo translate('text_createDepartment'); ?></h3>
         <form method="post" action="departments.php">
             <div class="input-control">

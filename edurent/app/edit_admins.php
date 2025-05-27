@@ -19,10 +19,7 @@ if (isEmpty($_GET['u_id'])) {
 //get data
 $admins = get_all_admins();
 $departments = get_departmentnames();
-<<<<<<< Updated upstream
-=======
 $is_superadmin = is_superadmin($user_username);
->>>>>>> Stashed changes
 
 ?>
 
