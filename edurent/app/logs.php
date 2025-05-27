@@ -96,10 +96,6 @@ $is_superadmin = is_superadmin($user_username);
 		</div>
     </div>
 </body>
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 <?php
 echo $OUTPUT->footer();
 ?>
