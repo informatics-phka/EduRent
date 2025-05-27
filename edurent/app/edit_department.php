@@ -14,6 +14,7 @@ if (isEmpty($_GET['depart'])) {
 }
 
 check_is_admin_of_department($user_username, $_GET['depart']);
+$is_superadmin = is_superadmin($user_username);
 
 $device_type = get_devicetype();
 
@@ -107,63 +108,63 @@ if ($result = mysqli_query($link, $sql)) {
 //get departments of devicetype
 ?>
 
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="style-css/rent.css">
+    <link rel="stylesheet" href="style-css/toasty.css">
+    <link rel="stylesheet" href="style-css/ahover.css">
+    <link rel="stylesheet" href="style-css/accessability.css">
+    <link rel="stylesheet" href="style-css/navbar.css">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Toast -->
+    <?php require_once("Controller/toast.php"); ?>
+    <style>
+        input[type="text"],
+        textarea {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .department-link {
+            display: block;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            background-color: #F0F0F0;
+            text-decoration: none;
+            color: #000000;
+            transition: background-color 0.3s ease;
+        }
+
+        .department-link:hover {
+            background-color: #E0E0E0;
+        }
+    </style>
+
+</head>
 <body>
-
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        
-        <!-- JQuery -->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-        <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        
-        <!-- Bootstrap -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        
-        <!-- stylesheet -->
-        <link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-        <link rel="stylesheet" href="style-css/ahover.css">
-        <link rel="stylesheet" href="style-css/accessability.css">
-        
-        <!-- Font Awesome -->
-    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-    	
-        <!-- Toast -->
-		<?php require_once("Controller/toast.php"); ?>
-        <style>
-            input[type="text"],
-            textarea {
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                padding: 8px;
-                margin-bottom: 10px;
-            }
-
-            h3 {
-				text-align: center;
-				font-size: 24px;
-				margin-bottom: 20px;
-			}
-
-			.department-link {
-				display: block;
-				margin-bottom: 10px;
-				border-radius: 8px;
-				padding: 10px;
-				text-align: center;
-				background-color: #F0F0F0;
-				text-decoration: none;
-				color: #000000;
-				transition: background-color 0.3s ease;
-			}
-
-			.department-link:hover {
-				background-color: #E0E0E0;
-			}
-        </style>
-
-    </head>
     <?php 
         //if remove
         if(exists_and_not_empty('remove_id', $_GET)){
@@ -200,6 +201,8 @@ if ($result = mysqli_query($link, $sql)) {
         }
     ?>
     <div class="main">
+            <?php require_once 'navbar.php'; ?>
+            <br>
         <?php if(count($not_blocked_devices)>0 && count($opening_days) == 0){?>
             <div class="alert alert-danger" ng-show="pickup.error">
                 Fehler! Es wurden noch keine Abholtage erstellt!

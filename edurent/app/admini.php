@@ -69,7 +69,36 @@ if ($result = mysqli_query($link, $sql)) {
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 ?>
 
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/page_colors.scss">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- searchbar -->
+	<script type="text/javascript" src="js/searchbar.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
 <body>
+<<<<<<< Updated upstream
 
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -97,6 +126,8 @@ if ($result = mysqli_query($link, $sql)) {
 		<!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
 	</head>
+=======
+>>>>>>> Stashed changes
 	<style>
 		.collapsed {
 			display: none;
@@ -116,7 +147,10 @@ if ($result = mysqli_query($link, $sql)) {
 			$("#button_grey").html('<?php echo translate('word_back'); ?>');
 			$("#button_red").hide();
 			$("#button_yellow").html('<?php echo translate('word_editBig'); ?>');
+<<<<<<< Updated upstream
 			$("#button_yellow").attr("onclick", "order_extend(" + reservation_id + ", '" + from + "', '" + to + "', '" + time_from + "', '" + time_to + "', '" + room_from + "', '" + room_to + "')");
+=======
+>>>>>>> Stashed changes
 
 			if (orders == "2" || orders[reservation_id] == null) { //Error
 				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
@@ -549,6 +583,11 @@ if ($result = mysqli_query($link, $sql)) {
 
 	?>
 		<div class="main">
+<<<<<<< Updated upstream
+=======
+			<?php require_once 'navbar.php'; ?>	
+			<br>
+>>>>>>> Stashed changes
 	<?php
 
 	if ($result = mysqli_query($link, $sql)) {

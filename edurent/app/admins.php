@@ -9,10 +9,42 @@ if($debug){
 check_superadmin($user_username);
 
 $departments = get_departmentnames();
+<<<<<<< Updated upstream
+=======
+$is_superadmin = is_superadmin($user_username);
+
+>>>>>>> Stashed changes
 
 ?>
 
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/ahover.css">
+	<link rel="stylesheet" href="js/clickablerow.css">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
+
 <body>
+<<<<<<< Updated upstream
 
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -40,6 +72,11 @@ $departments = get_departmentnames();
 	</head>
 	<div class="main">
 	<h3 class="text-center"><?php echo translate('word_admins') ?></h3>
+=======
+	<div class="main">
+		<?php require_once 'navbar.php'; ?>
+		<br>
+>>>>>>> Stashed changes
 		<?php
 		if(exists_and_not_empty('reason', $_POST)){
 			if ($_POST['reason'] == "create") { //create admin
@@ -137,7 +174,7 @@ $departments = get_departmentnames();
 			echo "<a href='edit_admins?u_id=" . array_keys($admins)[$i] . "' class='btn btn-outline-dark btn-block'>" . $admins[array_keys($admins)[$i]]['fn'] . " " . $admins[array_keys($admins)[$i]]['ln'] . "</a>";
 			echo "</div>";
 		}
-	
+
 		echo "</div>";
 
 		?>
