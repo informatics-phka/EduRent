@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <?php
 check_is_admin($user_username);
+$is_superadmin = is_superadmin($user_username);
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (
@@ -41,7 +43,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- stylesheet -->
+    <link rel="stylesheet" href="style-css/rent.css">
+    <link rel="stylesheet" href="style-css/toasty.css">
     <link rel="stylesheet" href="style-css/accessability.css">
+    <link rel="stylesheet" href="style-css/navbar.css">
 
 </head>
 <body>
