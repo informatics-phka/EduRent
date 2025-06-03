@@ -9,66 +9,35 @@ if($debug){
 check_is_admin($user_username);
 
 $is_superadmin = is_superadmin($user_username);
-
-
-
 ?>
 
 <html lang="en">
 
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
 	<!-- JQuery -->
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 	<!-- Bootstrap -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
 	<!-- stylesheet -->
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
     <link rel="stylesheet" href="style-css/accessability.css">
-	<style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f8f9fa;
-        }
-        .faq-section {
-            margin-bottom: 20px;
-        }
-        .faq-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        .faq-question {
-            background: #ffffff;
-            border: 1px solid #ddd;
-            padding: 10px;
-            cursor: pointer;
-            margin: 5px 0;
-        }
-        .faq-answer {
-            display: none;
-            padding: 10px;
-            border-left: 2px solid #007BFF;
-            background: #e9ecef;
-        }
-        #search {
-            background: #e9ecef;
-            border: 1px solid #ced4da;
-            color: #495057;
-        }
-    </style>
+	<link rel="stylesheet" href="style-css/navbar.css">
+	<link rel="stylesheet" href="style-css/faq.css">
 </head>
 
 <body>
 	<div class="main">
 		<?php require_once 'navbar.php'; ?>
 		<br>
-					
 		<!-- Searchbar -->
 		<div class="mb-4">
             <div class="input-group">
@@ -310,16 +279,6 @@ $is_superadmin = is_superadmin($user_username);
 				</div>
 			</div>
 		</div>
-
-		<!-- Button -->
-		<div class='row justify-content-center'>
-			<div class='col-md-6 mb-3'>
-				<a class='btn btn-secondary btn-block' href='admini'>
-					<i class="fas fa-arrow-left mr-2"></i>
-					<?php echo translate('word_back'); ?>
-				</a>
-			</div>
-		</div>
 	</div>
 	
 	<script>
@@ -397,6 +356,22 @@ $is_superadmin = is_superadmin($user_username);
                 }
             });
         });
+
+		document.addEventListener('DOMContentLoaded', () => {
+			// display current header
+			const links = document.querySelectorAll('#navbarMenu .nav-link');
+			const currentPath = window.location.pathname.toLowerCase();
+
+			links.forEach(link => {
+				const linkPath = link.getAttribute('href').toLowerCase();
+
+				if (currentPath.endsWith(linkPath)) {
+					link.classList.add('active');
+				} else {
+					link.classList.remove('active');
+				}
+			});
+		});
     </script>
 </body>
 </html>

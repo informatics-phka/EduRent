@@ -16,30 +16,11 @@ if (isEmpty($_GET['type'])) {
 	exit;
 }
 
-//get limits of types
-$limits = get_limits_of("device_type");
-$type;
-$sql = "SELECT * FROM device_type";
-if ($result = mysqli_query($link, $sql)) {
-	if (mysqli_num_rows($result) > 0) {
-		while ($row = mysqli_fetch_array($result)) {
-			$type[$row['device_type_id']]['device_type_name'] = $row['device_type_name'];
-			$type[$row['device_type_id']]['device_type_indicator'] = $row['device_type_indicator'];
-			$type[$row['device_type_id']]['device_type_info'] = $row['device_type_info'];
-			$type[$row['device_type_id']]['device_type_img_path'] = $row['device_type_img_path'];
-			$type[$row['device_type_id']]['device_type_storage'] = $row['device_type_storage'];
-			$type[$row['device_type_id']]['device_tooltip'] = $row['tooltip'];
-			$type[$row['device_type_id']]['home_department'] = $row['home_department'];
-			$type[$row['device_type_id']]['max_loan_days'] = $row['max_loan_days'];
-		}
-		mysqli_free_result($result);
-	}
-} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-
 //get data
 $departments = get_departmentnames();
+$limits = get_limits_of("device_type");
 
-$part_of_department = array();
+$part_of_department = [];
 $query = "SELECT department_id FROM type_department WHERE type_id = ?";
 if ($stmt = mysqli_prepare($link, $query)) {
 	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
@@ -49,10 +30,10 @@ if ($stmt = mysqli_prepare($link, $query)) {
 		if (mysqli_stmt_num_rows($stmt) > 0) {
 			mysqli_stmt_bind_result($stmt, $department_id);
 			while (mysqli_stmt_fetch($stmt)) {
-				$part_of_department[count($part_of_department)] = $department_id;
+				$part_of_department[] = $department_id;
 			}
 		} else {
-			save_in_logs("ERROR: Kein Datensatz gefunden (" . $query . ") 52");
+			save_in_logs("ERROR: No data found (" . $query . ") 52");
 		}
 	} else {
 		save_in_logs("ERROR: " . mysqli_error($link));
@@ -62,6 +43,29 @@ if ($stmt = mysqli_prepare($link, $query)) {
 	save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
 }
 $stmt->close();
+
+$type = [];
+$sql = "SELECT * FROM device_type";
+if ($result = mysqli_query($link, $sql)) {
+	if (mysqli_num_rows($result) > 0) {
+		while ($row = mysqli_fetch_assoc($result)) {
+            $type[$row['device_type_id']] = [
+                'device_type_name' => $row['device_type_name'],
+                'device_type_indicator' => $row['device_type_indicator'],
+                'device_type_info' => $row['device_type_info'],
+                'device_type_img_path' => $row['device_type_img_path'],
+                'device_type_storage' => $row['device_type_storage'],
+                'device_tooltip' => $row['tooltip'],
+                'home_department' => $row['home_department'],
+                'max_loan_days' => $row['max_loan_days'],
+            ];
+        }
+		mysqli_free_result($result);
+	} else {
+        save_in_logs("ERROR: No data found (" . $sql . ")");
+    }
+} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+
 
 if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_institute;
 ?>
@@ -100,35 +104,106 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			color: inherit;
 		}
 
-		/* clickable images */
-		#lightbox {
-			position: absolute;
-			z-index: 999;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			width: 80vw;
-			height: 80vh;
-			display: flex;
-			align-items: center;
-			visibility: hidden;
-			opacity: 0;
-			transition: opacity ease 0.6s;
-		}
+<body>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		
+		<!-- JQuery -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		
+		<!-- Bootstrap -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		
+		<!-- stylesheet -->
+		<link rel="stylesheet" href="style-css/rent.css">
+        <link rel="stylesheet" href="style-css/toasty.css">
+        <link rel="stylesheet" href="style-css/accessability.css">
+		
+		<!-- html editor -->
+		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+		<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+		
+		<!-- Font Awesome -->
+    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    	
+		<!-- Toast -->
+		<?php require_once("Controller/toast.php"); ?>
+		<style>
+			a,
+			a:hover,
+			a:focus,
+			a:active {
+				text-decoration: none;
+				color: inherit;
+			}
 
-		#lightbox.show {
-			visibility: visible;
-			opacity: 1;
-		}
+			.img-wrapper {
+				position: relative;
+				width: 128px;
+				height: 128px;
+				margin: 5px;
+				cursor: pointer;
+				border: 1px dashed #ccc;
+				border-radius: 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: #f9f9f9;
+				overflow: hidden;
+			}
 
-		#lightbox img {
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-			background: rgba(0, 0, 0, 0.5);
-		}
-	</style>
-</head>
+			.img-wrapper img {
+				max-width: 128px;
+				max-height: 128px;
+				width: auto;
+				height: auto;
+				display: block;
+				border-radius: 4px;
+			}
+
+			.edit-icon,
+			.delete-icon {
+				position: absolute;
+				top: 5px;
+				width: 24px;
+				height: 24px;
+				background-color: rgba(0, 0, 0, 0.6);
+				color: white;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 12px;
+				cursor: pointer;
+				opacity: 0;
+				transition: opacity 0.2s;
+			}
+
+			.edit-icon {
+				right: 34px;
+			}
+
+			.delete-icon {
+				right: 5px;
+			}
+
+			.img-wrapper:hover .edit-icon,
+			.img-wrapper:hover .delete-icon {
+				opacity: 1;
+			}
+
+			.placeholder-icon {
+				font-size: 48px;
+				color: #999;
+			}
+
+			#device_img {
+				display: none;
+			}
+		</style>
+	</head>
 <body>
 	<?php
 	$device_department= $type[$_GET['type']]['home_department'];
@@ -217,32 +292,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	<div class="main">
 		<?php require_once 'navbar.php'; ?>
 		<br>
-		<div id='lightbox'></div>
 		<script>
-			window.onload = () => { //zoom to click
-				// GET LIGHTBOX & ALL .ZOOMD IMAGES
-				let all = document.getElementsByClassName("zoomD"),
-					lightbox = document.getElementById("lightbox");
-
-				// CLICK TO SHOW IMAGE IN LIGHTBOX
-				if (all.length > 0) {
-					for (let i of all) {
-						i.onclick = () => {
-							let clone = i.cloneNode();
-							clone.className = "";
-							lightbox.innerHTML = "";
-							lightbox.appendChild(clone);
-							lightbox.className = "show";
-						};
-					}
-				}
-
-				// CLICK TO CLOSE LIGHTBOX
-				lightbox.onclick = () => {
-					lightbox.className = "";
-				};
-			};
-
 			var type_array = <?php echo json_encode($type); ?>;
 			var old_type = <?php echo $_GET['type']; ?>;
 
@@ -274,10 +324,77 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 					return true
 				}
 			}
+
+			function triggerImageUpload() {
+				document.getElementById('device_img').click();
+			}
+
+			function previewImage(event) {
+				const file = event.target.files[0];
+				if (!file) return;
+
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					const preview = document.getElementById('imagePreview');
+					if (preview.tagName.toLowerCase() === 'img') {
+						preview.src = e.target.result;
+					} else {
+						const img = document.createElement('img');
+						img.src = e.target.result;
+						img.className = 'zoomD';
+						img.id = 'imagePreview';
+
+						const wrapper = document.getElementById('imgWrapper');
+						wrapper.replaceChild(img, preview);
+					}
+					document.getElementById('delete_image').value = '0';
+				};
+				reader.readAsDataURL(file);
+			}
+
+			function deleteImage() {
+				if (!confirm("Möchtest du das Bild wirklich löschen?")) return;
+
+				const wrapper = document.getElementById('imgWrapper');
+				const current = document.getElementById('imagePreview');
+				if (current) wrapper.removeChild(current);
+
+				const icon = document.createElement('i');
+				icon.className = 'fa-solid fa-circle-question placeholder-icon';
+				icon.id = 'imagePreview';
+				wrapper.insertBefore(icon, wrapper.querySelector('.edit-icon'));
+
+				document.getElementById('delete_image').value = '1';
+				document.getElementById('device_img').value = '';
+			}
 		</script>
 		<h3><?php echo translate('word_type'); ?> '<?php echo $type[$_GET['type']]['device_type_name']; ?>' <?php echo translate('word_edit'); ?></h3>
-		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="simple_upload.php" method="post" enctype="multipart/form-data">
 			<input style="display:none;" class="form-control" type="text" id="device_type_id" name="device_type_id">
+
+			<div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 10px;">
+				<div class="img-wrapper" id="imgWrapper">
+					<?php if (!empty($type[$_GET['type']]['device_type_img_path'])): ?>
+						<img src="<?= $type[$_GET['type']]['device_type_img_path'] ?>" alt="Bild des Typs" class="zoomD" id="imagePreview">
+					<?php else: ?>
+						<i class="fa-solid fa-circle-question placeholder-icon" id="imagePreview"></i>
+					<?php endif; ?>
+
+					<!-- Bearbeiten -->
+					<div class="edit-icon" title="Bild ändern" onclick="triggerImageUpload();">
+						<i class="fas fa-pen"></i>
+					</div>
+
+					<!-- Löschen -->
+					<div class="delete-icon" title="Bild löschen" onclick="event.stopPropagation(); deleteImage();">
+						<i class="fas fa-trash"></i>
+					</div>
+				</div>
+			</div>
+
+			<input type="file" name="file" id="device_img" accept="image/*" style="display:none;" onchange="previewImage(event)">
+			<input type="hidden" name="delete_image" id="delete_image" value="0">
+			<br>
 
 			<div class="input-control">
 				<label for="device_type_name"><?php echo translate('text_deviceTypeName'); ?></label>
@@ -363,35 +480,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 					echo "</div>";
 				}
 				?>
-			</div>
-			<br>
-
-			<?php echo translate('word_deviceTypeImg'); ?>
-			<?php
-			//img vorhanden
-			if ($type[$_GET['type']]['device_type_img_path'] != "") {
-				echo "<div id='old_img' class='text-center'>";
-				echo "<img src='" . $type[$_GET['type']]['device_type_img_path'] . "' alt='Bild des Typs' style='width:128px; heigth:auto; margin:5px 5px 5px 5px'; class='zoomD'>";
-				echo "</div>";
-			}
-			?>
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=1 checked>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_oldPic'); ?>
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=2>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_newPic'); ?>
-				</label>
-			</div>
-			<br>
-
-			<div id="input_img" style="display:none;" class="mb-3">
-				<input class="form-control rounded" id=device_img type="file" name="file" max-size="10" accept="image/png, image/jpeg, image/img">
 			</div>
 			<br>
 
@@ -600,24 +688,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 
 		return true;
 	}); 
-
-	//is radiobutton selected?
-	var rad = document.myForm.change_pic;
-	var prev = null;
-	for (var i = 0; i < rad.length; i++) {
-		rad[i].addEventListener('change', function() {
-			if (this !== prev) {
-				prev = this;
-			}
-			if (this.value == 2) {
-				document.getElementById('input_img').style.display = 'block';
-				document.getElementById('old_img').style.display = 'none';
-			} else {
-				document.getElementById('input_img').style.display = 'none';
-				document.getElementById('old_img').style.display = 'block';
-			}
-		});
-	}
 
 	//errorhandle
 	const setError = (element, message) => {

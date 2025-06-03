@@ -22,9 +22,6 @@ $departments = get_departmentnames();
 $is_superadmin = is_superadmin($user_username);
 
 ?>
-
-
-
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
@@ -61,24 +58,25 @@ $is_superadmin = is_superadmin($user_username);
 		</h3>
 
 		<form action="admins.php" method="post">
-			<label for="department" class="form-label"><?php echo translate('word_department'); ?></label>
-			<div id="checks">
+			<label for="department_select" class="form-label"><?php echo translate('word_department'); ?></label>
+			<select id="department_select" class="form-control js-example-basic-multiple" name="states[]" multiple="multiple" required>
 				<?php
-				for ($i = 0; $i < count($departments); $i++) {
-                    if (array_keys($departments)[$i] == $unassigned_institute) {
-                        continue;
-                    }
-					echo "<div class='form-check form-switch'>";
-					if (in_array(array_keys($departments)[$i],$admins[$_GET['u_id']]['departments'])) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
-					else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
-
-					if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['de'] . "</label>";
-					else echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['en'] . "</label>";
-					echo "</div>";
+				foreach ($departments as $key => $value) {
+					if ($key == $unassigned_institute) {
+						continue;
+					}
+					if (get_language() == "de") {
+						if (in_array($key,$admins[$_GET['u_id']]['departments'])) echo "<option selected value='" . $key . "'>" . $value['de'] . "</option>";
+						else echo "<option value='" . $key . "'>" . $value['de'] . "</option>";
+					} else {
+						if (in_array($key,$admins[$_GET['u_id']]['departments'])) echo "<option selected value='" . $key . "'>" . $value['en'] . "</option>";
+						else echo "<option value='" . $key . "'>" . $value['en'] . "</option>";
+					}
 				}
 				?>
-			</div>
-			<br>
+			</select>
+			</br>
+			</br>
 
 			<!-- hidden values -->
 			<input type="hidden" id="reason" name="reason" value="edit">
@@ -87,20 +85,12 @@ $is_superadmin = is_superadmin($user_username);
 			<!-- Buttons -->
             <div class='row justify-content-center'>
                 <div class='col-md-6 mb-3'>
-                    <a class='btn btn-secondary btn-block' href='admins'>
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        <?php echo translate('word_back'); ?>
-                    </a>
-                </div>
-                <div class='col-md-6 mb-3'>
                     <button type='submit' id="submit" class='btn btn-success btn-block rounded mr-1 mb-1'>
                         <i class="fas fa-save mr-2"></i>
                         <?php echo translate('word_save'); ?>
                     </button>
                 </div>
-            </div>
 		</form>
-		<div class='row justify-content-center'>
 			<div class='col-md-6 mb-3'>
 				<a class='btn btn-danger btn-block rounded' href='admins.php?remove_id=<?php echo $_GET["u_id"]; ?>'>
 					<i class="fas fa-trash-alt mr-2"></i>
@@ -111,6 +101,24 @@ $is_superadmin = is_superadmin($user_username);
 	</div>
 
 	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			// display current page in navbar
+			const links = document.querySelectorAll('#navbarMenu .nav-link');
+			const currentPath = window.location.pathname.toLowerCase()
+				.replace(/^\/edurent\//, '')
+				.replace(/\.php$/, '');
+
+			links.forEach(link => {
+				const linkPath = link.getAttribute('href').toLowerCase();
+
+				if (currentPath == linkPath) {
+					link.classList.add('active');
+				} else {
+					link.classList.remove('active');
+				}
+			});
+		});
+
 		//checkbox controll
 		var all = '<?php echo $all_institutes; ?>';
 		var none = '<?php echo $unassigned_institute; ?>';
@@ -125,6 +133,14 @@ $is_superadmin = is_superadmin($user_username);
 				var search = 'input:checkbox[name*=' + all + ']';
 				$(search).not(this).prop('checked', false);
 			}
+		});
+
+		//Select2 for department
+		$(document).ready(function() {
+			$('.js-example-basic-multiple').select2({
+				placeholder: "Institut auswählen",
+				allowClear: true
+			});
 		});
 	</script>
 	<?php

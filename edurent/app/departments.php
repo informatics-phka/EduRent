@@ -9,7 +9,6 @@ if($debug){
 check_is_admin($user_username);
 
 $is_superadmin = is_superadmin($user_username);
-
 ?>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -152,7 +151,25 @@ $is_superadmin = is_superadmin($user_username);
 		</div>
 	</div>
 </body>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+    // display current page in navbar
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
 
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
+
+        if (currentPath == linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+</script>
 <?php
 echo $OUTPUT->footer();
 ?>

@@ -10,8 +10,6 @@ check_is_admin($user_username);
 
 $is_superadmin = is_superadmin($user_username);
 
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
     $reservation_id = $_POST['reservation_id'];
     $_SESSION['reservation_id'] = $reservation_id;
@@ -57,7 +55,6 @@ if ($is_superadmin) {
     }
 }
 ?>
-
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -156,8 +153,6 @@ if ($is_superadmin) {
 ?>
 
 <script>
-
-
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");

@@ -1,0 +1,21 @@
+h3 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.department-link {
+    display: block;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    background-color: #F0F0F0;
+    text-decoration: none;
+    color: #000000;
+    transition: background-color 0.3s ease;
+}
+
+.department-link:hover {
+    background-color: #E0E0E0;
+}
