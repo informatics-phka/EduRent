@@ -67,58 +67,37 @@ if ($result = mysqli_query($link, $sql)) {
 		mysqli_free_result($result);
 	}
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-
-
-// define navbar
-$menuItems = [
-    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
-    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
-    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
-    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
-    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
-    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
-    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
-];
-
-$menuItemsHtml = '';
-foreach ($menuItems as $item) {
-    if ($item['visible']) {
-        $menuItemsHtml .= '<li class="nav-item">';
-        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
-        $menuItemsHtml .= '</li>';
-    }
-}
-
 ?>
 
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/page_colors.scss">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- searchbar -->
+	<script type="text/javascript" src="js/searchbar.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
 <body>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		
-		<!-- Bootstrap -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		
-		<!-- stylesheet -->
-		<link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-		<link rel="stylesheet" href="style-css/page_colors.scss">
-        <link rel="stylesheet" href="style-css/accessability.css">
-		<link rel="stylesheet" href="style-css/navbar.css">
-		
-		<!-- searchbar -->
-		<script type="text/javascript" src="js/searchbar.js"></script>
-		
-		<!-- Font Awesome -->
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-		
-		<!-- Toast -->
-		<?php require_once("Controller/toast.php"); ?>
-	</head>
 	<style>
 		.collapsed {
 			display: none;
@@ -214,16 +193,8 @@ foreach ($menuItems as $item) {
 	$heute_timestamp = date('Y-m-d', $heute_datum->getTimestamp());
 
 	?>
-		<div class="main">
-			<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-				<div class="container-fluid">
-					<div class="collapse navbar-collapse" id="navbarNavDropdown">
-						<ul class="navbar-nav ms-auto" id="navbarMenu">
-							<?= $menuItemsHtml ?>
-						</ul>
-					</div>
-				</div>
-			</nav>
+		<div class="main">			
+			<?php require_once 'navbar.php'; ?>	
 			<br>
 			<div class='row no-gutters text-center'>
 				<div>
@@ -339,25 +310,7 @@ function get_history_status($status_id)
 	return $status;
 }
 ?>
-<script>
-	document.addEventListener('DOMContentLoaded', () => {
-    // display current page in navbar
-    const links = document.querySelectorAll('#navbarMenu .nav-link');
-    const currentPath = window.location.pathname.toLowerCase()
-        .replace(/^\/edurent\//, '')
-        .replace(/\.php$/, '');
-
-    links.forEach(link => {
-        const linkPath = link.getAttribute('href').toLowerCase();
-
-        if (currentPath == linkPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-});
-
+<script>	
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");

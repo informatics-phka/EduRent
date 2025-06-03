@@ -7,6 +7,8 @@ if ($debug) {
 }
 
 check_superadmin($user_username);
+$is_superadmin = is_superadmin($user_username);
+?>
 
 $is_superadmin = is_superadmin($user_username);
 
@@ -70,15 +72,7 @@ foreach ($menuItems as $item) {
 
 <body>
 	<div class="main">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav ms-auto" id="navbarMenu">
-                        <?= $menuItemsHtml ?>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <?php require_once 'navbar.php'; ?>	
         <br>
 
         <?php

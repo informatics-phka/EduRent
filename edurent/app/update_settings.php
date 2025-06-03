@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <?php
 check_is_admin($user_username);
+$is_superadmin = is_superadmin($user_username);
+
 
 $is_superadmin = is_superadmin($user_username);
 
@@ -75,16 +77,9 @@ foreach ($menuItems as $item) {
 </head>
 <body>
     <div class="main">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav ms-auto" id="navbarMenu">
-                        <?= $menuItemsHtml ?>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+   	    <?php require_once 'app/navbar.php'; ?>
         <br>
+        	
         <form action="update_settings.php" method="post">
             <div class="mb-3">
                 <label for="days_bookable_in_advance" class="form-label"><?php echo translate('text_daysBookableInAdvance'); ?>:</label>

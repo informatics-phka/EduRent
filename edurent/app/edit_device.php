@@ -24,6 +24,8 @@ $type = get_type_info();
 $devices;
 $block = get_blocked_devices();
 $limits = get_limits_of("device_list");
+$is_superadmin = is_superadmin($user_username);
+
 
 $sql = "SELECT * FROM device_list ORDER BY device_id";
 if ($result = mysqli_query($link, $sql)) {
@@ -55,31 +57,34 @@ else{
 $device_department= $type[$_GET['type']]['home_department'];
 check_is_admin_of_department($user_username, $device_department);
 ?>
-<body>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
 
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-		<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		
-		<!-- Bootstrap -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		
-		<!-- stylesheet -->
-		<link rel="stylesheet" href="style-css/rent.css">
-        <link rel="stylesheet" href="style-css/toasty.css">
-        <link rel="stylesheet" href="style-css/accessability.css">
-		
-		<!-- Font Awesome -->
-    	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-    	
-		<!-- Toast -->
-		<?php require_once("Controller/toast.php"); ?>
-	</head>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
+<body>
 	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
 		<h3><?php echo translate('text_deviceEdit'); ?> '<?php echo $type[$_GET['type']]['indicator']; ?><?php echo $devices[$selected_type_id][$selected_id][0]; ?>'</h3>
 		<form id="form" name="form" action="edit_type.php?type=<?php echo $_GET['type']; ?>" method="post">
 			<label for="serialnumber"><?php echo translate('text_enterSerialNumber'); ?></label>

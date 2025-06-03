@@ -11,26 +11,6 @@ check_is_admin($user_username);
 $is_superadmin = is_superadmin($user_username);
 $all_user = get_all_user();
 
-// define navbar
-$menuItems = [
-    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
-    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
-    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
-    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
-    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
-    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
-    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
-];
-
-$menuItemsHtml = '';
-foreach ($menuItems as $item) {
-    if ($item['visible']) {
-        $menuItemsHtml .= '<li class="nav-item">';
-        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
-        $menuItemsHtml .= '</li>';
-    }
-}
-
 $devices_of_deparment = array();;
 $sql;
 if($is_superadmin){
@@ -151,15 +131,7 @@ $limits = get_limits_of("device_list");
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 	</head>
     <div class="main">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav ms-auto" id="navbarMenu">
-                        <?= $menuItemsHtml ?>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <?php require_once("app/navbar.php"); ?>   
         <br>
         <?php
         if (isset($reservation_id )) {
@@ -241,24 +213,6 @@ $limits = get_limits_of("device_list");
 ?>
 
 <script>
-	document.addEventListener('DOMContentLoaded', () => {
-        // display current page in navbar
-        const links = document.querySelectorAll('#navbarMenu .nav-link');
-        const currentPath = window.location.pathname.toLowerCase()
-            .replace(/^\/edurent\//, '')
-            .replace(/\.php$/, '');
-
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href').toLowerCase();
-
-            if (currentPath == linkPath) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
-    });
-
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");
