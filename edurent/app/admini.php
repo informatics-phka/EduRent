@@ -67,8 +67,29 @@ if ($result = mysqli_query($link, $sql)) {
 		mysqli_free_result($result);
 	}
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-?>
 
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
+    }
+}
+
+?>
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -103,87 +124,6 @@ if ($result = mysqli_query($link, $sql)) {
 			display: none;
 		}
 	</style>
-	<script>
-		function modal_load(reservation_id, from, to, fn, ln, status, room_from, room_to, department, time_from, time_to) {
-			var mymodal = $('#my_modal');
-			var titel = "<?php echo translate('word_order'); ?> #" + reservation_id;
-			mymodal.find('.modal-title').text(titel);
-
-			var orders = <?php echo is_null($orders) ? "2" : json_encode($orders); ?>;
-
-			$("#button_grey").show();
-			$("#button_green").show();
-			$("#button_yellow").show();
-			$("#button_grey").html('<?php echo translate('word_back'); ?>');
-			$("#button_red").hide();
-			$("#button_yellow").html('<?php echo translate('word_editBig'); ?>');
-
-			if (orders == "2" || orders[reservation_id] == null) { //Error
-				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
-				var department = "<?php echo translate('word_department'); ?>: " + department + "<br>";
-				var translate_pickup = "<?php echo translate('text_pickupReservation'); ?>";
-                var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-                translate_pickup = translate(translate_pickup, [from, time_from, room_from]);
-                translate_return = translate(translate_return, [to, time_to, room_to]);
-
-				var error = '<?php echo translate('text_noDevices'); ?> <br><br>' ;
-
-				var string = '<center>' + error + user + department + translate_pickup + translate_return + '</center>';
-				$("#button_red").hide();
-				$("#button_yellow").hide();
-				$("#button_green").html('<?php echo translate('word_delete'); ?>');
-				$("#button_green").attr("onclick", "order_remove(" + reservation_id + ")");
-			} else {
-				var time;
-				if (status == 2){ //Collectable
-					$("#button_red").html('<?php echo translate('status_3'); ?>');
-					$("#button_red").show();
-					$("#button_red").attr("onclick", "order_pickup(" + reservation_id + ")");
-					$("#button_green").html('<?php echo translate('word_cancel'); ?>');
-					$("#button_green").attr("onclick", "order_cancel(" + reservation_id + ")");
-					var translate_pickup = "<?php echo translate('text_pickupReservation'); ?>";
-					var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-					time = translate(translate_pickup, [from, time_from, room_from]) + "<br>";
-					time += translate(translate_return, [to, time_to, room_to]) + "<br>";
-				} else if (status == 3){ //Retrieved
-					$("#button_green").html('<?php echo translate('word_downgrade'); ?>');
-					$("#button_green").attr("onclick", "order_back(" + reservation_id + ")");
-					$("#button_red").html('<?php echo translate('word_return'); ?>');
-					$("#button_red").attr("onclick", "order_retour(" + reservation_id + ")");
-					$("#button_red").show();
-					var translate_return = "<?php echo translate('text_returnReservation'); ?>";
-					time = translate(translate_return, [to, time_to, room_to]) + "<br>";
-				} else if (status == 1){ //request
-					$("#button_red").html('<?php echo translate('word_confirm'); ?>');
-					$("#button_red").show();
-					$("#button_red").attr("onclick", "order_accept(" + reservation_id + ")");
-					$("#button_green").html('<?php echo translate('word_cancel'); ?>');
-					$("#button_green").attr("onclick", "order_cancel(" + reservation_id + ")");
-					time = "<?php echo translate('word_period'); ?>: " + from + " <?php echo translate('word_to'); ?> " + to + "<br>";
-					time += "<?php echo translate('word_pickupRoom'); ?>: " + room_from + ", <?php echo translate('word_returnRoom'); ?>: " + room_to + "<br>";
-				} else if (status == 4 || status == 6){ //Completed or Cancelled
-					$("#button_green").html('<?php echo translate('word_delete'); ?>');
-					$("#button_green").attr("onclick", "order_remove(" + reservation_id + ")");
-					$("#button_yellow").hide();
-					time = "<?php echo translate('word_period'); ?>: " + from + " <?php echo translate('word_to'); ?> " + to + "<br>";
-				}
-
-				var d_ids = orders[reservation_id][0].split('|');
-				var names = orders[reservation_id][1].split('|');
-				var geraete = "<?php echo translate('word_devices'); ?>:<br>";
-				for (var i = 0; i < d_ids.length; i++) {
-					geraete += d_ids[i] + ", " + names[i] + "<br>";
-				}
-
-				var user = "<?php echo translate('word_from'); ?>: " + fn + " " + ln + "<br>";
-				var department = "<?php echo translate('word_department'); ?>: " + department + "<br>";
-
-				var string = '<center>' + user + department + time + '<br>' + geraete + '</center>';
-			}
-			mymodal.find('.modal-body').html(string);
-			mymodal.modal('show');
-		}
-	</script>
 	<?php
 
 	setlocale(LC_ALL, "de_DE.utf8");
@@ -742,6 +682,24 @@ function get_history_status($status_id)
 }
 ?>
 <script>
+	document.addEventListener('DOMContentLoaded', () => {
+    // display current page in navbar
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
+
+        if (currentPath == linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");

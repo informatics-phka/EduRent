@@ -33,46 +33,43 @@ if ($stmt = mysqli_prepare($link, $query)) {
 		save_in_logs("ERROR: " . mysqli_error($link));
 		save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 	}
+	mysqli_stmt_close($stmt);
 } else {
 	save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
 }
-$stmt->close();
 
 $new_departments = array();
 for ($i = 0; $i < count($departments); $i++) {
 	$name = "switch_" . array_keys($departments)[$i];
-	if ($_POST[$name] == "on") {
+	if (isset($_POST[$name]) && $_POST[$name] === "on") {
 		$new_departments[count($new_departments)] = array_keys($departments)[$i];
 	}
 }
 
-$fehlt;
-if ($old_departments == null) {
-	$fehlt = $new_departments;
-} else {
-	$fehlt = array_diff($new_departments, $old_departments);
-}
-$zuviel = array_diff($old_departments, $new_departments);
+$type_id = (int) $_POST['old_type'];
 
-for ($i = 0; $i < count($fehlt); $i++) {
-	//sqlinjection
-	$sql = "INSERT INTO `type_department`(`type_id`, `department_id`) VALUES (" . $_POST['old_type'] . ", " . $fehlt[array_keys($fehlt)[$i]] . ")";
-	if (mysqli_query($link, $sql)) {
-		//success
-	} else {
-		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+$missing = ($old_departments === null) ? $new_departments : array_diff($new_departments, $old_departments);
+$excess = array_diff($old_departments ?? [], $new_departments);
+
+// Add missing department associations
+foreach ($missing as $dept_id) {
+	$department_id = (int) $dept_id;
+	$sql = "INSERT INTO `type_department` (`type_id`, `department_id`) VALUES ($type_id, $department_id)";
+
+	if (!mysqli_query($link, $sql)) {
+		$error = "ERROR: Could not execute INSERT: $sql : " . mysqli_error($link);
 		error_to_superadmin(get_superadmins(), $mail, $error);
 		break;
 	}
 }
 
-for ($i = 0; $i < count($zuviel); $i++) {
-	//sqlinjection
-	$sql = "DELETE FROM `type_department` WHERE type_id=" . $_POST['old_type'] . " AND department_id=" . $zuviel[array_keys($zuviel)[$i]];
-	if (mysqli_query($link, $sql)) {
-		//success
-	} else {
-		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+// Remove excess department associations
+foreach ($excess as $dept_id) {
+	$department_id = (int) $dept_id;
+	$sql = "DELETE FROM `type_department` WHERE `type_id` = $type_id AND `department_id` = $department_id";
+
+	if (!mysqli_query($link, $sql)) {
+		$error = "ERROR: Could not execute DELETE: $sql : " . mysqli_error($link);
 		error_to_superadmin(get_superadmins(), $mail, $error);
 		break;
 	}
@@ -123,7 +120,6 @@ if ($isEdit) {
 	if ($hasImage) {
 		$sql .= ", device_type_img_path = '$location'";
 	} elseif ($deleteImage) {
-		// Optional: Bilddatei löschen, falls vorhanden
 		$res = mysqli_query($link, "SELECT device_type_img_path FROM device_type WHERE device_type_id = $device_type_id");
 		if ($res && $row = mysqli_fetch_assoc($res)) {
 			if (!empty($row['device_type_img_path']) && file_exists($row['device_type_img_path'])) {
@@ -132,7 +128,7 @@ if ($isEdit) {
 		}
 		$sql .= ", device_type_img_path = NULL";
 	}
-	
+
 	$sql .= empty($device_info)     ? ", device_type_info = NULL"     : ", device_type_info = '$device_info'";
 	$sql .= empty($device_tooltip)  ? ", tooltip = NULL"              : ", tooltip = '$device_tooltip'";
 	$sql .= empty($device_type_storage) ? ", device_type_storage = NULL" : ", device_type_storage = '$device_type_storage'";
@@ -177,15 +173,27 @@ if ($isEdit) {
 
 function get_new_name($filename)
 {
-	//remove filetyp
-	$parts = explode(".", $filename);
-	$number = rand(0, 9);
-	$filename = $parts[0] . $number . "." . $parts[1];
-	$location = "img/" . $filename;
-	if (file_exists($location)) {
-		get_new_name($filename);
-	} else {
-		return $location;
-	}
+    $parts = explode(".", $filename);
+    $base_name = $parts[0];
+    $extension = $parts[1];
+
+    $new_filename = $base_name . substr(bin2hex(random_bytes(6)), 0, 8) . "." . $extension;
+    $location = "img/" . $new_filename;
+
+    // Limit attempts to 10
+    $attempts = 0;
+    while (file_exists($location) && $attempts < 10) {
+        $new_filename = $base_name . rand(0, 9) . "." . $extension;
+        $location = "img/" . $new_filename;
+        $attempts++;
+    }
+
+    // If there are still conflicts after 10 attempts, use the current time
+    if ($attempts >= 10) {
+        $new_filename = $base_name . time() . "." . $extension;
+        $location = "img/" . $new_filename;
+    }
+
+    return $location;
 }
 ?>

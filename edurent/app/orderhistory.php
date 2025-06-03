@@ -67,10 +67,6 @@ if ($result = mysqli_query($link, $sql)) {
 		mysqli_free_result($result);
 	}
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-
-
-
-
 ?>
 
 
@@ -315,8 +311,6 @@ function get_history_status($status_id)
 }
 ?>
 <script>	
-
-
 	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
 		headerCell.addEventListener("click", () => {
 			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");

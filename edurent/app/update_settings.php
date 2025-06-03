@@ -4,6 +4,8 @@ check_is_admin($user_username);
 $is_superadmin = is_superadmin($user_username);
 
 
+$is_superadmin = is_superadmin($user_username);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (
         isset($_POST['days_bookable_in_advance']) &&
@@ -20,7 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "iiii", $days_bookable_in_advance, $lead_time_days, $max_loan_duration, $debug);
             if (mysqli_stmt_execute($stmt)) {
-                echo "<script>window.location.href = 'update_settings.php';</script>";
+                $SESSION->toasttext = "Die Einstellungen wurden aktualisiert";
+                echo "<script>window.location.href = 'update_settings';</script>";
+                exit();
             } else {
                 save_in_logs("Error updating settings: " . $stmt->error);
             }
@@ -28,6 +32,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     } else {
         save_in_logs("All fields are required");
+    }
+}
+
+// define navbar
+$menuItems = [
+    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
+    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
+    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
+    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
+    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
+    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
+    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
+];
+
+$menuItemsHtml = '';
+foreach ($menuItems as $item) {
+    if ($item['visible']) {
+        $menuItemsHtml .= '<li class="nav-item">';
+        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
+        $menuItemsHtml .= '</li>';
     }
 }
 ?>
@@ -48,6 +72,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="style-css/accessability.css">
     <link rel="stylesheet" href="style-css/navbar.css">
 
+    <!-- Toast -->
+    <?php require_once("Controller/toast.php"); ?>
 </head>
 <body>
     <div class="main">
@@ -77,12 +103,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class='row justify-content-center'>
                 <div class='col-md-6 mb-3'>
-                    <a class='btn btn-secondary btn-block' href='admini.php'>
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        <?php echo translate('word_back'); ?>
-                    </a>
-                </div>
-                <div class='col-md-6 mb-3'>
                     <button type='submit' id="submit" class='btn btn-success btn-block rounded mr-1 mb-1'>
                         <i class="fas fa-save mr-2"></i>
                         <?php echo translate('word_save'); ?>
@@ -92,6 +112,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 </body>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+    // display current page in navbar
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
+
+        if (currentPath == linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+</script>
 </html>
 <?php
 echo $OUTPUT->footer();

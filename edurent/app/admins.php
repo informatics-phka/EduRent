@@ -10,8 +10,6 @@ check_superadmin($user_username);
 
 $departments = get_departmentnames();
 $is_superadmin = is_superadmin($user_username);
-
-
 ?>
 
 <head>
@@ -82,27 +80,19 @@ $is_superadmin = is_superadmin($user_username);
 				}
 				$stmt->close();
 
-				for ($i = 0; $i < count($departments); $i++) {
-					$name = "switch_" . array_keys($departments)[$i];
-					if(exists_and_not_empty($name, $_POST)){
-						if(exists_and_not_empty($name, $_POST)){
-							if($_POST[$name] == "on") {
-								$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
-								if ($stmt = mysqli_prepare($link, $query)) {
-									mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], array_keys($departments)[$i]);
+				$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
+				if ($stmt = mysqli_prepare($link, $query)) {
+					mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], $_POST['selected_department']);
 
-									if (!mysqli_stmt_execute($stmt)) {
-										save_in_logs("ERROR: " . mysqli_error($link));
-										save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-									}
-								} else {
-									save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-								}
-								$stmt->close();
-							}
-						}
+					if (!mysqli_stmt_execute($stmt)) {
+						save_in_logs("ERROR: " . mysqli_error($link));
+						save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 					}
+				} else {
+					save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
 				}
+				$stmt->close();
+
 				save_in_logs("INFO: Der Benutzer mit der ID " . $_POST['user'] . " wurde bearbeitet", $user_firstname, $user_lastname);
 			}
 		}
@@ -145,18 +135,27 @@ $is_superadmin = is_superadmin($user_username);
 		echo "</div>";
 
 		?>
-		<br>
-		<!-- Buttons -->
-		<div class='row justify-content-center'>
-			<div class='col-md-6 mb-3'>
-				<a class='btn btn-secondary btn-block' href='admini'>
-					<i class="fas fa-arrow-left mr-2"></i>
-					<?php echo translate('word_back'); ?>
-				</a>
-			</div>
-		</div>
 	</div>
 </body>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+    // display current page in navbar
+    const links = document.querySelectorAll('#navbarMenu .nav-link');
+    const currentPath = window.location.pathname.toLowerCase()
+        .replace(/^\/edurent\//, '')
+        .replace(/\.php$/, '');
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href').toLowerCase();
+
+        if (currentPath == linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+</script>
 <?php
 echo $OUTPUT->footer();
 ?>

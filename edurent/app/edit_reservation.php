@@ -11,7 +11,6 @@ check_is_admin($user_username);
 $is_superadmin = is_superadmin($user_username);
 $all_user = get_all_user();
 
-
 $devices_of_deparment = array();;
 $sql;
 if($is_superadmin){
