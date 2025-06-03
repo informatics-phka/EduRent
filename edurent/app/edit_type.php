@@ -120,6 +120,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
         <link rel="stylesheet" href="style-css/accessability.css">
+		<link rel="stylesheet" href="style-css/edit_type.css">
 		
 		<!-- html editor -->
 		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -130,79 +131,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
     	
 		<!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
-		<style>
-			a,
-			a:hover,
-			a:focus,
-			a:active {
-				text-decoration: none;
-				color: inherit;
-			}
-
-			.img-wrapper {
-				position: relative;
-				width: 128px;
-				height: 128px;
-				margin: 5px;
-				cursor: pointer;
-				border: 1px dashed #ccc;
-				border-radius: 4px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				background-color: #f9f9f9;
-				overflow: hidden;
-			}
-
-			.img-wrapper img {
-				max-width: 128px;
-				max-height: 128px;
-				width: auto;
-				height: auto;
-				display: block;
-				border-radius: 4px;
-			}
-
-			.edit-icon,
-			.delete-icon {
-				position: absolute;
-				top: 5px;
-				width: 24px;
-				height: 24px;
-				background-color: rgba(0, 0, 0, 0.6);
-				color: white;
-				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 12px;
-				cursor: pointer;
-				opacity: 0;
-				transition: opacity 0.2s;
-			}
-
-			.edit-icon {
-				right: 34px;
-			}
-
-			.delete-icon {
-				right: 5px;
-			}
-
-			.img-wrapper:hover .edit-icon,
-			.img-wrapper:hover .delete-icon {
-				opacity: 1;
-			}
-
-			.placeholder-icon {
-				font-size: 48px;
-				color: #999;
-			}
-
-			#device_img {
-				display: none;
-			}
-		</style>
 	</head>
 <body>
 	<?php
