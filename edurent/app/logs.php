@@ -8,9 +8,6 @@ if ($debug) {
 
 check_superadmin($user_username);
 $is_superadmin = is_superadmin($user_username);
-?>
-
-$is_superadmin = is_superadmin($user_username);
 
 // define navbar
 $menuItems = [
