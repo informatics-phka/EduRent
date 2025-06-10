@@ -205,7 +205,7 @@ if ($result = mysqli_query($link, $sql)) {
             <br>
         <?php if(count($not_blocked_devices)>0 && count($opening_days) == 0){?>
             <div class="alert alert-danger" ng-show="pickup.error">
-                Fehler! Es wurden noch keine Abholtage erstellt!
+                <?php echo translate('text_noPickupDayConfigured'); ?>
             </div>
         <?php }?>
         <h3>
