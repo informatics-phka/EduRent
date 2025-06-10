@@ -125,6 +125,7 @@ if ($result = mysqli_query($link, $sql)) {
     <link rel="stylesheet" href="style-css/ahover.css">
     <link rel="stylesheet" href="style-css/accessability.css">
     <link rel="stylesheet" href="style-css/navbar.css">
+    <link rel="stylesheet" href="style-css/departments.css">
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -138,28 +139,6 @@ if ($result = mysqli_query($link, $sql)) {
             border-radius: 5px;
             padding: 8px;
             margin-bottom: 10px;
-        }
-
-        h3 {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .department-link {
-            display: block;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            background-color: #F0F0F0;
-            text-decoration: none;
-            color: #000000;
-            transition: background-color 0.3s ease;
-        }
-
-        .department-link:hover {
-            background-color: #E0E0E0;
         }
     </style>
 
@@ -292,16 +271,21 @@ if ($result = mysqli_query($link, $sql)) {
         <!-- Devicelist -->
         <h3><?php echo translate('word_devices'); ?></h3>
         <?php if (!($_GET['depart'] == $all_institutes || $_GET['depart'] == $unassigned_institute)) {
-            echo "<a class='department-link' href='add_type.php?depart=". $_GET['depart'] . "'><i class='fas fa-plus'></i> " . translate('word_add') . "</a>";
+            echo "<a class='department' href='add_type.php?depart=". $_GET['depart'] . "'><i class='fas fa-plus'></i> " . translate('word_add') . "</a>";
         }
-        for ($i = 0; $i < count($type); $i++) {
-            echo "<a class='department-link' href='edit_type.php?type=" . array_keys($type)[$i] . "'>" . $type[array_keys($type)[$i]] . "</a>";
-        }
-        if (count($type) == 0) { ?>
-            <a>
-                <a class='department-link'>Keine Gerätetypen für das Institut gefunden</a>
-            </a>
-        <?php } ?>
+        ?>
+        <input type="text" id="departmentSearch" class="form-control department" placeholder="Eintrag suchen...">	
+        <div id="departmentLinks">
+            <?php
+            for ($i = 0; $i < count($type); $i++) {
+                echo "<a class='department' href='edit_type.php?type=" . array_keys($type)[$i] . "'>" . $type[array_keys($type)[$i]] . "</a>";
+            }
+            if (count($type) == 0) { ?>
+                <a>
+                    <a class='department'>Keine Gerätetypen für das Institut gefunden</a>
+                </a>
+            <?php } ?>
+        </div>
     </div>
 </body>
 <script>
@@ -421,6 +405,16 @@ if ($result = mysqli_query($link, $sql)) {
         }
         return true
     }
+
+    document.getElementById('departmentSearch').addEventListener('input', function () {
+		const query = this.value.toLowerCase();
+		const links = document.querySelectorAll('#departmentLinks .department');
+
+		links.forEach(link => {
+			const text = link.textContent.toLowerCase();
+			link.style.display = text.includes(query) ? 'block' : 'none';
+		});
+	});
 </script>
 
 <?php

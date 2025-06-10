@@ -178,7 +178,7 @@ if(exists_and_not_empty('reason', $_POST)){
 
 	document.getElementById('departmentSearch').addEventListener('input', function () {
 		const query = this.value.toLowerCase();
-		const links = document.querySelectorAll('#departmentLinks .department-link');
+		const links = document.querySelectorAll('#departmentLinks .department');
 
 		links.forEach(link => {
 			const text = link.textContent.toLowerCase();
