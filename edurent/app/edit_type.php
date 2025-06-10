@@ -539,64 +539,80 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 			<p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; padding-left: 1em;'><?php echo translate('word_add'); ?></p>
 		</a>
 
+		<!-- Search -->
+		<input type="text" id="typeSearch" class="styled-search" placeholder="Eintrag suchen...">
+
 		<!-- All devices -->
-		<?php
-		for ($i = 0; $i < count($devices); $i++) {
-			if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
-				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
-					echo "<a href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+		<div id="typeLinks">
+			<?php
+			for ($i = 0; $i < count($devices); $i++) {
+				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
+					if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
+						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+					}
+					else{
+						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+					}
 				}
 				else{
-					echo "<a href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
-				}
-			}
-			else{
-				$blocked = $devices[array_keys($devices)[$i]]['blocked'];
-				$device_tag = $devices[array_keys($devices)[$i]]['tag'];
-				$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
-				$icon_class = "";
-				
-				switch ($blocked) {
-					case 0: //not blocked
-						$background_color = "#6FB40F"; //green
-						break;
-					case 1:
-						$background_color = "#DC0606"; //red
-						break;
-					case 2:
-						$icon_class = "fa-cloud-arrow-down";
-						$background_color = "#DC0606"; //red
-						break;
-					case 3:
-						$icon_class = "fa-bug";
-						$background_color = "#DC0606"; //red
-						break;
-					case 4:
-						$icon_class = "fa-tools";
-						$background_color = "#DC0606"; //red
-						break;
-					case 5:
-						$icon_class = "fa-building";
-						$background_color = "#DC0606"; //red
-						break;
-					default: //debug
-						$icon_class = "fa-question-circle";
-						$background_color = "#CCCCCC"; //grey
-						break;
-				}
+					$blocked = $devices[array_keys($devices)[$i]]['blocked'];
+					$device_tag = $devices[array_keys($devices)[$i]]['tag'];
+					$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
+					$icon_class = "";
+					
+					switch ($blocked) {
+						case 0: //not blocked
+							$background_color = "#6FB40F"; //green
+							break;
+						case 1:
+							$background_color = "#DC0606"; //red
+							break;
+						case 2:
+							$icon_class = "fa-cloud-arrow-down";
+							$background_color = "#DC0606"; //red
+							break;
+						case 3:
+							$icon_class = "fa-bug";
+							$background_color = "#DC0606"; //red
+							break;
+						case 4:
+							$icon_class = "fa-tools";
+							$background_color = "#DC0606"; //red
+							break;
+						case 5:
+							$icon_class = "fa-building";
+							$background_color = "#DC0606"; //red
+							break;
+						default: //debug
+							$icon_class = "fa-question-circle";
+							$background_color = "#CCCCCC"; //grey
+							break;
+					}
 
-				echo "<a href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
-						<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
-							<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
-						</div>
-					</a>";
+					echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
+							<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
+								<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
+							</div>
+						</a>";
+				}
 			}
-		}
-		?>
+			?>
+		</div>
 	</div>
-	</div>
+</div>
 </body>
 <script>
+	//Search
+	document.getElementById('typeSearch').addEventListener('input', function () {
+		const query = this.value.toLowerCase();
+		const links = document.querySelectorAll('#typeLinks .type');
+
+		links.forEach(link => {
+			const text = link.textContent.toLowerCase();
+			link.style.display = text.includes(query) ? 'block' : 'none';
+		});
+	});
+
 	//Quill
 	var options = {
 		placeholder: 'Unsere iPads werden standardmäßig mit Stiften ausgestattet',
