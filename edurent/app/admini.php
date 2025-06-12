@@ -151,74 +151,85 @@ foreach ($menuItems as $item) {
 			}
 		}
 
-		//sqlinjection
-		$sql = "UPDATE reservations SET status='2' WHERE reservation_id=" . $reservation_id; //Update the reservation
+		$sql = "UPDATE reservations SET status=? WHERE reservation_id=?";
+		$stmt = mysqli_prepare($link, $sql);
+		$status = 2;
+		mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
 
-		if (mysqli_query($link, $sql)) {
+		if (mysqli_stmt_execute($stmt)) {
 			$text = translate('toast_confirm', ["a" => $reservation_id]);
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
 
-			//get devices
-			$array = array();
-			$sql = "SELECT device_type_name FROM `devices_of_reservations`, device_list, device_type WHERE devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id=device_type.device_type_id AND `reservation_id` = " . $reservation_id;
-			if ($result = mysqli_query($link, $sql)) {
-				if (mysqli_num_rows($result) > 0) {
-					while ($row2 = mysqli_fetch_array($result)) {
-						$array[count($array)] = $row2['device_type_name'];
-					}	
-					mysqli_free_result($result);
-				}
-			}
-			else {
-				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-			}
+			$sql = "SELECT device_type_name 
+					FROM devices_of_reservations 
+					JOIN device_list ON devices_of_reservations.device_id = device_list.device_id 
+					JOIN device_type ON device_list.device_type_id = device_type.device_type_id 
+					WHERE reservation_id = ?";
+			$stmt = mysqli_prepare($link, $sql);
+			mysqli_stmt_bind_param($stmt, "i", $reservation_id);
 			
+			$array = array();
+			if (mysqli_stmt_execute($stmt)) {
+				$result = mysqli_stmt_get_result($stmt);
+				while ($row2 = mysqli_fetch_assoc($result)) {
+					$array[] = $row2['device_type_name'];
+				}
+				mysqli_free_result($result);
+			} else {
+				throw new Exception("ERROR: Could not execute: " . $sql . ": " . mysqli_error($link));
+			}
+
 			$amount = array_count_values($array);
-			$devices =array();
-			for ($i = 0; $i < count(array_keys($amount)); $i++) {
-				if(!$devices)$devices = $amount[array_keys($amount)[$i]] . "x " . array_keys($amount)[$i];
-				else $devices = ", ". $amount[array_keys($amount)[$i]] . "x " . array_keys($amount)[$i];
+			$devices = "";
+			foreach ($amount as $device => $count) {
+				$devices .= ($devices ? ", " : "") . $count . "x " . $device;
 			}
 
 			require_once("Controller/ICS.php");
-
-			//create ICS file for pickup
-
 			$ics_file_contents = createEventICS($row, $abholbar_uhrzeit, $departments, $devices);
 
+			$messagetext = "Ihre Reservierungsanfrage #" . $reservation_id . " wurde bestätigt.<br /><br />
+			Sie können die Reservierung am " . date_format(date_create($row['date_from']), 'd.m.Y') . " " . $abholbar_uhrzeit . " im Raum " . $row['room_from'] . " abholen.<br />
+			Bringen Sie diese Mail als Bestätigung Ihrer Identität mit.<br /><br />
+			Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $departments[$row['department_id']]['mail'] . "<br /><br />
+			Mit freundlichen Grüßen<br />Ihr Edurent-Team";
 
-			//send mail to user
-			$messagetext = "Ihre Reservierungsanfrage #" . $reservation_id . " wurde bestätigt.<br /><br />Sie können die Reservierung am " . date_format(date_create($row['date_from']), 'd.m.Y') . " " . $abholbar_uhrzeit . " im Raum " . $row['room_from'] . " abholen.<br />Bringen Sie diese Mail als Bestätigung Ihrer Identität mit.<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $departments[$row['department_id']]['mail'] . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
 			sendamail($mail, $row['email'], "Reservierungsbestätigung #" . $reservation_id, $messagetext, $ics_file_contents);
 
 			echo "<script>window.location.href = 'admini';</script>";
 		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+			$error = "ERROR: Could not execute: " . $sql . ": " . mysqli_error($link);
 			error_to_superadmin(get_superadmins(), $mail, $error);
 		}
 	}
-	
-	//sqlinjection
-	if(exists_and_not_empty('zu', $_GET)){ //downgrade to ...
-		$sql = "UPDATE reservations SET status = 2 WHERE reservation_id=" . $_GET['zu'];
-		if (mysqli_query($link, $sql)) {
-			$text = "Reservierungsanfrage #" . $_GET['zu'] . " wurde zurückgestuft.";
+
+	if (exists_and_not_empty('zu', $_GET)) { // downgrade to ...
+		$reservation_id = intval($_GET['zu']);
+
+		$sql = "UPDATE reservations SET status = ? WHERE reservation_id = ?";
+		$stmt = mysqli_prepare($link, $sql);
+		
+		$status = 2;
+		mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
+
+		if (mysqli_stmt_execute($stmt)) {
+			$text = "Reservierungsanfrage #" . $reservation_id . " wurde zurückgestuft.";
 
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
 
 			echo "<script>window.location.href = 'admini';</script>";
 		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+			$error = "ERROR: Could not execute: " . $sql . ": " . mysqli_error($link);
 			error_to_superadmin(get_superadmins(), $mail, $error);
 		}
-	}
+}
+
 
 	if(exists_and_not_empty('abh', $_GET)){ //collected
 		try {
 			/** compare old and new devices and recognize differences **/
-
 			if(!$_GET['new']) throw new Exception("GET(new) is empty");
 			if(!$_GET['new_typs']) throw new Exception("GET(new_typs) is empty");
 			if(!$_GET['new_tags']) throw new Exception("GET(new_tags) is empty");
@@ -286,50 +297,61 @@ foreach ($menuItems as $item) {
 			$return = date('d.m.Y', strtotime($row['date_to'])) . " " . $row['time_to'];
 
 			/** status order **/
-			//sqlinjection
-			$sql = "UPDATE reservations SET status=3, date_from=now() WHERE reservation_id=" . $_GET['abh'];
-			if (mysqli_query($link, $sql)) {
-				$text = "Reservierungsanfrage #" . $_GET['abh'] . " wurde abgeholt.";
+			if (isset($_GET['abh']) && is_numeric($_GET['abh'])) {
+				$reservation_id = intval($_GET['abh']);
 
-				save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-				$SESSION->toasttext = $text;
+				$sql = "UPDATE reservations SET status = ?, date_from = NOW() WHERE reservation_id = ?";
+				$stmt = mysqli_prepare($link, $sql);
+				$status = 3;
+				mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
 
-				//get devices
-				$array = array();
-				$sql = "SELECT device_type_name FROM `devices_of_reservations`, device_list, device_type WHERE devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id=device_type.device_type_id AND `reservation_id` = " . $reservation_id;
-				if ($result = mysqli_query($link, $sql)) {
-					if (mysqli_num_rows($result) > 0) {
-						while ($row2 = mysqli_fetch_array($result)) {
-							$array[count($array)] = $row2['device_type_name'];
-						}	
+				if (mysqli_stmt_execute($stmt)) {
+					$text = "Reservierungsanfrage #" . $reservation_id . " wurde abgeholt.";
+					save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
+					$SESSION->toasttext = $text;
+
+					$array = array();
+					$sql = "SELECT device_type_name 
+							FROM devices_of_reservations 
+							JOIN device_list ON devices_of_reservations.device_id = device_list.device_id 
+							JOIN device_type ON device_list.device_type_id = device_type.device_type_id 
+							WHERE reservation_id = ?";
+					$stmt = mysqli_prepare($link, $sql);
+					mysqli_stmt_bind_param($stmt, "i", $reservation_id);
+
+					if (mysqli_stmt_execute($stmt)) {
+						$result = mysqli_stmt_get_result($stmt);
+						while ($row2 = mysqli_fetch_assoc($result)) {
+							$array[] = $row2['device_type_name'];
+						}
 						mysqli_free_result($result);
+					} else {
+						$SESSION->toasttext = "Geräte konnten nicht geladen werden.";
+						throw new Exception("ERROR: Could not execute SELECT: " . mysqli_error($link));
 					}
+
+					$amount = array_count_values($array);
+					$devices = "";
+					foreach ($amount as $name => $count) {
+						$devices .= ($devices ? ", " : "") . $count . "x " . $name;
+					}
+
+					require_once("Controller/ICS.php");
+					$ics_file_contents = createEventICS($row, $return, $departments, $devices, true);
+
+					$messagetext = "Sie haben Ihre Reservierung #" . $reservation_id . " abgeholt.<br /><br />
+					Bitte bringen Sie Ihre Reservierung am " . $return . " im Raum " . $row['room_to'] . " zurück.<br /><br />
+					Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $departments[$row['department_id']]['mail'] . "<br /><br />
+					Mit freundlichen Grüßen<br />Ihr Edurent-Team";
+
+					sendamail($mail, $row['email'], "Reservierung #" . $reservation_id . " wurde abgeholt", $messagetext, $ics_file_contents);
+
+					$SESSION->toasttext = "Die Reservierung wurde abgeholt";
+				} else {
+					throw new Exception("ERROR: Could not execute UPDATE: " . mysqli_error($link));
 				}
-				else {
-					$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
-					throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-				}
-				
-				$amount = array_count_values($array);
-				$devices = array();
-				for ($i = 0; $i < count(array_keys($amount)); $i++) {
-					if(!$devices)$devices = $amount[array_keys($amount)[$i]] . "x " . array_keys($amount)[$i];
-					else $devices = ", ". $amount[array_keys($amount)[$i]] . "x " . array_keys($amount)[$i];
-				}
-
-				require_once("Controller/ICS.php");
-
-				//create ics file for return
-
-				$ics_file_contents = createEventICS($row, $return, $departments, $devices, true);
-
-				//send mail to user
-				$messagetext = "Sie haben ihre Reservierung #" . $_GET['abh'] . " abgeholt.<br /><br />Bitte bringen Sie ihre Reservierung am " . $return . " im Raum " . $row['room_to'] . " zurück.<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $departments[$row['department_id']]['mail'] . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
-				sendamail($mail, $row['email'], "Reservierung #" . $_GET['abh'] . " wurde abgeholt", $messagetext, $ics_file_contents);
-			} else {
-				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 			}
-			$SESSION->toasttext = "Die Reservierung wurde abgeholt";
+
 		}
 		catch (exception $e) {
 			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 409 admini: " . $e->getMessage());			
@@ -337,158 +359,251 @@ foreach ($menuItems as $item) {
 		echo "<script>window.location.href = 'admini';</script>";
 	}
 
-	if(exists_and_not_empty('cancel', $_GET)){ //deleted
-		//sqlinjection
-		$sql = "UPDATE reservations SET status ='6' WHERE reservation_id=" . $_GET['cancel'];
-		if (mysqli_query($link, $sql)) {
-			$text = "Reservierungsanfrage #" . $_GET['cancel'] . " wurde abgebrochen.";
+	if (exists_and_not_empty('cancel', $_GET) && is_numeric($_GET['cancel'])) { // deleted
+		$reservation_id = intval($_GET['cancel']);
+
+		$sql = "UPDATE reservations SET status = ? WHERE reservation_id = ?";
+		$stmt = mysqli_prepare($link, $sql);
+		$status = 6;
+		mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
+
+		if (mysqli_stmt_execute($stmt)) {
+			$text = "Reservierungsanfrage #" . $reservation_id . " wurde abgebrochen.";
 
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
 
 			echo "<script>window.location.href = 'admini';</script>";
 		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+			$error = "ERROR: Could not execute UPDATE: " . mysqli_error($link);
 			error_to_superadmin(get_superadmins(), $mail, $error);
 		}
 	}
 
-	if(exists_and_not_empty('extend', $_GET)){ //edited
+
+	if (exists_and_not_empty('extend', $_GET) && is_numeric($_GET['extend'])) { //edited
 		try {
-			$mail;
-			$sql = "SELECT email, mail, departments.department_id FROM user, reservations, departments WHERE id=user_id AND reservations.department_id = departments.department_id AND reservation_id=" . $_GET['extend'];
-			if ($result = mysqli_query($link, $sql)) {
-				$row = mysqli_fetch_array($result);
+			$reservation_id = intval($_GET['extend']);
+
+			// --- 1. Get admin and dapartment data ---
+			$sql = "SELECT email, mail, departments.department_id 
+					FROM user 
+					JOIN reservations ON id = user_id 
+					JOIN departments ON reservations.department_id = departments.department_id 
+					WHERE reservation_id = ?";
+			if ($stmt = mysqli_prepare($link, $sql)) {
+				mysqli_stmt_bind_param($stmt, "i", $reservation_id);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				$row = mysqli_fetch_assoc($result);
+				if (!$row) throw new Exception("Reservation not found.");
 				$email_user = $row['email'];
 				$department_mail = $row['mail'];
 				$department_id = $row['department_id'];
-			}
-			else {
-				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-			}
-
-			//sqlinjection
-			$sql = "UPDATE reservations SET date_from ='" . date($_GET['date_from']) . "', date_to ='" . date($_GET['date_to']) . "', room_to='" . $_GET['room_to'] . "', room_from='" . $_GET['room_from'] . "', time_from='" . $_GET['time_from'] . "', time_to='" . $_GET['time_to'] . "' WHERE reservation_id=" . $_GET['extend'];
-			if (!mysqli_query($link, $sql)) {
-				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+			} else {
+				throw new Exception("Prepare failed: " . mysqli_error($link));
 			}
 
-			$text = "Reservierungsanfrage #" . $_GET['extend'] . " wurde bearbeitet.";
-			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-			$SESSION->toasttext = $text;
+			// --- 2. update reservation informations ---
+			$sql = "UPDATE reservations 
+					SET date_from = ?, date_to = ?, room_to = ?, room_from = ?, time_from = ?, time_to = ? 
+					WHERE reservation_id = ?";
+			$stmt = mysqli_prepare($link, $sql);
+			mysqli_stmt_bind_param($stmt, "ssssssi",
+				$_GET['date_from'], $_GET['date_to'],
+				$_GET['room_to'], $_GET['room_from'],
+				$_GET['time_from'], $_GET['time_to'],
+				$reservation_id
+			);
+			if (!mysqli_stmt_execute($stmt)) {
+				throw new Exception("UPDATE failed: " . mysqli_error($link));
+			}
 
-			$date_from = date('d.m.Y', strtotime($_GET['date_from']));
-			$date_to = date('d.m.Y', strtotime($_GET['date_to']));
+			// --- 3. delete all devices from reservation ---
+			$sql = "DELETE FROM devices_of_reservations WHERE reservation_id = ?";
+			$stmt = mysqli_prepare($link, $sql);
+			mysqli_stmt_bind_param($stmt, "i", $reservation_id);
+			mysqli_stmt_execute($stmt);
 
+			// --- 4. add devices of reservation ---
 			$new_values = array_filter(explode("|", $_GET['values']));
 			$new_indicators = array_filter(explode("|", $_GET['indicators']));
+			for ($i = 0; $i < count($new_indicators); $i++) {
+				$tag = $new_values[$i];
+				$indicator = $new_indicators[$i];
 
+				$sql = "SELECT device_id 
+						FROM device_list 
+						JOIN device_type ON device_list.device_type_id = device_type.device_type_id 
+						WHERE device_list.device_tag = ? AND device_type.device_type_indicator = ?";
+				$stmt = mysqli_prepare($link, $sql);
+				mysqli_stmt_bind_param($stmt, "ss", $tag, $indicator);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				$row = mysqli_fetch_assoc($result);
+				if (!$row) throw new Exception("Device not found for tag $tag and indicator $indicator.");
+				$device_id = $row['device_id'];
+
+				$sql = "INSERT INTO devices_of_reservations (reservation_id, device_id) VALUES (?, ?)";
+				$stmt = mysqli_prepare($link, $sql);
+				mysqli_stmt_bind_param($stmt, "ii", $reservation_id, $device_id);
+				mysqli_stmt_execute($stmt);
+			}
+
+			// --- 5. add devices of reservation ---
+			require_once("Controller/basic.php");
 			$types = explode("|", $_GET['types']);
 			$amounts = explode("|", $_GET['amounts']);
-			//alle geräte löschen
-			$sql = "DELETE FROM `devices_of_reservations` WHERE devices_of_reservations.reservation_id=" . $_GET['extend'];
-			if (!mysqli_query($link, $sql)) {
-				throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-			}
-
-			/** add devices **/		
-			if(count($new_indicators) > 0) {
-				for ($i = 0; $i < count($new_indicators); $i++) {
-					//get id
-					$sql = "SELECT device_id FROM device_list, device_type WHERE device_list.device_tag = " . $new_values[$i] . " AND device_list.device_type_id = device_type.device_type_id AND device_type.device_type_indicator =  '" . $new_indicators[$i] . "'";
-					$query = mysqli_query($link, $sql);
-					$row = mysqli_fetch_array($query);
-					if (!$row) {
-						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-					}
-					$new_id = $row['device_id'];
-
-					//Add
-					$sql = "INSERT INTO `devices_of_reservations`(`reservation_id`, `device_id`) VALUES ('" . $_GET['extend'] . "','" . $new_id . "')";
-					if (!mysqli_query($link, $sql)) {
-						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-					}
-				}
-			}
-
-			require_once("Controller/basic.php");
 			$reservated = get_active_reservations();
 			$not_blocked_devices = get_notblockeddevices();
 			$id_by_name = get_idbyname();
 
-			//anzahl hinzufügen
 			$not_blocked_devices = available_devices($reservated, $department_id, $not_blocked_devices, $_GET['date_from'], $_GET['date_to']);
+			for ($i = 0; $i < count($types); $i++) {
+				$amount = intval($amounts[$i]);
+				if ($amount < 1) continue;
 
-			for($i = 0; $i < count($types); $i++){
-				if($amounts[$i] < 1 || $amounts[$i] == "") continue;
-				for($u = 0; $u < $amounts[$i]; $u++){
-					if(!isset($not_blocked_devices[$id_by_name[$types[$i]]])) break;
-					$device_type_id = $id_by_name[$types[$i]];
-					$device_keys = array_keys($not_blocked_devices[$device_type_id]);
-					$d_id = $not_blocked_devices[$device_type_id][$device_keys[$u]];
-					$query = "INSERT INTO devices_of_reservations (reservation_id,device_id) VALUES (?,?)";
-					if ($stmt = mysqli_prepare($link, $query)) {
-						mysqli_stmt_bind_param($stmt, "ii", $_GET['extend'], $d_id);
-						if (!mysqli_stmt_execute($stmt)) throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-					} else throw new Exception("ERROR: Could not prepare statement. " . mysqli_error($link));
+				$type = $types[$i];
+				if (!isset($id_by_name[$type])) continue;
+				$device_type_id = $id_by_name[$type];
+
+				if (!isset($not_blocked_devices[$device_type_id])) continue;
+				$device_list = $not_blocked_devices[$device_type_id];
+				$device_keys = array_keys($device_list);
+
+				for ($u = 0; $u < $amount && $u < count($device_keys); $u++) {
+					$d_id = $device_list[$device_keys[$u]];
+					$stmt = mysqli_prepare($link, "INSERT INTO devices_of_reservations (reservation_id, device_id) VALUES (?, ?)");
+					mysqli_stmt_bind_param($stmt, "ii", $reservation_id, $d_id);
+					mysqli_stmt_execute($stmt);
 				}
 			}
 
-			$messagetext = "Ihre Reservierung mit der ID #" . $_GET['extend'] . " wurde von einem Admin bearbeitet.<br /><br />Folgende Informationen sind Ihrer Reservierung zugehörig:<br /><br />Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: " . $department_mail . "<br /><br />Mit freundlichen Grüßen<br />Ihr Edurent-Team";
-			
-			sendamail($mail, $email_user, "Edurent - #" . $_GET['extend'] . " wurde bearbeitet", $messagetext);
+			// --- 6. save in logs and set toast message ---
+			save_in_logs("INFO: Reservierungsanfrage #$reservation_id wurde bearbeitet.", $user_firstname, $user_lastname, false);
+			$SESSION->toasttext = "Reservierungsanfrage #$reservation_id wurde bearbeitet.";
+
+			// --- 7. send mail ---
+			$messagetext = "Ihre Reservierung mit der ID #$reservation_id wurde von einem Admin bearbeitet.<br /><br />
+			Folgende Informationen sind Ihrer Reservierung zugehörig:<br /><br />
+			Bei Fragen bezüglich Ihrer Reservierung wenden Sie sich bitte an: $department_mail<br /><br />
+			Mit freundlichen Grüßen<br />Ihr Edurent-Team";
+
+			sendamail($mail, $email_user, "Edurent - #$reservation_id wurde bearbeitet", $messagetext);
 			echo "<script>window.location.href = 'admini';</script>";
 		}
-		catch (exception $e) {
-			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 517 admini: " . $e->getMessage());			
+		catch (Exception $e) {
+			error_to_superadmin(get_superadmins(), $mail, "ERROR in admini: " . $e->getMessage());
 		}
 	}
 
-	if(exists_and_not_empty('ret', $_GET)){ //retour
-		//sqlinjection
-		$sql = "UPDATE reservations SET status ='4', date_to=now() WHERE reservation_id=" . $_GET['ret'];
-		if (mysqli_query($link, $sql)) {
-			$text = "Reservierungsanfrage #" . $_GET['ret'] . " wurde zurückgegeben.";
 
-			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-			$SESSION->toasttext = $text;
+	if (exists_and_not_empty('ret', $_GET) && is_numeric($_GET['ret'])) { // retour
+    	$reservation_id = intval($_GET['ret']);
 
-			echo "<script>window.location.href = 'admini';</script>";
-		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
+		$sql = "UPDATE reservations SET status = ?, date_to = NOW() WHERE reservation_id = ?";
+		if ($stmt = mysqli_prepare($link, $sql)) {
+			$status = 4;
+			mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
 
-	if(exists_and_not_empty('rem', $_GET)){ //Delete from reservations & devices_of_reservations where reservation_id
-		//sqlinjection
-		$sql = "DELETE reservations FROM reservations WHERE reservations.reservation_id = " . $_GET['rem'];
-		if (mysqli_query($link, $sql)) {
-			if(mysqli_affected_rows($link) > 0){
-				$text = "INFO: Reservierungshistorie #" . $_GET['rem'] . " wurde gelöscht.";
+			if (mysqli_stmt_execute($stmt)) {
+				$text = "Reservierungsanfrage #$reservation_id wurde zurückgegeben.";
 
-				save_in_logs($text, $user_firstname, $user_lastname, false);
+				save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 				$SESSION->toasttext = $text;
 
 				echo "<script>window.location.href = 'admini';</script>";
+			} else {
+				$error = "ERROR: Could not execute UPDATE: " . mysqli_error($link);
+				error_to_superadmin(get_superadmins(), $mail, $error);
 			}
-			else error_to_superadmin(get_superadmins(), $mail, "Reservierungshistorie #" . $_GET['rem'] . " konnte nicht gelöscht werden.");
 		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+			$error = "ERROR: Could not prepare statement: " . mysqli_error($link);
 			error_to_superadmin(get_superadmins(), $mail, $error);
 		}
 	}
 
-	if ($is_superadmin) { //Show the active reservations
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to, time_from, time_to FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND (status<4 OR status >6) AND user_id=user.id ORDER BY reservation_id";
-	} else {
-		$ids;
-		for ($i=0; $i < count($department_ids); $i++) {
-			if($i == 0) $ids = "(reservations.department_id=" . $department_ids[$i];
-			else $ids .= " OR reservations.department_id=" . $department_ids[$i];
+
+	if (exists_and_not_empty('rem', $_GET) && is_numeric($_GET['rem'])) { // Delete reservation
+		$reservation_id = intval($_GET['rem']);
+
+		$sql = "DELETE FROM reservations WHERE reservation_id = ?";
+		if ($stmt = mysqli_prepare($link, $sql)) {
+			mysqli_stmt_bind_param($stmt, "i", $reservation_id);
+
+			if (mysqli_stmt_execute($stmt)) {
+				if (mysqli_stmt_affected_rows($stmt) > 0) {
+					$text = "INFO: Reservierungshistorie #$reservation_id wurde gelöscht.";
+					save_in_logs($text, $user_firstname, $user_lastname, false);
+					$SESSION->toasttext = $text;
+
+					echo "<script>window.location.href = 'admini';</script>";
+				} else {
+					error_to_superadmin(get_superadmins(), $mail, "Reservierungshistorie #$reservation_id konnte nicht gelöscht werden.");
+				}
+			} else {
+				$error = "ERROR: Could not execute DELETE: " . mysqli_error($link);
+				error_to_superadmin(get_superadmins(), $mail, $error);
+			}
+		} else {
+			$error = "ERROR: Could not prepare DELETE statement: " . mysqli_error($link);
+			error_to_superadmin(get_superadmins(), $mail, $error);
 		}
-		$ids .= ")"; 
-		$sql = "SELECT DISTINCT reservations.reservation_id, date_from, date_to, status, fn, user.id, ln, departments.department_id, room_from, room_to, time_from, time_to  FROM reservations, user, departments WHERE departments.department_id=reservations.department_id AND reservations.user_id=user.id AND (status<4 OR status >6) AND user_id=user.id AND " . $ids . " ORDER BY reservation_id";
+	}
+
+
+	if ($is_superadmin) { //Show the active reservations
+		$sql = "
+			SELECT DISTINCT 
+				reservations.reservation_id, 
+				reservations.date_from, 
+				reservations.date_to, 
+				reservations.status, 
+				user.fn, 
+				user.id, 
+				user.ln, 
+				departments.department_id, 
+				reservations.room_from, 
+				reservations.room_to, 
+				reservations.time_from, 
+				reservations.time_to
+			FROM reservations
+			JOIN user ON reservations.user_id = user.id
+			JOIN departments ON reservations.department_id = departments.department_id
+			WHERE (reservations.status < 4 OR reservations.status > 6)
+			ORDER BY reservations.reservation_id
+		";
+	} else {
+		$ids = $department_ids;
+
+		if (count($ids) > 0) {
+			$placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+			$sql = "
+				SELECT DISTINCT 
+					reservations.reservation_id, 
+					reservations.date_from, 
+					reservations.date_to, 
+					reservations.status, 
+					user.fn, 
+					user.id, 
+					user.ln, 
+					departments.department_id, 
+					reservations.room_from, 
+					reservations.room_to, 
+					reservations.time_from, 
+					reservations.time_to
+				FROM reservations
+				JOIN user ON reservations.user_id = user.id
+				JOIN departments ON reservations.department_id = departments.department_id
+				WHERE (reservations.status < 4 OR reservations.status > 6)
+				AND reservations.department_id IN ($placeholders)
+				ORDER BY reservations.reservation_id
+			";
+		}
+		else{
+			sendToast("Keine gültige Abteilung angegeben.");
+		}
 	}
 
 	?>

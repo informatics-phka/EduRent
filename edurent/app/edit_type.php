@@ -79,35 +79,55 @@ check_is_admin_of_department($user_username, $device_department);
 
 if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_institute;
 
-if(exists_and_not_empty('reason', $_POST)){ //device save
-	//sqlinjection
-	$device_serialnumber = $_POST['serialnumber'];
-	$device_type_id = $_POST['type'];
-	$device_tag = $_POST['tag'];
-	$device_blocked = $_POST['blocked'];
-	$device_id = $_POST['id'];
-	$device_note = $_POST['note'];
-	$sql = "UPDATE device_list SET serialnumber='" . $device_serialnumber . "', device_type_id='" . $device_type_id . "', device_tag='" . $device_tag . "', blocked='" . $device_blocked . "', note='" . $device_note . "' WHERE device_id='" . $device_id . "'";
-	if (mysqli_query($link, $sql)) {
-		if ($_POST['reason'] == "edit") {
-			$text = "Device '" . $type[$device_type_id]['device_type_indicator'] . $device_tag . "' wurde bearbeitet";
-			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-				
+// edit device
+if (exists_and_not_empty('reason', $_POST)) {
+    $device_serialnumber = $_POST['serialnumber'];
+    $device_type_id = $_POST['type'];
+    $device_tag = $_POST['tag'];
+    $device_blocked = $_POST['blocked'];
+    $device_id = $_POST['id'];
+    $device_note = $_POST['note'];
+
+    $sql = "UPDATE device_list SET serialnumber = ?, device_type_id = ?, device_tag = ?, blocked = ?, note = ? WHERE device_id = ?";
+
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        mysqli_stmt_bind_param(
+            $stmt, 
+            "sisisi",
+            $device_serialnumber,
+            $device_type_id,
+            $device_tag,
+            $device_blocked,
+            $device_note,
+            $device_id
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+			$text = "INFO: Das Gerät '" . $type[$device_type_id]['device_type_indicator'] . $device_tag . "' wurde bearbeitet";
+			save_in_logs($text, $user_firstname, $user_lastname, false);
+
 			$SESSION->toasttext = $text;
-			echo "<script>window.location.href = 'edit_type.php?type=" . $_POST['type'] . "';</script>";
-		} else error_to_superadmin(get_superadmins(), $mail, "ERROR: in 149 edit_type: " . $_POST['reason']);
-	} else {
-		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-		error_to_superadmin(get_superadmins(), $mail, $error);
-	}
+			session_write_close();
+			echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8') . "';</script>";
+        } else {
+            $error = "ERROR: Could not able to execute statement: " . mysqli_stmt_error($stmt);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
 }
+
 
 if(exists_and_not_empty('reason', $_GET)){ //type
 	if (mysqli_query($link, $sql)) {
-		$text = "Devicetyp '" . $type[$_GET['type']]['device_type_name'] . $_GET['type'] . "' wurde bearbeitet";
-		save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
+		$text = "INFO: Das Gerät '" . $type[$_GET['type']]['device_type_name'] . $_GET['type'] . "' wurde bearbeitet";
+		save_in_logs($text, $user_firstname, $user_lastname, false);
 
 		$SESSION->toasttext = $text;
+		session_write_close();
 		echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
 	} else {
 		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
@@ -115,43 +135,60 @@ if(exists_and_not_empty('reason', $_GET)){ //type
 	}
 }
 
-//create a device
-if(exists_and_not_empty('create', $_POST)){
-	//sqlinjection
-	$device_type_id_id = $_POST['id'];
-	$device_tag = $_POST['device_tag'];
-	$serialnumber = $_POST['serialnumber'];
-	$blocked = $_POST['blocked'];
-	$sql = "INSERT INTO device_list (device_type_id, device_tag, serialnumber, blocked) VALUES ('$device_type_id_id','$device_tag','$serialnumber','$blocked')";
-	if (mysqli_query($link, $sql)) {
-		$text = "INFO: Devicetag '" . $type[$device_type_id_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich erstellt";
-		save_in_logs($text, $user_firstname, $user_lastname);
+// Create a device
+if (exists_and_not_empty('create', $_POST)) {
+    $device_type_id_id = $_POST['id'];
+    $device_tag = $_POST['device_tag'];
+    $serialnumber = $_POST['serialnumber'];
+    $blocked = $_POST['blocked'];
 
-		$SESSION->toasttext = $text;
-		echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
-	} else {
-		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-		error_to_superadmin(get_superadmins(), $mail, $error);
-	}
+    $sql = "INSERT INTO device_list (device_type_id, device_tag, serialnumber, blocked) VALUES (?, ?, ?, ?)";
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        // Annahme: device_type_id_id und blocked sind Integer, device_tag und serialnumber Strings
+        mysqli_stmt_bind_param($stmt, "isss", $device_type_id_id, $device_tag, $serialnumber, $blocked);
+        if (mysqli_stmt_execute($stmt)) {
+            $text = "INFO: Das Gerät '" . $type[$device_type_id_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich erstellt";
+            save_in_logs($text, $user_firstname, $user_lastname);
+
+            $SESSION->toasttext = $text;
+			session_write_close();
+            echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_GET['type']) . "';</script>";
+        } else {
+            $error = "ERROR: Could not execute statement: " . mysqli_error($link);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
 }
 
-//remove device
-if(exists_and_not_empty('remove_id', $_GET)){
-	//sqlinjection
-	$device_id = $_GET['remove_id'];
-	$selected_type_id = $_GET['selected_type_id'];
-	$device_tag = $_GET['device_tag'];
-	$sql = "DELETE FROM device_list WHERE device_id='" . $device_id . "'";
-	if (mysqli_query($link, $sql)) {
-		$text = "INFO: Devicetag '" . $type[$selected_type_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich gelöscht";
-		save_in_logs($text, $user_firstname, $user_lastname);
+// Remove device
+if (exists_and_not_empty('remove_id', $_GET)) {
+    $device_id = $_GET['remove_id'];
+    $selected_type_id = $_GET['selected_type_id'];
+    $device_tag = $_GET['device_tag'];
 
-		$SESSION->toasttext = $text;
-		echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
-	} else {
-		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-		error_to_superadmin(get_superadmins(), $mail, $error);
-	}
+    $sql = "DELETE FROM device_list WHERE device_id = ?";
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        mysqli_stmt_bind_param($stmt, "i", $device_id);
+        if (mysqli_stmt_execute($stmt)) {
+            $text = "INFO: Das Gerät '" . $type[$selected_type_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich gelöscht";
+            save_in_logs($text, $user_firstname, $user_lastname);
+
+            $SESSION->toasttext = $text;
+			session_write_close();
+            echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_GET['type']) . "';</script>";
+        } else {
+            $error = "ERROR: Could not execute statement: " . mysqli_error($link);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
 }
 
 //device list
@@ -223,7 +260,6 @@ if ($stmt = mysqli_prepare($link, $query)) {
 $stmt->close();
 
 $devices_on_site = $not_blocked_devices - count($reservated_devices);
-
 ?>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -250,7 +286,7 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 	
 	<!-- Toast -->
-	<?php require_once("Controller/toast.php"); ?>
+	<?php require_once("Controller/toast.php");?>
 </head>
 <body>
 	<div class="main">
