@@ -216,6 +216,8 @@ if ($is_superadmin) {
 		$("#button_red").show();
 		$("#button_yellow").hide();
 
+        $("#button_red").html('<?php echo translate('word_confirm'); ?>');
+
 		if (orders == "2") {
 			string = '<center>Es konnten keine zugeordneten Geräte gefunden werden. Bitte untersuchen die die Reservierung in der MySQL Datenbank.</center>';
 			$("#button_red").hide();

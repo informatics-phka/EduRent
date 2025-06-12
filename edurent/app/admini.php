@@ -492,73 +492,6 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 		}
 	}
 
-
-	if (exists_and_not_empty('rem', $_GET) && is_numeric($_GET['rem'])) { // Delete reservation
-		$reservation_id = intval($_GET['rem']);
-
-		$sql = "DELETE FROM reservations WHERE reservation_id = ?";
-		if ($stmt = mysqli_prepare($link, $sql)) {
-			mysqli_stmt_bind_param($stmt, "i", $reservation_id);
-
-			if (mysqli_stmt_execute($stmt)) {
-				if (mysqli_stmt_affected_rows($stmt) > 0) {
-					$text = "INFO: Reservierungshistorie #$reservation_id wurde gelöscht.";
-					save_in_logs($text, $user_firstname, $user_lastname, false);
-					$SESSION->toasttext = $text;
-					session_write_close();
-
-					echo "<script>window.location.href = 'admini';</script>";
-				} else {
-					error_to_superadmin(get_superadmins(), $mail, "Reservierungshistorie #$reservation_id konnte nicht gelöscht werden.");
-				}
-			} else {
-				$error = "ERROR: Could not execute DELETE: " . mysqli_error($link);
-				error_to_superadmin(get_superadmins(), $mail, $error);
-			}
-		} else {
-			$error = "ERROR: Could not prepare DELETE statement: " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
-
-?>
-
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	
-	<!-- JQuery -->
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
-	<!-- Bootstrap -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-	
-	<!-- stylesheet -->
-	<link rel="stylesheet" href="style-css/rent.css">
-	<link rel="stylesheet" href="style-css/toasty.css">
-	<link rel="stylesheet" href="style-css/page_colors.scss">
-	<link rel="stylesheet" href="style-css/accessability.css">
-	<link rel="stylesheet" href="style-css/navbar.css">
-	
-	<!-- searchbar -->
-	<script type="text/javascript" src="js/searchbar.js"></script>
-	
-	<!-- Font Awesome -->
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-	
-	<!-- Toast -->
-	<?php require_once("Controller/toast.php"); ?>
-</head>
-<body>
-	<style>
-		.collapsed {
-			display: none;
-		}
-	</style>
-	<?php
-	setlocale(LC_ALL, "de_DE.utf8");
-
 	if ($is_superadmin) { //Show the active reservations
 		$sql = "
 			SELECT DISTINCT 
@@ -612,142 +545,178 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 			sendToast("Keine gültige Abteilung angegeben.");
 		}
 	}
+?>
 
-	?>
-		<div class="main">
-			<?php require_once 'navbar.php'; ?>	
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/page_colors.scss">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- searchbar -->
+	<script type="text/javascript" src="js/searchbar.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
+<body>
+	<div class="main">
+		<?php require_once 'navbar.php'; ?>	
+		<br>
+		<div class='row no-gutters'>
+			<div>
+				<input type='text' class='w-100 search form-control' title='Bestellungen = #2<br>Geräte\nPersonen\n<?php echo translate('word_date'); ?> = 05.08.2023' placeholder='<?php echo translate('word_search'); ?>' />
+			</div>
 			<br>
+			<br>
+			<div class='table-responsive'>
+				<table class='table results'>
+					<thead>
+						<tr>
+							<th class='band' scope='col'>
+								<?php echo translate('word_number'); ?>
+							</th>
+							<th class='band' scope='col'>
+								<?php echo translate('word_status'); ?>
+							</th>
+							<th class='band' scope='col'>
+								<?php echo translate('word_deadline'); ?>
+							</th>
+						</tr>
+						<tr class='warning no-result' style="display:none;">
+							<td colspan='3'><i class='fa fa-warning'></i><?php echo translate('text_noResult'); ?></td>
+						</tr>
+					</thead>
+					<tbody>
 	<?php
 
 	if ($result = mysqli_query($link, $sql)) {
 		if (mysqli_num_rows($result) > 0) {
-	?>
-		
-			<div class='table-responsive'>
-				<table class='table table-sortable'>
-					<thead>
-						<tr>
-							<th class='band'>
-								<?php echo translate('word_number'); ?>
-							</th>
-							<th class='band'>
-								<?php echo translate('word_status'); ?>
-							</th>
-							<th class='band'>
-								<?php echo translate('word_deadline'); ?>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php /** Get the reservations **/
+	?>		
+						<?php
 						while ($row = mysqli_fetch_array($result)) {
 						?>
-							<tr>
-								<?php
-								$abholbar_timestamp = strtotime($row['date_from']);
-								$abholbar_wochentag = date("N", $abholbar_timestamp) % 7; //7 = 0
-								$abholbar_uhrzeit;
+						<tr>
+							<?php
+							$abholbar_timestamp = strtotime($row['date_from']);
+							$abholbar_wochentag = date("N", $abholbar_timestamp) % 7; //7 = 0
+							$abholbar_uhrzeit;
 
-								$days = array_keys($pickupdays[$row['department_id']]);
-								for ($i = 0; $i < count($days); $i++) {
-									if ($abholbar_wochentag == $pickupdays[$row['department_id']][$days[$i]]['dayofweek']) {
-										$abholbar_uhrzeit = $pickupdays[$row['department_id']][$days[$i]]['time'];
-										break;
-									}
+							$days = array_keys($pickupdays[$row['department_id']]);
+							for ($i = 0; $i < count($days); $i++) {
+								if ($abholbar_wochentag == $pickupdays[$row['department_id']][$days[$i]]['dayofweek']) {
+									$abholbar_uhrzeit = $pickupdays[$row['department_id']][$days[$i]]['time'];
+									break;
 								}
+							}
 
-								$rueckgabe_timestamp = strtotime($row['date_to']);
-								$rueckgabe_wochentag = date("N", $rueckgabe_timestamp) % 7; //7 = 0
-								$rueckgabe_uhrzeit;
+							$rueckgabe_timestamp = strtotime($row['date_to']);
+							$rueckgabe_wochentag = date("N", $rueckgabe_timestamp) % 7; //7 = 0
+							$rueckgabe_uhrzeit;
 
-								$days = array_keys($pickupdays[$row['department_id']]);
-								for ($i = 0; $i < count($days); $i++) {
-									if ($rueckgabe_wochentag == $pickupdays[$row['department_id']][$days[$i]]['dayofweek']) {
-										$rueckgabe_uhrzeit = $pickupdays[$row['department_id']][$days[$i]]['time'];
-										break;
-									}
+							$days = array_keys($pickupdays[$row['department_id']]);
+							for ($i = 0; $i < count($days); $i++) {
+								if ($rueckgabe_wochentag == $pickupdays[$row['department_id']][$days[$i]]['dayofweek']) {
+									$rueckgabe_uhrzeit = $pickupdays[$row['department_id']][$days[$i]]['time'];
+									break;
 								}
+							}
 
-								switch ($row['status']) {
-									case 1:
-										$status = translate('status_1');
-										$button = "btn-warning";
-										break;
-									case 2:
-										$status = translate('status_2');
-										$button = "btn-info";
-										break;
-									case 3:
-										$status = translate('status_3');
-										$button = "btn-success";
-										break;
-									case 7:
-										$status = translate('status_7');
-										$button = "btn-danger";
-										break;
-									default:
-										$status = translate('status_4');
-										$button = "btn-danger";
-										break;
-								}
-
-								//if anfrage überfällig
-								$current = date("Y-m-d");
-								$frist = $row['date_from'];
-								$date1 = date_create($current);
-								$date2 = date_create($frist);
-								$diff = date_diff($date1, $date2);
-								$diff = $diff->format("%R%a");
-								if ($row['status'] == 1 && $diff < 0) {
-									$status = "Anfrage Überfällig";
+							switch ($row['status']) {
+								case 1:
+									$status = translate('status_1');
+									$button = "btn-warning";
+									break;
+								case 2:
+									$status = translate('status_2');
+									$button = "btn-info";
+									break;
+								case 3:
+									$status = translate('status_3');
+									$button = "btn-success";
+									break;
+								case 7:
+									$status = translate('status_7');
 									$button = "btn-danger";
-								}
-
-								//if abholbar überfällig
-								if ($row['status'] == 2 && $diff < 0) {
-									$status = "Abholung Überfällig";
+									break;
+								default:
+									$status = translate('status_4');
 									$button = "btn-danger";
-								}
+									break;
+							}
 
-								//if rückgabe überfällig
-								$frist = $row['date_to'];
-								$date2 = date_create($frist);
-								$diff = date_diff($date1, $date2);
-								$diff = $diff->format("%R%a");
-								if ($row['status'] == 3 && $diff < 0) {
-									$status = "Rückgabe Überfällig";
-									$button = "btn-danger";
-								}
-								?>
-								<td>
-									<form method="POST" action="view_reservation" style="display:inline;">
-										<input type="hidden" name="reservation_id" value="<?php echo $row['reservation_id']; ?>">
-										<button type="submit" class="btn rounded <?php echo $button; ?> mr-1 mb-1">
+							//if anfrage überfällig
+							$current = date("Y-m-d");
+							$frist = $row['date_from'];
+							$date1 = date_create($current);
+							$date2 = date_create($frist);
+							$diff = date_diff($date1, $date2);
+							$diff = $diff->format("%R%a");
+							if ($row['status'] == 1 && $diff < 0) {
+								$status = "Anfrage Überfällig";
+								$button = "btn-danger";
+							}
+
+							//if abholbar überfällig
+							if ($row['status'] == 2 && $diff < 0) {
+								$status = "Abholung Überfällig";
+								$button = "btn-danger";
+							}
+
+							//if rückgabe überfällig
+							$frist = $row['date_to'];
+							$date2 = date_create($frist);
+							$diff = date_diff($date1, $date2);
+							$diff = $diff->format("%R%a");
+							if ($row['status'] == 3 && $diff < 0) {
+								$status = "Rückgabe Überfällig";
+								$button = "btn-danger";
+							}
+							?>
+							<td>
+								<form method="POST" action="view_reservation" style="display:inline;">
+									<input type="hidden" name="reservation_id" value="<?php echo $row['reservation_id']; ?>">
+									<button type="submit" class="btn rounded <?php echo $button; ?> mr-1 mb-1">
 										#<?php echo $row['reservation_id']; ?>
-										</button>
-									</form>
-								</td>
-								<td style="vertical-align: middle">
-									<?php echo $status; ?>
-								</td>
+									</button>
+								</form>
+							</td>
+							<td style="vertical-align: middle">
+								<?php echo $status; ?>
+							</td>
 
-								<?php
-								switch ($row['status']) {
-									case 1: //pickup 
-										echo "<td></td>";
-										break;
-									case 2: //pickup 
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_from']), 'd.m.Y') . "</td>";
-										break;
-									case 3: //request 
-										echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_to']), 'd.m.Y') . "</td>";
-										break;
-									case 7: //error 
-										echo "<td style='vertical-align: middle'></td>";
-										break;
-								}
-								?>
-							</tr>
+							<?php
+							switch ($row['status']) {
+								case 1: //pickup 
+									echo "<td></td>";
+									break;
+								case 2: //pickup 
+									echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_from']), 'd.m.Y') . "</td>";
+									break;
+								case 3: //request 
+									echo "<td style='vertical-align: middle'>" . date_format(date_create($row['date_to']), 'd.m.Y') . "</td>";
+									break;
+								case 7: //error 
+									echo "<td style='vertical-align: middle'></td>";
+									break;
+							}
+							?>
+						</tr>
 						<?php
 						}
 						mysqli_free_result($result);
@@ -758,27 +727,22 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 
 			<?php } else { ?>
 
-				<div style="text-align:center; width:100%; max-width: 80ch; margin: 0 auto;">
-					<h3 style='text-align:center;'>
-						Es gibt keine offenen Reservierungen
-					</h3>
-				</div>
+			<div style="text-align:center; width:100%; max-width: 80ch; margin: 0 auto;">
+				<h3 style='text-align:center;'>
+					Es gibt keine offenen Reservierungen
+				</h3>
+			</div>
 
 			<?php
 		}
 	} else {
 		error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 	}
-	/** END - Show the active reservations **/
-
-		//START - Links
 			?>
+		</div>
 	</div>
-	<!-- tablesort -->
-	<script type="text/javascript" src="js/tablesort.js"></script>
 </body>
 <?php
-//END - Links
 
 echo $OUTPUT->footer();
 mysqli_close($link);
@@ -804,36 +768,6 @@ function get_history_status($status_id)
 }
 ?>
 <script>
-	document.addEventListener('DOMContentLoaded', () => {
-    // display current page in navbar
-    const links = document.querySelectorAll('#navbarMenu .nav-link');
-    const currentPath = window.location.pathname.toLowerCase()
-        .replace(/^\/edurent\//, '')
-        .replace(/\.php$/, '');
-
-    links.forEach(link => {
-        const linkPath = link.getAttribute('href').toLowerCase();
-
-        if (currentPath == linkPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-});
-
-	document.querySelectorAll(".collapse_me th").forEach(headerCell => {
-		headerCell.addEventListener("click", () => {
-			var tbodyCollapsed = document.querySelector(".collapse_me tbody.collapsed");
-			var tbodyVisible = document.querySelector(".collapse_me tbody:not(.collapsed)");
-
-			if (tbodyCollapsed && tbodyVisible) {
-				tbodyCollapsed.classList.remove("collapsed");
-				tbodyVisible.classList.add("collapsed");
-			}
-		});
-	});
-
 	var added = 0;
 	
 	function order_extend2(reservation_id) {

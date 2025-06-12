@@ -356,22 +356,6 @@ $is_superadmin = is_superadmin($user_username);
                 }
             });
         });
-
-		document.addEventListener('DOMContentLoaded', () => {
-			// display current header
-			const links = document.querySelectorAll('#navbarMenu .nav-link');
-			const currentPath = window.location.pathname.toLowerCase();
-
-			links.forEach(link => {
-				const linkPath = link.getAttribute('href').toLowerCase();
-
-				if (currentPath.endsWith(linkPath)) {
-					link.classList.add('active');
-				} else {
-					link.classList.remove('active');
-				}
-			});
-		});
     </script>
 </body>
 </html>
