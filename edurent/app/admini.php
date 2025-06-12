@@ -89,49 +89,7 @@ foreach ($menuItems as $item) {
     }
 }
 
-?>
-
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	
-	<!-- JQuery -->
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
-	<!-- Bootstrap -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-	
-	<!-- stylesheet -->
-	<link rel="stylesheet" href="style-css/rent.css">
-	<link rel="stylesheet" href="style-css/toasty.css">
-	<link rel="stylesheet" href="style-css/page_colors.scss">
-	<link rel="stylesheet" href="style-css/accessability.css">
-	<link rel="stylesheet" href="style-css/navbar.css">
-	
-	<!-- searchbar -->
-	<script type="text/javascript" src="js/searchbar.js"></script>
-	
-	<!-- Font Awesome -->
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-	
-	<!-- Toast -->
-	<?php require_once("Controller/toast.php"); ?>
-</head>
-<body>
-	<style>
-		.collapsed {
-			display: none;
-		}
-	</style>
-	<?php
-
-	setlocale(LC_ALL, "de_DE.utf8");
-
-	$heute_datum = new DateTime();
-	$heute_timestamp = date('Y-m-d', $heute_datum->getTimestamp());
-
-	if(exists_and_not_empty('org', $_GET)){ //was fetched
+if(exists_and_not_empty('org', $_GET)){ //was fetched
 		/** timestamp to collection period **/
 		$reservation_id = $_GET['org'];
 
@@ -160,6 +118,7 @@ foreach ($menuItems as $item) {
 			$text = translate('toast_confirm', ["a" => $reservation_id]);
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
+			session_write_close();
 
 			$sql = "SELECT device_type_name 
 					FROM devices_of_reservations 
@@ -218,6 +177,7 @@ foreach ($menuItems as $item) {
 
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
+			session_write_close();
 
 			echo "<script>window.location.href = 'admini';</script>";
 		} else {
@@ -267,6 +227,7 @@ foreach ($menuItems as $item) {
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
 						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
+						session_write_close();
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$new_id = $row['device_id'];
@@ -277,6 +238,7 @@ foreach ($menuItems as $item) {
 					$row = mysqli_fetch_array($query);
 					if (!$row) {
 						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
+						session_write_close();
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 					$old_id = $row['id'];
@@ -285,6 +247,7 @@ foreach ($menuItems as $item) {
 					$sql = "UPDATE devices_of_reservations SET devices_of_reservations.device_id= '" . $new_id . "' WHERE devices_of_reservations.id='" . $old_id . "' AND devices_of_reservations.reservation_id=" . $reservation_id . " LIMIT 1";
 					if (!mysqli_query($link, $sql)) {
 						$SESSION->toasttext = "Das Gerät " . $tags[$array_key_list[$keys[$i]]] . " konnte nicht gefunden werden.";
+						session_write_close();
 						throw new Exception("ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 					}
 				}
@@ -309,6 +272,7 @@ foreach ($menuItems as $item) {
 					$text = "Reservierungsanfrage #" . $reservation_id . " wurde abgeholt.";
 					save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 					$SESSION->toasttext = $text;
+					session_write_close();
 
 					$array = array();
 					$sql = "SELECT device_type_name 
@@ -327,6 +291,7 @@ foreach ($menuItems as $item) {
 						mysqli_free_result($result);
 					} else {
 						$SESSION->toasttext = "Geräte konnten nicht geladen werden.";
+						session_write_close();
 						throw new Exception("ERROR: Could not execute SELECT: " . mysqli_error($link));
 					}
 
@@ -347,6 +312,7 @@ foreach ($menuItems as $item) {
 					sendamail($mail, $row['email'], "Reservierung #" . $reservation_id . " wurde abgeholt", $messagetext, $ics_file_contents);
 
 					$SESSION->toasttext = "Die Reservierung wurde abgeholt";
+					session_write_close();
 				} else {
 					throw new Exception("ERROR: Could not execute UPDATE: " . mysqli_error($link));
 				}
@@ -372,6 +338,7 @@ foreach ($menuItems as $item) {
 
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
+			session_write_close();
 
 			echo "<script>window.location.href = 'admini';</script>";
 		} else {
@@ -482,6 +449,7 @@ foreach ($menuItems as $item) {
 			// --- 6. save in logs and set toast message ---
 			save_in_logs("INFO: Reservierungsanfrage #$reservation_id wurde bearbeitet.", $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = "Reservierungsanfrage #$reservation_id wurde bearbeitet.";
+			session_write_close();
 
 			// --- 7. send mail ---
 			$messagetext = "Ihre Reservierung mit der ID #$reservation_id wurde von einem Admin bearbeitet.<br /><br />
@@ -511,6 +479,7 @@ foreach ($menuItems as $item) {
 
 				save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 				$SESSION->toasttext = $text;
+				session_write_close();
 
 				echo "<script>window.location.href = 'admini';</script>";
 			} else {
@@ -536,6 +505,7 @@ foreach ($menuItems as $item) {
 					$text = "INFO: Reservierungshistorie #$reservation_id wurde gelöscht.";
 					save_in_logs($text, $user_firstname, $user_lastname, false);
 					$SESSION->toasttext = $text;
+					session_write_close();
 
 					echo "<script>window.location.href = 'admini';</script>";
 				} else {
@@ -551,6 +521,43 @@ foreach ($menuItems as $item) {
 		}
 	}
 
+?>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<!-- stylesheet -->
+	<link rel="stylesheet" href="style-css/rent.css">
+	<link rel="stylesheet" href="style-css/toasty.css">
+	<link rel="stylesheet" href="style-css/page_colors.scss">
+	<link rel="stylesheet" href="style-css/accessability.css">
+	<link rel="stylesheet" href="style-css/navbar.css">
+	
+	<!-- searchbar -->
+	<script type="text/javascript" src="js/searchbar.js"></script>
+	
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+	
+	<!-- Toast -->
+	<?php require_once("Controller/toast.php"); ?>
+</head>
+<body>
+	<style>
+		.collapsed {
+			display: none;
+		}
+	</style>
+	<?php
+	setlocale(LC_ALL, "de_DE.utf8");
 
 	if ($is_superadmin) { //Show the active reservations
 		$sql = "
