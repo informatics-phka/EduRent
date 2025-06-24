@@ -23,8 +23,8 @@ foreach ($menuItems as $item) {
 <!-- Navbar HTML -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav ms-auto" id="navbarMenu">
+    <div class="mx-auto" style="width: fit-content collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav justify-content-center w-100" id="navbarMenu">
         <?= $menuItemsHtml ?>
       </ul>
     </div>
