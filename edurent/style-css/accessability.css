@@ -1,4 +1,7 @@
 
-.local-accessibility-panel{
-    display:none;
+.local-accessibility-panel {
+    display: none;
+    position: fixed !important;
+    bottom: 80px !important;
+    right: 20px !important;
 }

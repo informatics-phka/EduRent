@@ -23,17 +23,9 @@ foreach ($menuItems as $item) {
 <!-- Navbar HTML -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand invisible" href="#">Platz</a>
-
-    <!-- toggle button -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" 
-            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- menu-->
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav ms-auto" id="navbarMenu">
+    
+    <div class="mx-auto" style="width: fit-content collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav justify-content-center w-100" id="navbarMenu">
         <?= $menuItemsHtml ?>
       </ul>
     </div>
