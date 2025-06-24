@@ -1,0 +1,20 @@
+a,
+a:hover,
+a:focus,
+a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+.log-link {
+    display: block;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    padding: 5px 15px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.log-link:hover {
+    background-color: #f0f0f0;
+}

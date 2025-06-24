@@ -27,6 +27,8 @@ $is_superadmin = is_superadmin($user_username);
 		<link rel="stylesheet" href="style-css/rent.css">
         <link rel="stylesheet" href="style-css/toasty.css">
         <link rel="stylesheet" href="style-css/accessability.css">
+        <link rel="stylesheet" href="style-css/view_logs.css">
+        <link rel="stylesheet" href="style-css/navbar.css">
 		
         <!-- Font Awesome -->
     	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -34,23 +36,6 @@ $is_superadmin = is_superadmin($user_username);
         <!-- Toast -->
 		<?php require_once("Controller/toast.php"); ?>
 	</head>
-	<style>
-		th, td {
-			border-bottom: 1px solid #ddd;
-			padding: 0.2ch 1ch 0.2ch 0.2ch;
-		}
-
-        .icon-container {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-        }
-        .info .icon-container { color: #007bff; }
-        .warning .icon-container { color: #ffc107; }
-        .error .icon-container { color: #dc3545; }
-        .warning { font-weight: normal; }
-	</style>
 	<div class="main">
         <?php require_once 'navbar.php'; ?>	
         <br>
@@ -130,12 +115,6 @@ $is_superadmin = is_superadmin($user_username);
 		</br>
 		<!-- Buttons -->
 		<div class='row justify-content-center'>
-			<div class='col-md-6 mb-3'>
-				<a class='btn btn-secondary btn-block' href='logs'>
-					<i class="fas fa-arrow-left mr-2"></i>
-					<?php echo translate('word_back'); ?>
-				</a>
-			</div>
 			<div class='col-md-6 mb-3'>
 				<button type='button' class='btn btn-warning btn-block' id='deleteSelected'>
 					<i class="fas fa-trash mr-2"></i>

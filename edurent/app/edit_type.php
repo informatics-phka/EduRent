@@ -16,30 +16,11 @@ if (isEmpty($_GET['type'])) {
 	exit;
 }
 
-//get limits of types
-$limits = get_limits_of("device_type");
-$type;
-$sql = "SELECT * FROM device_type";
-if ($result = mysqli_query($link, $sql)) {
-	if (mysqli_num_rows($result) > 0) {
-		while ($row = mysqli_fetch_array($result)) {
-			$type[$row['device_type_id']]['device_type_name'] = $row['device_type_name'];
-			$type[$row['device_type_id']]['device_type_indicator'] = $row['device_type_indicator'];
-			$type[$row['device_type_id']]['device_type_info'] = $row['device_type_info'];
-			$type[$row['device_type_id']]['device_type_img_path'] = $row['device_type_img_path'];
-			$type[$row['device_type_id']]['device_type_storage'] = $row['device_type_storage'];
-			$type[$row['device_type_id']]['device_tooltip'] = $row['tooltip'];
-			$type[$row['device_type_id']]['home_department'] = $row['home_department'];
-			$type[$row['device_type_id']]['max_loan_days'] = $row['max_loan_days'];
-		}
-		mysqli_free_result($result);
-	}
-} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
-
 //get data
 $departments = get_departmentnames();
+$limits = get_limits_of("device_type");
 
-$part_of_department = array();
+$part_of_department = [];
 $query = "SELECT department_id FROM type_department WHERE type_id = ?";
 if ($stmt = mysqli_prepare($link, $query)) {
 	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
@@ -49,10 +30,10 @@ if ($stmt = mysqli_prepare($link, $query)) {
 		if (mysqli_stmt_num_rows($stmt) > 0) {
 			mysqli_stmt_bind_result($stmt, $department_id);
 			while (mysqli_stmt_fetch($stmt)) {
-				$part_of_department[count($part_of_department)] = $department_id;
+				$part_of_department[] = $department_id;
 			}
 		} else {
-			save_in_logs("ERROR: Kein Datensatz gefunden (" . $query . ") 52");
+			save_in_logs("ERROR: No data found (" . $query . ") 52");
 		}
 	} else {
 		save_in_logs("ERROR: " . mysqli_error($link));
@@ -63,7 +44,222 @@ if ($stmt = mysqli_prepare($link, $query)) {
 }
 $stmt->close();
 
+$type = [];
+$sql = "SELECT * FROM device_type";
+if ($result = mysqli_query($link, $sql)) {
+	if (mysqli_num_rows($result) > 0) {
+		while ($row = mysqli_fetch_assoc($result)) {
+            $type[$row['device_type_id']] = [
+                'device_type_name' => $row['device_type_name'],
+                'device_type_indicator' => $row['device_type_indicator'],
+                'device_type_info' => $row['device_type_info'],
+                'device_type_img_path' => $row['device_type_img_path'],
+                'device_type_storage' => $row['device_type_storage'],
+                'device_tooltip' => $row['tooltip'],
+                'home_department' => $row['home_department'],
+                'max_loan_days' => $row['max_loan_days'],
+            ];
+        }
+		mysqli_free_result($result);
+	} else {
+        save_in_logs("ERROR: No data found (" . $sql . ")");
+    }
+} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
+
+//check if type exists
+if(!$type[$_GET['type']]['device_type_name']){
+	error_to_superadmin(get_superadmins(), $mail, "ERROR: Fehler beim Aufrufen von edit_type.php: type existiert nicht");
+	echo "<script>window.location.href = 'admini';</script>";
+	exit;
+}
+
+//check if is admin of department from the device type
+$device_department= $type[$_GET['type']]['home_department'];
+check_is_admin_of_department($user_username, $device_department);
+
 if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_institute;
+
+// edit device
+if (exists_and_not_empty('reason', $_POST)) {
+    $device_serialnumber = $_POST['serialnumber'];
+    $device_type_id = $_POST['type'];
+    $device_tag = $_POST['tag'];
+    $device_blocked = $_POST['blocked'];
+    $device_id = $_POST['id'];
+    $device_note = $_POST['note'];
+
+    $sql = "UPDATE device_list SET serialnumber = ?, device_type_id = ?, device_tag = ?, blocked = ?, note = ? WHERE device_id = ?";
+
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        mysqli_stmt_bind_param(
+            $stmt, 
+            "sisisi",
+            $device_serialnumber,
+            $device_type_id,
+            $device_tag,
+            $device_blocked,
+            $device_note,
+            $device_id
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+			$text = "INFO: Das Gerät '" . $type[$device_type_id]['device_type_indicator'] . $device_tag . "' wurde bearbeitet";
+			save_in_logs($text, $user_firstname, $user_lastname, false);
+
+			$SESSION->toasttext = $text;
+			session_write_close();
+			echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8') . "';</script>";
+        } else {
+            $error = "ERROR: Could not able to execute statement: " . mysqli_stmt_error($stmt);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
+}
+
+
+if(exists_and_not_empty('reason', $_GET)){ //type
+	if (mysqli_query($link, $sql)) {
+		$text = "INFO: Das Gerät '" . $type[$_GET['type']]['device_type_name'] . $_GET['type'] . "' wurde bearbeitet";
+		save_in_logs($text, $user_firstname, $user_lastname, false);
+
+		$SESSION->toasttext = $text;
+		session_write_close();
+		echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
+	} else {
+		$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
+		error_to_superadmin(get_superadmins(), $mail, $error);
+	}
+}
+
+// Create a device
+if (exists_and_not_empty('create', $_POST)) {
+    $device_type_id_id = $_POST['id'];
+    $device_tag = $_POST['device_tag'];
+    $serialnumber = $_POST['serialnumber'];
+    $blocked = $_POST['blocked'];
+
+    $sql = "INSERT INTO device_list (device_type_id, device_tag, serialnumber, blocked) VALUES (?, ?, ?, ?)";
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        // Annahme: device_type_id_id und blocked sind Integer, device_tag und serialnumber Strings
+        mysqli_stmt_bind_param($stmt, "isss", $device_type_id_id, $device_tag, $serialnumber, $blocked);
+        if (mysqli_stmt_execute($stmt)) {
+            $text = "INFO: Das Gerät '" . $type[$device_type_id_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich erstellt";
+            save_in_logs($text, $user_firstname, $user_lastname);
+
+            $SESSION->toasttext = $text;
+			session_write_close();
+            echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_GET['type']) . "';</script>";
+        } else {
+            $error = "ERROR: Could not execute statement: " . mysqli_error($link);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
+}
+
+// Remove device
+if (exists_and_not_empty('remove_id', $_GET)) {
+    $device_id = $_GET['remove_id'];
+    $selected_type_id = $_GET['selected_type_id'];
+    $device_tag = $_GET['device_tag'];
+
+    $sql = "DELETE FROM device_list WHERE device_id = ?";
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        mysqli_stmt_bind_param($stmt, "i", $device_id);
+        if (mysqli_stmt_execute($stmt)) {
+            $text = "INFO: Das Gerät '" . $type[$selected_type_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich gelöscht";
+            save_in_logs($text, $user_firstname, $user_lastname);
+
+            $SESSION->toasttext = $text;
+			session_write_close();
+            echo "<script>window.location.href = 'edit_type.php?type=" . htmlspecialchars($_GET['type']) . "';</script>";
+        } else {
+            $error = "ERROR: Could not execute statement: " . mysqli_error($link);
+            error_to_superadmin(get_superadmins(), $mail, $error);
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "ERROR: Could not prepare statement: " . mysqli_error($link);
+        error_to_superadmin(get_superadmins(), $mail, $error);
+    }
+}
+
+//device list
+$devices = array();
+
+$query = "SELECT device_tag, blocked FROM device_list WHERE device_type_id = ? ORDER BY device_tag";
+if ($stmt = mysqli_prepare($link, $query)) {
+	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
+
+	if (mysqli_stmt_execute($stmt)) {
+		mysqli_stmt_store_result($stmt);
+		if (mysqli_stmt_num_rows($stmt) > 0) {
+			mysqli_stmt_bind_result($stmt, $tag, $blocked);
+			while (mysqli_stmt_fetch($stmt)) {
+				$id = count($devices);
+				$devices[$id]['tag'] = $tag;
+				$devices[$id]['blocked'] = $blocked;
+			}
+		} else {
+			save_in_logs("INFO: Keine Geräte gefunden (" . $query . ")");
+		}
+	} else {
+		save_in_logs("ERROR: " . mysqli_error($link));
+		save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
+	}
+} else {
+	save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
+}
+$stmt->close();
+
+$not_blocked_devices = 0;
+$blocked_devices = 0;
+$blocked_onsite = 0;
+$blocked_update = 0;
+$blocked_bug = 0;
+$blocked_repair = 0;
+$blocked_permanent = 0;
+
+for ($i = 0; $i < count($devices); $i++) {
+	if ($devices[array_keys($devices)[$i]]['blocked'] == 0) $not_blocked_devices++;
+	else $blocked_devices ++;
+	if ($devices[array_keys($devices)[$i]]['blocked'] == 1) $blocked_permanent++;
+	else if ($devices[array_keys($devices)[$i]]['blocked'] == 2) $blocked_update++;
+	else if ($devices[array_keys($devices)[$i]]['blocked'] == 3) $blocked_bug++;
+	else if ($devices[array_keys($devices)[$i]]['blocked'] == 4) $blocked_repair++;
+	else if ($devices[array_keys($devices)[$i]]['blocked'] == 5) $blocked_onsite++;
+}
+
+$reservated_devices = array();
+$query = "SELECT DISTINCT device_list.device_tag FROM devices_of_reservations, reservations, device_list WHERE reservations.date_from <= DATE(NOW()) AND reservations.date_to >= DATE(NOW()) AND reservations.reservation_id = devices_of_reservations.reservation_id AND reservations.status = 3 AND devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id = ?;";
+if ($stmt = mysqli_prepare($link, $query)) {
+	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
+
+	if (mysqli_stmt_execute($stmt)) {
+		mysqli_stmt_store_result($stmt);
+		if (mysqli_stmt_num_rows($stmt) > 0) {
+			mysqli_stmt_bind_result($stmt, $device_tag);
+			while (mysqli_stmt_fetch($stmt)) {
+				$reservated_devices[count($reservated_devices)] = $device_tag;
+			}	
+		}
+	} else {
+		save_in_logs("ERROR: " . mysqli_error($link));
+		save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
+	}
+} else {
+	save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
+}
+$stmt->close();
+
+$devices_on_site = $not_blocked_devices - count($reservated_devices);
 ?>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -80,7 +276,7 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	<link rel="stylesheet" href="style-css/rent.css">
 	<link rel="stylesheet" href="style-css/toasty.css">
 	<link rel="stylesheet" href="style-css/accessability.css">
-	<link rel="stylesheet" href="style-css/navbar.css">
+	<link rel="stylesheet" href="style-css/edit_type.css">
 	
 	<!-- html editor -->
 	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -90,159 +286,13 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 	
 	<!-- Toast -->
-	<?php require_once("Controller/toast.php"); ?>
-	<style>
-		a,
-		a:hover,
-		a:focus,
-		a:active {
-			text-decoration: none;
-			color: inherit;
-		}
-
-		/* clickable images */
-		#lightbox {
-			position: absolute;
-			z-index: 999;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			width: 80vw;
-			height: 80vh;
-			display: flex;
-			align-items: center;
-			visibility: hidden;
-			opacity: 0;
-			transition: opacity ease 0.6s;
-		}
-
-		#lightbox.show {
-			visibility: visible;
-			opacity: 1;
-		}
-
-		#lightbox img {
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-			background: rgba(0, 0, 0, 0.5);
-		}
-	</style>
+	<?php require_once("Controller/toast.php");?>
 </head>
 <body>
-	<?php
-	$device_department= $type[$_GET['type']]['home_department'];
-	check_is_admin_of_department($user_username, $device_department);
-
-	if(exists_and_not_empty('reason', $_POST)){ //device save
-		//sqlinjection
-		$device_serialnumber = $_POST['serialnumber'];
-		$device_type_id = $_POST['type'];
-		$device_tag = $_POST['tag'];
-		$device_blocked = $_POST['blocked'];
-		$device_id = $_POST['id'];
-		$device_note = $_POST['note'];
-		$sql = "UPDATE device_list SET serialnumber='" . $device_serialnumber . "', device_type_id='" . $device_type_id . "', device_tag='" . $device_tag . "', blocked='" . $device_blocked . "', note='" . $device_note . "' WHERE device_id='" . $device_id . "'";
-		if (mysqli_query($link, $sql)) {
-			if ($_POST['reason'] == "edit") {
-				$text = "Device '" . $type[$device_type_id]['device_type_indicator'] . $device_tag . "' wurde bearbeitet";
-				save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-				 
-				$SESSION->toasttext = $text;
-				echo "<script>window.location.href = 'edit_type.php?type=" . $_POST['type'] . "';</script>";
-			} else error_to_superadmin(get_superadmins(), $mail, "ERROR: in 149 edit_type: " . $_POST['reason']);
-		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
-
-	if(exists_and_not_empty('reason', $_GET)){ //type
-		if (mysqli_query($link, $sql)) {
-			$text = "Devicetyp '" . $type[$_GET['type']]['device_type_name'] . $_GET['type'] . "' wurde bearbeitet";
-			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
-
-			$SESSION->toasttext = $text;
-			echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
-		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
-
-	//create a device
-	if(exists_and_not_empty('create', $_POST)){
-		//sqlinjection
-		$device_type_id_id = $_POST['id'];
-		$device_tag = $_POST['device_tag'];
-		$serialnumber = $_POST['serialnumber'];
-		$blocked = $_POST['blocked'];
-		$sql = "INSERT INTO device_list (device_type_id, device_tag, serialnumber, blocked) VALUES ('$device_type_id_id','$device_tag','$serialnumber','$blocked')";
-		if (mysqli_query($link, $sql)) {
-			$text = "INFO: Devicetag '" . $type[$device_type_id_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich erstellt";
-			save_in_logs($text, $user_firstname, $user_lastname);
-
-			$SESSION->toasttext = $text;
-			echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
-		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
-
-	//remove device
-	if(exists_and_not_empty('remove_id', $_GET)){
-		//sqlinjection
-		$device_id = $_GET['remove_id'];
-		$selected_type_id = $_GET['selected_type_id'];
-		$device_tag = $_GET['device_tag'];
-		$sql = "DELETE FROM device_list WHERE device_id='" . $device_id . "'";
-		if (mysqli_query($link, $sql)) {
-			$text = "INFO: Devicetag '" . $type[$selected_type_id]['device_type_indicator'] . $device_tag . "' wurde erfolgreich gelöscht";
-			save_in_logs($text, $user_firstname, $user_lastname);
-	
-			$SESSION->toasttext = $text;
-			echo "<script>window.location.href = 'edit_type.php?type=" . $_GET['type'] . "';</script>";
-		} else {
-			$error = "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link);
-			error_to_superadmin(get_superadmins(), $mail, $error);
-		}
-	}
-	if(!$type[$_GET['type']]['device_type_name']){
-		error_to_superadmin(get_superadmins(), $mail, "ERROR: Fehler beim Aufrufen von edit_type.php: type existiert nicht");
-		echo "<script>window.location.href = 'admini';</script>";
-		exit;
-	}
-	?>
 	<div class="main">
 		<?php require_once 'navbar.php'; ?>
 		<br>
-		<div id='lightbox'></div>
 		<script>
-			window.onload = () => { //zoom to click
-				// GET LIGHTBOX & ALL .ZOOMD IMAGES
-				let all = document.getElementsByClassName("zoomD"),
-					lightbox = document.getElementById("lightbox");
-
-				// CLICK TO SHOW IMAGE IN LIGHTBOX
-				if (all.length > 0) {
-					for (let i of all) {
-						i.onclick = () => {
-							let clone = i.cloneNode();
-							clone.className = "";
-							lightbox.innerHTML = "";
-							lightbox.appendChild(clone);
-							lightbox.className = "show";
-						};
-					}
-				}
-
-				// CLICK TO CLOSE LIGHTBOX
-				lightbox.onclick = () => {
-					lightbox.className = "";
-				};
-			};
-
 			var type_array = <?php echo json_encode($type); ?>;
 			var old_type = <?php echo $_GET['type']; ?>;
 
@@ -274,10 +324,77 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 					return true
 				}
 			}
+
+			function triggerImageUpload() {
+				document.getElementById('device_img').click();
+			}
+
+			function previewImage(event) {
+				const file = event.target.files[0];
+				if (!file) return;
+
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					const preview = document.getElementById('imagePreview');
+					if (preview.tagName.toLowerCase() === 'img') {
+						preview.src = e.target.result;
+					} else {
+						const img = document.createElement('img');
+						img.src = e.target.result;
+						img.className = 'zoomD';
+						img.id = 'imagePreview';
+
+						const wrapper = document.getElementById('imgWrapper');
+						wrapper.replaceChild(img, preview);
+					}
+					document.getElementById('delete_image').value = '0';
+				};
+				reader.readAsDataURL(file);
+			}
+
+			function deleteImage() {
+				if (!confirm("Möchtest du das Bild wirklich löschen?")) return;
+
+				const wrapper = document.getElementById('imgWrapper');
+				const current = document.getElementById('imagePreview');
+				if (current) wrapper.removeChild(current);
+
+				const icon = document.createElement('i');
+				icon.className = 'fa-solid fa-circle-question placeholder-icon';
+				icon.id = 'imagePreview';
+				wrapper.insertBefore(icon, wrapper.querySelector('.edit-icon'));
+
+				document.getElementById('delete_image').value = '1';
+				document.getElementById('device_img').value = '';
+			}
 		</script>
 		<h3><?php echo translate('word_type'); ?> '<?php echo $type[$_GET['type']]['device_type_name']; ?>' <?php echo translate('word_edit'); ?></h3>
-		<form id="myForm" name="myForm" action="../Controller/simple_upload.php" method="post" enctype="multipart/form-data">
+		<form id="myForm" name="myForm" action="simple_upload.php" method="post" enctype="multipart/form-data">
 			<input style="display:none;" class="form-control" type="text" id="device_type_id" name="device_type_id">
+
+			<div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 10px;">
+				<div class="img-wrapper" id="imgWrapper">
+					<?php if (!empty($type[$_GET['type']]['device_type_img_path'])): ?>
+						<img src="<?= $type[$_GET['type']]['device_type_img_path'] ?>" alt="Bild des Typs" class="zoomD" id="imagePreview">
+					<?php else: ?>
+						<i class="fa-solid fa-circle-question placeholder-icon" id="imagePreview"></i>
+					<?php endif; ?>
+
+					<!-- Bearbeiten -->
+					<div class="edit-icon" title="Bild ändern" onclick="triggerImageUpload();">
+						<i class="fas fa-pen"></i>
+					</div>
+
+					<!-- Löschen -->
+					<div class="delete-icon" title="Bild löschen" onclick="event.stopPropagation(); deleteImage();">
+						<i class="fas fa-trash"></i>
+					</div>
+				</div>
+			</div>
+
+			<input type="file" name="file" id="device_img" accept="image/*" style="display:none;" onchange="previewImage(event)">
+			<input type="hidden" name="delete_image" id="delete_image" value="0">
+			<br>
 
 			<div class="input-control">
 				<label for="device_type_name"><?php echo translate('text_deviceTypeName'); ?></label>
@@ -366,35 +483,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			</div>
 			<br>
 
-			<?php echo translate('word_deviceTypeImg'); ?>
-			<?php
-			//img vorhanden
-			if ($type[$_GET['type']]['device_type_img_path'] != "") {
-				echo "<div id='old_img' class='text-center'>";
-				echo "<img src='" . $type[$_GET['type']]['device_type_img_path'] . "' alt='Bild des Typs' style='width:128px; heigth:auto; margin:5px 5px 5px 5px'; class='zoomD'>";
-				echo "</div>";
-			}
-			?>
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=1 checked>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_oldPic'); ?>
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="change_pic" id="change_pic" value=2>
-				<label class="form-check-label" for="change_pic">
-					<?php echo translate('text_newPic'); ?>
-				</label>
-			</div>
-			<br>
-
-			<div id="input_img" style="display:none;" class="mb-3">
-				<input class="form-control rounded" id=device_img type="file" name="file" max-size="10" accept="image/png, image/jpeg, image/img">
-			</div>
-			<br>
-
 			<!-- hidden values -->
 			<input type="hidden" class="form-control" id="reason" name="reason" value="edit">
 			<input type="hidden" class="form-control" id="old_type" name="old_type" value=<?php echo $_GET['type']; ?>>
@@ -425,82 +513,60 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 		</div>	
 	</div>
 	<br>
-	<?php
-	$devices = array();
-
-	$query = "SELECT device_tag, blocked FROM device_list WHERE device_type_id = ? ORDER BY device_tag";
-	if ($stmt = mysqli_prepare($link, $query)) {
-		mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
-
-		if (mysqli_stmt_execute($stmt)) {
-			mysqli_stmt_store_result($stmt);
-			if (mysqli_stmt_num_rows($stmt) > 0) {
-				mysqli_stmt_bind_result($stmt, $tag, $blocked);
-				while (mysqli_stmt_fetch($stmt)) {
-					$id = count($devices);
-					$devices[$id]['tag'] = $tag;
-					$devices[$id]['blocked'] = $blocked;
-				}
-			} else {
-				save_in_logs("INFO: Keine Geräte gefunden (" . $query . ")");
-			}
-		} else {
-			save_in_logs("ERROR: " . mysqli_error($link));
-			save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-		}
-	} else {
-		save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-	}
-	$stmt->close();
-
-	$not_blocked_devices = 0;
-	$blocked_devices = 0;
-	$blocked_and_onsite_devices = 0;
-	for ($i = 0; $i < count($devices); $i++) {
-		if ($devices[array_keys($devices)[$i]]['blocked'] == 0) $not_blocked_devices++;
-		else $blocked_devices ++;
-		if ($devices[array_keys($devices)[$i]]['blocked'] == 5) $blocked_and_onsite_devices++;
-	}
-
-	$reservated_devices = array();
-	$query = "SELECT DISTINCT device_list.device_tag FROM devices_of_reservations, reservations, device_list WHERE reservations.date_from <= DATE(NOW()) AND reservations.date_to >= DATE(NOW()) AND reservations.reservation_id = devices_of_reservations.reservation_id AND reservations.status = 3 AND devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id = ?;";
-	if ($stmt = mysqli_prepare($link, $query)) {
-		mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
-
-		if (mysqli_stmt_execute($stmt)) {
-			mysqli_stmt_store_result($stmt);
-			if (mysqli_stmt_num_rows($stmt) > 0) {
-				mysqli_stmt_bind_result($stmt, $device_tag);
-				while (mysqli_stmt_fetch($stmt)) {
-					$reservated_devices[count($reservated_devices)] = $device_tag;
-				}	
-			}
-		} else {
-			save_in_logs("ERROR: " . mysqli_error($link));
-			save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-		}
-	} else {
-		save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-	}
-	$stmt->close();
-
-	$devices_on_site = $not_blocked_devices - count($reservated_devices);
-
-	?>
 	<div>
-		<h3><?php echo translate('word_deviceList'); ?><a href='#' data-toggle='tooltip' data-html='true' title='red=blocked<br>orange=reserved<br>green=available<br>black and grey=error'>  &#9432;  </a></h3>
+		<h3 class="d-flex align-items-center gap-2">
+			<?php echo translate('word_deviceList'); ?>
+			<button class="btn bg-secondary text-white rounded-pill px-3 py-1 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#statusSidebar">
+				<?php echo count($devices); ?>
+			</button>
+		</h3>
 
-		<!-- Devicelist -->
-		<div class='row no-gutters text-center'>
-			<div class='col'>
-				<?php echo translate('text_availableDevices') . ": " . count($devices); ?>
+		<!-- Sidebar -->
+		<div class="offcanvas offcanvas-end" tabindex="-1" id="statusSidebar">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title">Statusübersicht</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 			</div>
-			<div class='col'>
-				<?php echo translate('text_blockedDevices') . ": " . $blocked_devices; ?>
-				<?php echo translate('text_blockedDevices_on-site'). ": " .$blocked_and_onsite_devices; ?>
-			</div>
-			<div class='col'>
-				<?php echo translate('text_thereDevices') . ": " . $devices_on_site; ?>
+			<div class="offcanvas-body d-flex flex-column">
+				<div class="flex-grow-1 overflow-auto">
+					<ul class="list-group list-group-flush mb-3">
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							Verfügbar
+							<span class="badge bg-success rounded-pill"><?php echo $devices_on_site; ?></span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							Blockiert
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_devices; ?></span>
+						</li>
+						<li class="list-group-item ms-3 d-flex justify-content-between align-items-center">
+							<small>↳ vor Ort</small>
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_onsite; ?></span>
+						</li>
+						<li class="list-group-item ms-3 d-flex justify-content-between align-items-center">
+							<small>↳ braucht Update</small>
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_update; ?></span>
+						</li>
+						<li class="list-group-item ms-3 d-flex justify-content-between align-items-center">
+							<small>↳ dauerhaft belegt</small>
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_permanent; ?></span>
+						</li>
+						<li class="list-group-item ms-3 d-flex justify-content-between align-items-center">
+							<small>↳ Fehlfunktion</small>
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_bug; ?></span>
+						</li>
+						<li class="list-group-item ms-3 d-flex justify-content-between align-items-center">
+							<small>↳ Reparatur</small>
+							<span class="badge bg-danger rounded-pill"><?php echo $blocked_repair; ?></span>
+						</li>
+					</ul>
+				</div>
+				<div class="border-top pt-2 small text-muted">
+					<strong>Status-Legende:</strong><br>
+					🟥 Blockiert<br>
+					🟧 Reserviert<br>
+					🟩 Verfügbar<br>
+					⬛ Fehler
+				</div>
 			</div>
 		</div>
 
@@ -509,64 +575,80 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 			<p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; padding-left: 1em;'><?php echo translate('word_add'); ?></p>
 		</a>
 
+		<!-- Search -->
+		<input type="text" id="typeSearch" class="styled-search" placeholder="Eintrag suchen...">
+
 		<!-- All devices -->
-		<?php
-		for ($i = 0; $i < count($devices); $i++) {
-			if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
-				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
-					echo "<a href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+		<div id="typeLinks">
+			<?php
+			for ($i = 0; $i < count($devices); $i++) {
+				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
+					if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
+						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+					}
+					else{
+						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+					}
 				}
 				else{
-					echo "<a href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
-				}
-			}
-			else{
-				$blocked = $devices[array_keys($devices)[$i]]['blocked'];
-				$device_tag = $devices[array_keys($devices)[$i]]['tag'];
-				$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
-				$icon_class = "";
-				
-				switch ($blocked) {
-					case 0: //not blocked
-						$background_color = "#6FB40F"; //green
-						break;
-					case 1:
-						$background_color = "#DC0606"; //red
-						break;
-					case 2:
-						$icon_class = "fa-cloud-arrow-down";
-						$background_color = "#DC0606"; //red
-						break;
-					case 3:
-						$icon_class = "fa-bug";
-						$background_color = "#DC0606"; //red
-						break;
-					case 4:
-						$icon_class = "fa-tools";
-						$background_color = "#DC0606"; //red
-						break;
-					case 5:
-						$icon_class = "fa-building";
-						$background_color = "#DC0606"; //red
-						break;
-					default: //debug
-						$icon_class = "fa-question-circle";
-						$background_color = "#CCCCCC"; //grey
-						break;
-				}
+					$blocked = $devices[array_keys($devices)[$i]]['blocked'];
+					$device_tag = $devices[array_keys($devices)[$i]]['tag'];
+					$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
+					$icon_class = "";
+					
+					switch ($blocked) {
+						case 0: //not blocked
+							$background_color = "#6FB40F"; //green
+							break;
+						case 1:
+							$background_color = "#DC0606"; //red
+							break;
+						case 2:
+							$icon_class = "fa-cloud-arrow-down";
+							$background_color = "#DC0606"; //red
+							break;
+						case 3:
+							$icon_class = "fa-bug";
+							$background_color = "#DC0606"; //red
+							break;
+						case 4:
+							$icon_class = "fa-tools";
+							$background_color = "#DC0606"; //red
+							break;
+						case 5:
+							$icon_class = "fa-building";
+							$background_color = "#DC0606"; //red
+							break;
+						default: //debug
+							$icon_class = "fa-question-circle";
+							$background_color = "#CCCCCC"; //grey
+							break;
+					}
 
-				echo "<a href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
-						<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
-							<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
-						</div>
-					</a>";
+					echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
+							<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
+								<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
+							</div>
+						</a>";
+				}
 			}
-		}
-		?>
+			?>
+		</div>
 	</div>
-	</div>
+</div>
 </body>
 <script>
+	//Search
+	document.getElementById('typeSearch').addEventListener('input', function () {
+		const query = this.value.toLowerCase();
+		const links = document.querySelectorAll('#typeLinks .type');
+
+		links.forEach(link => {
+			const text = link.textContent.toLowerCase();
+			link.style.display = text.includes(query) ? 'block' : 'none';
+		});
+	});
+
 	//Quill
 	var options = {
 		placeholder: 'Unsere iPads werden standardmäßig mit Stiften ausgestattet',
@@ -600,24 +682,6 @@ if (count($part_of_department) == 0) $part_of_department[0] = $unassigned_instit
 
 		return true;
 	}); 
-
-	//is radiobutton selected?
-	var rad = document.myForm.change_pic;
-	var prev = null;
-	for (var i = 0; i < rad.length; i++) {
-		rad[i].addEventListener('change', function() {
-			if (this !== prev) {
-				prev = this;
-			}
-			if (this.value == 2) {
-				document.getElementById('input_img').style.display = 'block';
-				document.getElementById('old_img').style.display = 'none';
-			} else {
-				document.getElementById('input_img').style.display = 'none';
-				document.getElementById('old_img').style.display = 'block';
-			}
-		});
-	}
 
 	//errorhandle
 	const setError = (element, message) => {

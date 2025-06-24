@@ -16,8 +16,6 @@ $admins = get_all_admins();
 $users = get_all_user();
 $non_admin = array_diff_key($users, $admins);
 
-save_in_logs($non_admin);
-
 ?>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -39,6 +37,10 @@ save_in_logs($non_admin);
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 	
+	<!-- Select2 -->
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 	<!-- Toast -->
 	<?php require_once("Controller/toast.php"); ?>
 </head>
@@ -62,23 +64,23 @@ save_in_logs($non_admin);
 			</select>
 			<br>
 
-			<label for="department" class="form-label"><?php echo translate('word_department'); ?></label>
-			<div id="checks">
+			<label for="department_select" class="form-label"><?php echo translate('word_department'); ?></label>
+			<select id="department_select" class="form-control js-example-basic-multiple" name="states[]" multiple="multiple" required>
 				<?php
-				for ($i = 0; $i < count($departments); $i++) {
-					if (array_keys($departments)[$i] == $unassigned_institute) {
+				foreach ($departments as $key => $value) {
+					if ($key == $unassigned_institute) {
 						continue;
 					}
-					echo "<div class='form-check form-switch'>";
-					echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
-
-					if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['de'] . "</label>";
-					else echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['en'] . "</label>";
-					echo "</div>";
+					if (get_language() == "de") {
+						echo "<option value='" . $key . "'>" . $value['de'] . "</option>";
+					} else {
+						echo "<option value='" . $key . "'>" . $value['en'] . "</option>";
+					}
 				}
 				?>
-			</div>
-			<br>
+			</select>
+			</br>
+			</br>
 
 			<!-- hidden values -->
 			<input type="hidden" class="form-control" id="a_id" name="a_id" value=''>
@@ -120,6 +122,14 @@ save_in_logs($non_admin);
 				} else {
 					$('button').prop('disabled', true);
 				}
+			});
+
+			//Select2 for department
+			$(document).ready(function() {
+				$('.js-example-basic-multiple').select2({
+					placeholder: "Institut auswählen",
+					allowClear: true
+				});
 			});
 		</script>
 	</div>
