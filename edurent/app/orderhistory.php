@@ -82,8 +82,9 @@ if (exists_and_not_empty('rem', $_GET) && is_numeric($_GET['rem'])) { // Delete 
 					$SESSION->toasttext = $text;
 					session_write_close();
 
-					echo "<script>window.location.href = 'orderhistory';</script>";
-				} else {
+					echo "<script>window.location.href = 'admini.php';</script>";
+					exit();
+				} else {	
 					error_to_superadmin(get_superadmins(), $mail, "Reservierungshistorie #$reservation_id konnte nicht gelöscht werden.");
 				}
 			} else {

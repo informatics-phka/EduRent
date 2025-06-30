@@ -69,26 +69,6 @@ if ($result = mysqli_query($link, $sql)) {
 } else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 
 
-// define navbar
-$menuItems = [
-    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
-    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
-    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
-    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
-    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
-    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
-    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
-];
-
-$menuItemsHtml = '';
-foreach ($menuItems as $item) {
-    if ($item['visible']) {
-        $menuItemsHtml .= '<li class="nav-item">';
-        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
-        $menuItemsHtml .= '</li>';
-    }
-}
-
 if(exists_and_not_empty('org', $_GET)){ //was fetched
 		/** timestamp to collection period **/
 		$reservation_id = $_GET['org'];
