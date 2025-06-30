@@ -9,25 +9,7 @@ if ($debug) {
 check_superadmin($user_username);
 $is_superadmin = is_superadmin($user_username);
 
-// define navbar
-$menuItems = [
-    ['label' => translate('word_reservations'), 'href' => 'admini', 'visible' => true],
-    ['label' => translate('word_orderHistory'), 'href' => 'orderhistory', 'visible' => true],
-    ['label' => translate('word_departments'), 'href' => 'departments', 'visible' => true],
-    ['label' => translate('word_faq'), 'href' => 'faq', 'visible' => true],
-    ['label' => translate('word_admins'), 'href' => 'admins', 'visible' => $is_superadmin],
-    ['label' => translate('word_logs'), 'href' => 'logs', 'visible' => $is_superadmin],
-    ['label' => translate('word_settings'), 'href' => 'update_settings', 'visible' => $is_superadmin],
-];
 
-$menuItemsHtml = '';
-foreach ($menuItems as $item) {
-    if ($item['visible']) {
-        $menuItemsHtml .= '<li class="nav-item">';
-        $menuItemsHtml .= '<a class="nav-link" href="' . htmlspecialchars($item['href']) . '">' . htmlspecialchars($item['label']) . '</a>';
-        $menuItemsHtml .= '</li>';
-    }
-}
 ?>
 
 <html lang="en">

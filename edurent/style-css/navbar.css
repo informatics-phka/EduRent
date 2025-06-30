@@ -28,3 +28,18 @@
     font-weight: bold;
     border-bottom: 2px solid #0d6efd;
 }
+
+nav {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+#navbarMenu {
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-wrap: wrap;
+}
+
+body {
+    overflow-x: hidden;
+}

@@ -170,7 +170,7 @@ if ($is_superadmin) {
 	}
 
     function order_remove(reservation_id) {
-		location.href = "admini?rem=" + reservation_id;
+		location.href = "orderhistory?rem=" + reservation_id;
 	}
 
 	function order_accept(reservation_id) {
