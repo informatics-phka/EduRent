@@ -22,11 +22,8 @@ foreach ($menuItems as $item) {
 
 <!-- Navbar HTML -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container-fluid">
-    <div class="mx-auto" style="width: fit-content collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav justify-content-center w-100" id="navbarMenu">
-      </ul>
-    </div>
+  <div class="container">
+
     <!-- <a class="navbar-brand invisible" href="#">Platz</a> -->
 
     <!-- toggle button -->
@@ -37,7 +34,7 @@ foreach ($menuItems as $item) {
 
     <!-- menu-->
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav ms-auto" id="navbarMenu">
+      <ul class="navbar-nav mx-auto" id="navbarMenu">
         <?= $menuItemsHtml ?>
       </ul>
     </div>
