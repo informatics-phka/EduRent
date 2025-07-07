@@ -129,7 +129,6 @@ $is_superadmin = is_superadmin($user_username);
 			</div>
 		</div>
 	</div>
-</body>
 <script>
 $(document).ready(function() {
     $("#deleteSelected").click(function() {
@@ -138,7 +137,7 @@ $(document).ready(function() {
                 var file = $(this).data("file");
                 var line = $(this).data("line");
                 $.ajax({
-                    url: '../Controller/delete_line.php',
+                    url: '/edurent/Controller/delete_line.php',
                     type: 'POST',
                     data: { file: file, line: line },
                     success: function(response) {
@@ -177,6 +176,8 @@ $(document).ready(function() {
     });
 });
 </script>
+</body>
+
 <?php
 echo $OUTPUT->footer();
 ?>

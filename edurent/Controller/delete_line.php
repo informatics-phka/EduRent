@@ -1,6 +1,7 @@
 <?php
 if(isset($_POST['file']) && isset($_POST['line'])) {
-    $file = $_POST['file'];
+        
+    $file = __DIR__ . '/../' . $_POST['file'];
     $line_number = $_POST['line'];
 
     $lines = file($file);
