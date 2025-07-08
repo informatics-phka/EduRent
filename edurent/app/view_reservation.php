@@ -47,6 +47,7 @@ $orders = array();
 if ($is_superadmin) {
     $orders = get_all_orders();
 } else {
+    $department_ids = get_admin_department($user_username);
 	foreach ($department_ids as $department_id) {
         $department_orders = get_all_orders_from_department($department_id);
         if ($department_orders) {
@@ -54,6 +55,7 @@ if ($is_superadmin) {
         }
     }
 }
+
 ?>
 
 <head>

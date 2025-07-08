@@ -493,11 +493,13 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 			WHERE (reservations.status < 4 OR reservations.status > 6)
 			ORDER BY reservations.reservation_id
 		";
+
 	} else {
 		$ids = $department_ids;
 
 		if (count($ids) > 0) {
-			$placeholders = implode(',', array_fill(0, count($ids), '?'));
+			$escaped_ids = array_map('intval', $ids);
+			$in_clause = implode(',', $escaped_ids);
 
 			$sql = "
 				SELECT DISTINCT 
@@ -517,13 +519,14 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 				JOIN user ON reservations.user_id = user.id
 				JOIN departments ON reservations.department_id = departments.department_id
 				WHERE (reservations.status < 4 OR reservations.status > 6)
-				AND reservations.department_id IN ($placeholders)
+				AND reservations.department_id IN ($in_clause)
 				ORDER BY reservations.reservation_id
 			";
 		}
 		else{
 			sendToast("Keine gültige Abteilung angegeben.");
 		}
+
 	}
 ?>
 
