@@ -314,7 +314,7 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 		mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
 
 		if (mysqli_stmt_execute($stmt)) {
-			$text = "Reservierungsanfrage #" . $reservation_id . " wurde abgebrochen.";
+			$text = "Reservierungsanfrage #" . $reservation_id . " wurde von einem Admin storniert.";
 
 			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = $text;
@@ -427,7 +427,7 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 			}
 
 			// --- 6. save in logs and set toast message ---
-			save_in_logs("INFO: Reservierungsanfrage #$reservation_id wurde bearbeitet.", $user_firstname, $user_lastname, false);
+			save_in_logs("INFO: Reservierungsanfrage #$reservation_id wurde von einem Benutzer bearbeitet.", $user_firstname, $user_lastname, false);
 			$SESSION->toasttext = "Reservierungsanfrage #$reservation_id wurde bearbeitet.";
 			session_write_close();
 
