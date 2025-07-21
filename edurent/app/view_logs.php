@@ -131,6 +131,7 @@ $is_superadmin = is_superadmin($user_username);
 	</div>
 <script>
 $(document).ready(function() {
+    $(".delete-checkbox").prop("checked", false);
     $("#deleteSelected").click(function() {
         if(confirm("<?php echo translate('text_confirm_delete'); ?>")) {
             $(".delete-checkbox:checked").each(function() {

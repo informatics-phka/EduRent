@@ -104,7 +104,7 @@
                     }
                     sendamail($mail, $admin_mail, translate('word_request') . " #" . $_GET['ret'] . " " . translate('text_canceled'), $messagetext);
 
-                    save_in_logs("INFO: Reservierungsanfrage #" . $_GET['ret'] . " wurde storniert.", $user_firstname, $user_lastname, false);
+                    save_in_logs("INFO: Reservierungsanfrage #" . $_GET['ret'] . " wurde vom Benutzer torniert.", $user_firstname, $user_lastname, false);
                     $SESSION->toasttext = translate('word_request') . " #" . $_GET['ret'] . translate('text_canceled');
                 }
             } else {
@@ -433,6 +433,8 @@
             mymodal.find('.modal-body').html(string);
 
             $("#button_green").attr("onclick", "order_delete(" + id + ")");
+
+
 
             mymodal.modal('show');
         }

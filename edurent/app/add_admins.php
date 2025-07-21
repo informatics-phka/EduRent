@@ -53,7 +53,7 @@ $non_admin = array_diff_key($users, $admins);
 		<form class="needs-validation" id="form" name="form" action="admins.php" method="post">
 			<div class="mb-3">
 			<label for="user" class="form-label"><?php echo translate('word_user'); ?></label>
-			<select class="form-select js-user-select" id="user" name="user" aria-label=".form-select-lg example" required>
+			<select class="form-control js-example-basic-multiple" data-placeholder="Benutzer wählen" id="user" name="user" multiple="multiple" required>
 				<option value=""><?php echo translate('word_none3'); ?></option>
 				<?php
 				for ($i = 0; $i < count($non_admin); $i++) {
@@ -66,7 +66,7 @@ $non_admin = array_diff_key($users, $admins);
 			<br>
 
 			<label for="department_select" class="form-label"><?php echo translate('word_department'); ?></label>
-			<select class="form-control js-example-basic-multiple" id="department_select"  name="states[]" multiple="multiple" required>
+			<select class="form-control js-example-basic-multiple" data-placeholder="Institut auswählen" id="department_select"  name="states[]" multiple="multiple" required>
 				<?php
 				foreach ($departments as $key => $value) {
 					if ($key == $unassigned_institute) {
@@ -129,13 +129,8 @@ $non_admin = array_diff_key($users, $admins);
 			//Select2 for user and department
 			$(document).ready(function() {
 				$('.js-example-basic-multiple').select2({
-					placeholder: "Institut auswählen",
+					placeholder: $(this).data('placeholder'),
 					allowClear: true
-				});
-
-				$('.js-user-select').select2({
-					placeholder: "<?php echo translate('word_none3'); ?>",
-					allowClear: true					
 				});
 			});
 		</script>
