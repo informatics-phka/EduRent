@@ -53,7 +53,7 @@ $non_admin = array_diff_key($users, $admins);
 		<form class="needs-validation" id="form" name="form" action="admins.php" method="post">
 			<div class="mb-3">
 			<label for="user" class="form-label"><?php echo translate('word_user'); ?></label>
-			<select class="form-control js-example-basic-multiple" data-placeholder="Benutzer wählen" id="user" name="user" multiple="multiple" required>
+			<select class="form-control js-example-single-multiple" data-placeholder="Benutzer wählen" id="user" name="user" multiple="multiple" required>
 				<option value=""><?php echo translate('word_none3'); ?></option>
 				<?php
 				for ($i = 0; $i < count($non_admin); $i++) {
@@ -61,7 +61,7 @@ $non_admin = array_diff_key($users, $admins);
 				}
 				?>
 			</select>
-
+			
 			<br>
 			<br>
 
@@ -80,8 +80,8 @@ $non_admin = array_diff_key($users, $admins);
 				}
 				?>
 			</select>
-			</br>
-			</br>
+			<br>
+			<br>
 
 			<!-- hidden values -->
 			<input type="hidden" class="form-control" id="a_id" name="a_id" value=''>
@@ -126,12 +126,20 @@ $non_admin = array_diff_key($users, $admins);
 				}
 			});
 
-			//Select2 for user and department
+			//Select2 general settings
 			$(document).ready(function() {
 				$('.js-example-basic-multiple').select2({
 					placeholder: $(this).data('placeholder'),
-					allowClear: true
+					allowClear: true,
+					width: '100%'
 				});
+			});
+			//Select2 for single selection
+			$('.js-example-single-multiple').select2({
+				placeholder: $(this).data('placeholder'),
+				allowClear: true,
+				maximumSelectionLength: 1,
+				width: '100%'
 			});
 		</script>
 	</div>
