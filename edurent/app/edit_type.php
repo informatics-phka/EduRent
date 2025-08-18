@@ -284,6 +284,10 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 	
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+	<!-- Select2 -->
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 	
 	<!-- Toast -->
 	<?php require_once("Controller/toast.php");?>
@@ -452,8 +456,9 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 			<?php
             echo "Ausleihbar für:";
                 //List of departments starting with all departments and no departments and listing all other departments
+				//todo change to select2
             ?>
-            
+            			
             <div id="checks">
 				<?php
                 $main_options = [0,-1];

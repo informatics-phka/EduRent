@@ -66,8 +66,14 @@ $non_admin = array_diff_key($users, $admins);
 			<br>
 
 			<label for="department_select" class="form-label"><?php echo translate('word_department'); ?></label>
-			<select class="form-control js-example-basic-multiple" data-placeholder="Institut auswählen" id="department_select"  name="states[]" multiple="multiple" required>
+			<select class="form-control js-example-basic-multiple" 
+					data-placeholder="Institut auswählen" 
+					id="department_select"  
+					name="states[]" 
+					multiple="multiple" 
+					required>
 				<?php
+				
 				foreach ($departments as $key => $value) {
 					if ($key == $unassigned_institute) {
 						continue;
@@ -78,8 +84,29 @@ $non_admin = array_diff_key($users, $admins);
 						echo "<option value='" . $key . "'>" . $value['en'] . "</option>";
 					}
 				}
-				?>
+				?>				
 			</select>
+
+			<div id="dept_message"></div>
+
+			<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				const $select = $('#department_select');
+				const allValue = "0"; // Value for "All Institutes"
+
+					$select.on('change', function () {
+					let selected = $(this).val();
+					if (!selected) return;
+
+					// only keep "All Institutes" if it is selected
+					if (selected.includes(allValue) && selected.length > 1) {
+						$(this).val([allValue]).trigger('change');
+						$('#dept_message').html('<div class="alert alert-info p-2 mt-2" role="alert">' + 'Es sind bereits alle Institute ausgewählt.' +'</div>');
+						setTimeout(() => { $('#dept_message').empty(); }, 3000);
+					}
+				});
+			});
+			</script>
 			<br>
 			<br>
 
