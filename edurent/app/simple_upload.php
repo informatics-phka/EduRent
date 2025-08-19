@@ -39,11 +39,10 @@ if ($stmt = mysqli_prepare($link, $query)) {
 }
 
 $new_departments = array();
-for ($i = 0; $i < count($departments); $i++) {
-	$name = "switch_" . array_keys($departments)[$i];
-	if (isset($_POST[$name]) && $_POST[$name] === "on") {
-		$new_departments[count($new_departments)] = array_keys($departments)[$i];
-	}
+if (!empty($_POST['departments']) && is_array($_POST['departments'])) {
+    foreach ($_POST['departments'] as $dept_id) {
+        $new_departments[] = (int)$dept_id;
+    }
 }
 
 $type_id = (int) $_POST['old_type'];

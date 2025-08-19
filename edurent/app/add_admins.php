@@ -49,9 +49,10 @@ $non_admin = array_diff_key($users, $admins);
 		<?php require_once 'navbar.php'; ?>	
 		<br>
 		<h3 class="text-center"><?php echo translate('text_createAdmin'); ?></h3>
-
 		<form class="needs-validation" id="form" name="form" action="admins.php" method="post">
 			<div class="mb-3">
+			
+			<!-- User selection -->
 			<label for="user" class="form-label"><?php echo translate('word_user'); ?></label>
 			<select class="form-control js-example-single-multiple" data-placeholder="Benutzer wählen" id="user" name="user" multiple="multiple" required>
 				<option value=""><?php echo translate('word_none3'); ?></option>
@@ -65,6 +66,7 @@ $non_admin = array_diff_key($users, $admins);
 			<br>
 			<br>
 
+			<!-- Department selection -->
 			<label for="department_select" class="form-label"><?php echo translate('word_department'); ?></label>
 			<select class="form-control js-example-basic-multiple" 
 					data-placeholder="Institut auswählen" 
@@ -87,26 +89,32 @@ $non_admin = array_diff_key($users, $admins);
 				?>				
 			</select>
 
-			<div id="dept_message"></div>
-
 			<script>
 			document.addEventListener("DOMContentLoaded", function() {
 				const $select = $('#department_select');
-				const allValue = "0"; // Value for "All Institutes"
+				const allValue = "0";
+				const noneValue = "-1";
 
-					$select.on('change', function () {
-					let selected = $(this).val();
-					if (!selected) return;
+				// Select2 initialization
+				$select.select2({
+					placeholder: "Institut auswählen",
+					width: '100%',
+					closeOnSelect: false,
+					minimumResultsForSearch: Infinity
+				});
 
-					// only keep "All Institutes" if it is selected
+				$select.on('change', function () {
+					let selected = $(this).val() || [];
+
+					// Logic for "Alle Institute"
 					if (selected.includes(allValue) && selected.length > 1) {
-						$(this).val([allValue]).trigger('change');
-						$('#dept_message').html('<div class="alert alert-info p-2 mt-2" role="alert">' + 'Es sind bereits alle Institute ausgewählt.' +'</div>');
-						setTimeout(() => { $('#dept_message').empty(); }, 3000);
+						$select.val([allValue]).trigger('change.select2');
+						showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
 					}
 				});
 			});
 			</script>
+
 			<br>
 			<br>
 

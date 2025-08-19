@@ -455,37 +455,70 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 
 			<?php
             echo "Ausleihbar für:";
-                //List of departments starting with all departments and no departments and listing all other departments
-				//todo change to select2
-            ?>
-            			
-            <div id="checks">
-				<?php
-                $main_options = [0,-1];
-                for ($i = 0; $i < count($main_options); $i++) {
-                    echo "<div class='form-check form-switch'>";
-                    if (in_array($main_options[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . $main_options[$i] . "'>";
-                    else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . $main_options[$i] . "'>";
-
-                    if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . $main_options[$i] . "'>" . $departments[$main_options[$i]]['de'] . "</label>";
-                    else echo "<label class='form-check-label' for='switch_" . $main_options[$i] . "'>" . $departments[$main_options[$i]]['en'] . "</label>";
-                    echo "</div>";
-                }
+                //List of departments starting with all departments and no departments and listing all other departments				      		
+			?>
 
 
-				for ($i = 0; $i < count($departments); $i++) {
-					if (array_keys($departments)[$i] == $unassigned_institute || array_keys($departments)[$i] == $all_institutes) continue;
+<select class="form-control js-example-basic-multiple"
+        id="department_select"
+        name="departments[]"
+        multiple="multiple"
+        required>
 
-					echo "<div class='form-check form-switch'>";
-					if (in_array(array_keys($departments)[$i], $part_of_department)) echo "<input class='form-check-input' type='checkbox' role='switch' checked name='switch_" . array_keys($departments)[$i] . "'>";
-					else echo "<input class='form-check-input' type='checkbox' role='switch' name='switch_" . array_keys($departments)[$i] . "'>";
+    <?php
+    $main_options = [0, -1]; // Alle Institute / Kein Institut
+    foreach ($main_options as $opt) {
+        $isSelected = in_array((string)$opt, $part_of_department) ? 'selected' : '';
+        $label = (get_language() == "de") ? $departments[$opt]['de'] : $departments[$opt]['en'];
+        echo "<option value='{$opt}' {$isSelected}>{$label}</option>";
+    }
 
-					if (get_language() == "de") echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['de'] . "</label>";
-					else echo "<label class='form-check-label' for='switch_" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]]['en'] . "</label>";
-					echo "</div>";
-				}
-				?>
-			</div>
+    foreach ($departments as $key => $value) {
+        if ($key == $unassigned_institute || $key == $all_institutes) continue;
+        $isSelected = in_array((string)$key, $part_of_department) ? 'selected' : '';
+        $label = (get_language() == "de") ? $value['de'] : $value['en'];
+        echo "<option value='{$key}' {$isSelected}>{$label}</option>";
+    }
+    ?>
+</select>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    const $select = $('#department_select');
+    const allValue = "0";
+    const noneValue = "-1";
+
+	// Initialize Select2
+    $select.select2({
+        placeholder: "Institut auswählen",
+        width: '100%',
+        closeOnSelect: false,
+    });
+
+    $select.on('change', function () {
+        let selected = $(this).val() || [];
+
+        // Case 1: "All" selected → keep only "All"
+        if (selected.includes(allValue)) {
+            $select.val([allValue]).trigger('change.select2');
+            showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
+            return;
+        }
+
+        // Case 2: "Kein" selected → keep only "Kein"
+        if (selected.includes(noneValue)) {
+            $select.val([noneValue]).trigger('change.select2');
+            showToast('Es wurde „Kein Institut“ ausgewählt. Andere Optionen wurden entfernt.');
+            return;
+        }
+
+        
+    });
+});
+</script>
+
+			<br>
 			<br>
 
 			<!-- hidden values -->
