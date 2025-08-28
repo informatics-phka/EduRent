@@ -229,6 +229,37 @@ if ($result = mysqli_query($link, $sql)) {
                 <textarea rows='2' class="form-control rounded" type="text" id="announce1_en" name="announce1_en" maxlength='<?php echo $limits['announce1_en']; ?>'><?php echo $department_announce1_en; ?></textarea>
             </div>
 
+            <?php
+            $department_id = isset($_GET['depart']) ? intval($_GET['depart']) : 0; // Get department_id
+
+            // get default max loan duration
+            $query = "SELECT max_loan_duration FROM server LIMIT 1";
+            $result = mysqli_query($link, $query);
+            $row = mysqli_fetch_assoc($result);
+            $max_loan_duration = isset($row['max_loan_duration']) ? intval($row['max_loan_duration']) : 14;
+
+
+            // get max loan duration of department
+            $query = "SELECT max_loan_duration FROM department_settings WHERE department_id = ?";
+            $stmt = mysqli_prepare($link, $query);
+            mysqli_stmt_bind_param($stmt, "i", $department_id);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_bind_result($stmt, $db_duration);
+
+            if (mysqli_stmt_fetch($stmt)) {
+                $max_loan_duration = intval($db_duration);
+            }
+
+            mysqli_stmt_close($stmt);
+            ?>
+
+            <!-- max loan duration for the department -->
+            <div class="mb-3">
+                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureation'); ?>:</label>
+                <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration; ?>">
+            </div>
+
+
             <!-- hidden values -->
             <input type="hidden" id="reason" name="reason" value="edit">
             <input type="hidden" id="department_id" name="department_id" value=<?php echo $_GET['depart']; ?>>

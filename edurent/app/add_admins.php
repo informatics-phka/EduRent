@@ -90,29 +90,29 @@ $non_admin = array_diff_key($users, $admins);
 			</select>
 
 			<script>
-			document.addEventListener("DOMContentLoaded", function() {
-				const $select = $('#department_select');
-				const allValue = "0";
-				const noneValue = "-1";
+				document.addEventListener("DOMContentLoaded", function() {
+					const $select = $('#department_select');
+					const allValue = "0";
+					const noneValue = "-1";
 
-				// Select2 initialization
-				$select.select2({
-					placeholder: "Institut auswählen",
-					width: '100%',
-					closeOnSelect: false,
-					minimumResultsForSearch: Infinity
+					// Select2 initialization
+					$select.select2({
+						placeholder: "Institut auswählen",
+						width: '100%',
+						closeOnSelect: false,
+						minimumResultsForSearch: Infinity
+					});
+
+					$select.on('change', function () {
+						let selected = $(this).val() || [];
+
+						// Logic for "Alle Institute"
+						if (selected.includes(allValue) && selected.length > 1) {
+							$select.val([allValue]).trigger('change.select2');
+							showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
+						}
+					});
 				});
-
-				$select.on('change', function () {
-					let selected = $(this).val() || [];
-
-					// Logic for "Alle Institute"
-					if (selected.includes(allValue) && selected.length > 1) {
-						$select.val([allValue]).trigger('change.select2');
-						showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
-					}
-				});
-			});
 			</script>
 
 			<br>
