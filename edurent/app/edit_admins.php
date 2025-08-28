@@ -101,27 +101,27 @@ $is_superadmin = is_superadmin($user_username);
 	</div>
 
 	<script>
-		//checkbox controll
-		var all = '<?php echo $all_institutes; ?>';
-		var none = '<?php echo $unassigned_institute; ?>';
+		document.addEventListener("DOMContentLoaded", function() {
+			const $select = $('#department_select');
+			const allValue = "0";
+			const noneValue = "-1";
 
-		$("#checks :checkbox").change(function(e) {
-			if ($(this).is(":checked") && ($(this).attr("name").includes(none) || $(this).attr("name").includes(all))) {
-				$('input:checkbox').not(this).prop('checked', false);
-			} else {
-				var search = 'input:checkbox[name*=' + none + ']';
-				$(search).not(this).prop('checked', false);
-
-				var search = 'input:checkbox[name*=' + all + ']';
-				$(search).not(this).prop('checked', false);
-			}
-		});
-
-		//Select2 for department
-		$(document).ready(function() {
-			$('.js-example-basic-multiple').select2({
+			// Select2 initialization
+			$select.select2({
 				placeholder: "Institut auswählen",
-				allowClear: true
+				width: '100%',
+				closeOnSelect: false,
+				minimumResultsForSearch: Infinity
+			});
+
+			$select.on('change', function () {
+				let selected = $(this).val() || [];
+
+				// Logic for "Alle Institute"
+				if (selected.includes(allValue) && selected.length > 1) {
+					$select.val([allValue]).trigger('change.select2');
+					showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
+				}
 			});
 		});
 	</script>

@@ -11,72 +11,51 @@ check_superadmin($user_username);
 $departments = get_departmentnames();
 $is_superadmin = is_superadmin($user_username);
 
-if(exists_and_not_empty('reason', $_POST)){
-	if ($_POST['reason'] == "create") { //create admin
-		$selected_departments = $_POST['states'];
-		$user = $_POST['user'];
-		foreach ($selected_departments as $key) {
-			$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
-			if ($stmt = mysqli_prepare($link, $query)) {
-				mysqli_stmt_bind_param($stmt, "ii", $user, $key);
+//create or edit admin
+if(exists_and_not_empty('reason', $_POST)) {
+    $user_id = $_POST['user'];
+    $selected_departments = $_POST['states'] ?? [];
 
-				if (!mysqli_stmt_execute($stmt)) {
-					save_in_logs("ERROR: " . mysqli_error($link));
-					save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-				}
-			} else {
-				save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-			}
-			$stmt->close();
-		}
-	}
-	else if ($_POST['reason'] == "edit") { //edit admin
-		$query = "DELETE FROM `admins` WHERE u_id=?";
-		if ($stmt = mysqli_prepare($link, $query)) {
-			mysqli_stmt_bind_param($stmt, "i", $_POST['user']);
+    if ($_POST['reason'] == "create") {
+        create_admin($link, $user_id, $selected_departments);
+        save_in_logs("INFO: Admin mit ID $user_id wurde erstellt", $user_firstname, $user_lastname);
 
-			if (!mysqli_stmt_execute($stmt)) {
-				save_in_logs("ERROR: " . mysqli_error($link));
-				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-			}
-		} else {
-			save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-		}
-		$stmt->close();
-
-		$query = "INSERT INTO admins (u_id, department) VALUES (?,?)";
-		if ($stmt = mysqli_prepare($link, $query)) {
-			mysqli_stmt_bind_param($stmt, "ii", $_POST['user'], $_POST['selected_department']);
-
-			if (!mysqli_stmt_execute($stmt)) {
-				save_in_logs("ERROR: " . mysqli_error($link));
-				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-			}
-		} else {
-			save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-		}
-		$stmt->close();
-
-		save_in_logs("INFO: Der Benutzer mit der ID " . $_POST['user'] . " wurde bearbeitet", $user_firstname, $user_lastname);
-	}
+    } else if ($_POST['reason'] == "edit") {
+        delete_admin($link, $user_id);
+        create_admin($link, $user_id, $selected_departments);
+        save_in_logs("INFO: Admin mit ID $user_id wurde bearbeitet", $user_firstname, $user_lastname);
+    }
 }
 
-if(exists_and_not_empty('remove_id', $_GET)){
-	if ($_GET['remove_id']) { //remove admin
-		$query = "DELETE FROM `admins` WHERE u_id=?";
-		if ($stmt = mysqli_prepare($link, $query)) {
-			mysqli_stmt_bind_param($stmt, "i", $_GET['remove_id']);
+// delete admin
+if(exists_and_not_empty('remove_id', $_GET)) {
+    $remove_id = $_GET['remove_id'];
+    if ($remove_id) {
+        delete_admin($link, $remove_id);
+        save_in_logs("INFO: Der Admin mit der User ID $remove_id wurde entfernt", $user_firstname, $user_lastname);
+    }
+}
 
-			if (!mysqli_stmt_execute($stmt)) {
-				save_in_logs("ERROR: " . mysqli_error($link));
-				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
-			}
-		} else {
-			save_in_logs("ERROR: Could not prepare statement. " . mysqli_error($link));
-		}
-		$stmt->close();
-		save_in_logs("INFO: Der Admin mit der User ID " . $_GET['remove_id'] . " wurde entfernt",  $user_firstname, $user_lastname);
-	}
+// delete admin
+function delete_admin($link, $user_id) {
+    $query = "DELETE FROM `admins` WHERE u_id=?";
+    if ($stmt = mysqli_prepare($link, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $user_id);
+        mysqli_stmt_execute($stmt);
+        $stmt->close();
+    }
+}
+
+// create admin
+function create_admin($link, $user_id, $departments = []) {
+    foreach ($departments as $dept_id) {
+        $query = "INSERT INTO admins (u_id, department) VALUES (?, ?)";
+        if ($stmt = mysqli_prepare($link, $query)) {
+            mysqli_stmt_bind_param($stmt, "ii", $user_id, $dept_id);
+            mysqli_stmt_execute($stmt);
+            $stmt->close();
+        }
+    }
 }
 ?>
 

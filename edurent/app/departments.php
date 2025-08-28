@@ -1,10 +1,11 @@
 <!DOCTYPE HTML>
-<?php
-if($debug){
-	ini_set('display_errors', '1');     
-	ini_set('display_startup_errors', '1');     
-	error_reporting(E_ALL);
-}
+<?php	
+	require_once("Controller/toast.php");
+	if($debug){
+		ini_set('display_errors', '1');     
+		ini_set('display_startup_errors', '1');     
+		error_reporting(E_ALL);
+	}
 
 check_is_admin($user_username);
 
@@ -57,6 +58,16 @@ if(exists_and_not_empty('reason', $_POST)){
 				save_in_logs("ERROR: " . mysqli_error($link));
 				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 			} else {
+				$department_id = mysqli_insert_id($link);
+
+				// save max loan duration
+				$max_loan_duration = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
+				$query2 = "INSERT INTO department_settings (department_id, max_loan_duration) VALUES (?, ?)";
+				$stmt2 = mysqli_prepare($link, $query2);
+				mysqli_stmt_bind_param($stmt2, "ii", $department_id, $max_loan_duration);
+				mysqli_stmt_execute($stmt2);
+				$stmt2->close();
+
 				$text = "INFO: Die Instution '" . $_POST['department_de'] . "' wurde erfolgreich erstellt";
 				save_in_logs($text, $user_firstname, $user_lastname, false);
 				sendToast($text);
@@ -77,6 +88,16 @@ if(exists_and_not_empty('reason', $_POST)){
 				save_in_logs("ERROR: " . mysqli_error($link));
 				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 			} else {
+				// update max loan duration
+				$max_loan_duration = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
+				$query2 = "INSERT INTO department_settings (department_id, max_loan_duration)
+							VALUES (?, ?)
+							ON DUPLICATE KEY UPDATE max_loan_duration = ?";
+				$stmt2 = mysqli_prepare($link, $query2);
+				mysqli_stmt_bind_param($stmt2, "iii", $_POST['department_id'], $max_loan_duration, $max_loan_duration);
+				mysqli_stmt_execute($stmt2);
+				$stmt2->close();
+
 				$text = "Die Instution '" . $_POST['department_de'] . "' wurde bearbeitet";
 				save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
 				sendToast($text);
@@ -87,6 +108,8 @@ if(exists_and_not_empty('reason', $_POST)){
 		$stmt->close();
 	}
 }
+
+
 ?>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -111,9 +134,6 @@ if(exists_and_not_empty('reason', $_POST)){
 
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-
-	<!-- Toast -->
-	<?php require_once("Controller/toast.php"); ?>
 </head>
 
 <body>
