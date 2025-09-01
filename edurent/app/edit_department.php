@@ -236,7 +236,7 @@ if ($result = mysqli_query($link, $sql)) {
             $query = "SELECT max_loan_duration FROM server LIMIT 1";
             $result = mysqli_query($link, $query);
             $row = mysqli_fetch_assoc($result);
-            $max_loan_duration = isset($row['max_loan_duration']) ? intval($row['max_loan_duration']) : 14;
+            $max_loan_duration_department = isset($row['max_loan_duration']) ? intval($row['max_loan_duration']) : 14;
 
 
             // get max loan duration of department
@@ -247,7 +247,7 @@ if ($result = mysqli_query($link, $sql)) {
             mysqli_stmt_bind_result($stmt, $db_duration);
 
             if (mysqli_stmt_fetch($stmt)) {
-                $max_loan_duration = intval($db_duration);
+                $max_loan_duration_department = intval($db_duration);
             }
 
             mysqli_stmt_close($stmt);
@@ -255,8 +255,8 @@ if ($result = mysqli_query($link, $sql)) {
 
             <!-- max loan duration for the department -->
             <div class="mb-3">
-                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureation'); ?>:</label>
-                <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration; ?>">
+                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureationDepartment'); ?>:</label>
+                <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration_department; ?>">
             </div>
 
 
