@@ -243,6 +243,11 @@ for ($i = 0; $i < count($combinations); $i++) {
 			return true
 		} else return false
 	}
+	//todo: use $selected_department from session to check for max_loan_duration of the department
+	/*if(exists_and_not_empty('selected_department', $_SESSION)){
+    $selected_department = $_SESSION['selected_department'];
+	}*/
+
 
 	//check max_loan_days
 	const loan_days = document.getElementById('max_loan_days');

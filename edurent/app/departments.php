@@ -61,10 +61,10 @@ if(exists_and_not_empty('reason', $_POST)){
 				$department_id = mysqli_insert_id($link);
 
 				// save max loan duration
-				$max_loan_duration = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
+				$max_loan_duration_department = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
 				$query2 = "INSERT INTO department_settings (department_id, max_loan_duration) VALUES (?, ?)";
 				$stmt2 = mysqli_prepare($link, $query2);
-				mysqli_stmt_bind_param($stmt2, "ii", $department_id, $max_loan_duration);
+				mysqli_stmt_bind_param($stmt2, "ii", $department_id, $max_loan_duration_department);
 				mysqli_stmt_execute($stmt2);
 				$stmt2->close();
 
@@ -89,12 +89,12 @@ if(exists_and_not_empty('reason', $_POST)){
 				save_in_logs("ERROR: " . mysqli_stmt_error($stmt));
 			} else {
 				// update max loan duration
-				$max_loan_duration = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
+				$max_loan_duration_department = isset($_POST['max_loan_duration']) ? intval($_POST['max_loan_duration']) : 14;
 				$query2 = "INSERT INTO department_settings (department_id, max_loan_duration)
 							VALUES (?, ?)
 							ON DUPLICATE KEY UPDATE max_loan_duration = ?";
 				$stmt2 = mysqli_prepare($link, $query2);
-				mysqli_stmt_bind_param($stmt2, "iii", $_POST['department_id'], $max_loan_duration, $max_loan_duration);
+				mysqli_stmt_bind_param($stmt2, "iii", $_POST['department_id'], $max_loan_duration_department, $max_loan_duration_department);
 				mysqli_stmt_execute($stmt2);
 				$stmt2->close();
 
