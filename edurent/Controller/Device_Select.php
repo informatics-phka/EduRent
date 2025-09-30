@@ -80,9 +80,26 @@
         global $departments;
         global $unassigned_institute;
         global $all_institutes;
+        global $link;
+       
+        //get name of selected department
+        if (isset($_SESSION['selected_department'])) {
+            $department_id = $_SESSION['selected_department'];
+
+            $query = "SELECT department_de FROM departments WHERE department_id = ?";
+            if ($stmt = mysqli_prepare($link, $query)) {
+                mysqli_stmt_bind_param($stmt, "s", $department_id);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $department_name);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+            }            
+        }
+
         echo "<h5 class='select' style='text-align:left;'><b>" . translate('text_step1') . "</b> <a href='#' data-toggle='tooltip' data-html='true' title='Sie können nur Geräte ausleihen, welche für ihr Institut freigegegen sind. Bitte wählen Sie jenes aus, dem Sie angehören.'><?php echo htmlspecialchars_decode('&#9432;'); ?></a></h5>";
         echo "<select class='form-select' name='selected_department' id='selected_department' onchange='get_department(device_type)' style='width:100%; max-width: 40ch; margin: 0 auto;'>";
-            echo "<option selected disabled hidden value=''>" . translate('word_none2') . "</option>";
+            if(isset($department_name)) echo "<option selected disabled hidden value=''>" . $department_name . "</option>"; //show selected department
+            else echo "<option selected disabled hidden value=''>" . translate('word_none2') . "</option>"; //show none selected
             for ($i = 0; $i < count(array_keys($departments)); $i++) {
                 if (array_keys($departments)[$i] != $unassigned_institute && array_keys($departments)[$i] != $all_institutes) echo "<option value='" . array_keys($departments)[$i] . "'>" . $departments[array_keys($departments)[$i]][get_language()] . "</option>"; //if can rent any device + all
             }
