@@ -97,7 +97,6 @@ $translations = [
     'text_room' => 'Raum des Instituts',
     'text_rules_1' => 'Bitte beachten: Regeln für die Ausleihe',
     'text_rules_2' => 'Es kann bis zu {$a} im Voraus gebucht werden',
-    'text_rules_3' => 'Die maximale Ausleihdauer beträgt {$a}',
     'text_rules_4' => 'Es sind nicht mehr Geräte verfügbar, als angezeigt werden',
     'text_rules_5' => 'Eine Reservierung muss mindestens eine Woche im Vorraus getätigt werden',
     'text_send' => ' wurde abgeschickt.',

@@ -97,7 +97,6 @@ $translations = [
     'text_room' => 'Institute Room',
     'text_rules_1' => 'Please note: Rules for borrowing',
     'text_rules_2' => 'It can be booked up to {$a} in advance',
-    'text_rules_3' => 'The maximum loan period is {$a}',
     'text_rules_4' => 'There are no more devices available than are displayed',
     'text_rules_5' => 'A reservation must be made at least one week in advance',
     'text_send' => ' has been sent.',

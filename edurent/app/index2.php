@@ -397,16 +397,8 @@ function before_opening_day($date, $depart, $opening_days){
 
             $days_bookable_in_advance_text="";
             $max_loan_duration_text="";
-            if($days_bookable_in_advance%30==0){
-                $days_bookable_in_advance_text = $days_bookable_in_advance/30;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Monat";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Monate";
-            }
-            else{
-                $days_bookable_in_advance_text = $days_bookable_in_advance;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
-            }
+            if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
+            else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
 
             if($max_loan_duration_department%7==0){
                 $max_loan_duration_text = $max_loan_duration_department/7;
@@ -421,7 +413,6 @@ function before_opening_day($date, $depart, $opening_days){
             require "Controller/Rules.php"; 
             new Rules(translate('text_rules_1'),
             translate('text_rules_2', ['a' => $days_bookable_in_advance_text]),
-            translate('text_rules_3', ['a' => $max_loan_duration_text]),
             translate('text_rules_4'),
             translate('text_rules_5')); ?>
         <br>
