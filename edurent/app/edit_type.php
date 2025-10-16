@@ -567,6 +567,10 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 							<span class="badge bg-success rounded-pill"><?php echo $devices_on_site; ?></span>
 						</li>
 						<li class="list-group-item d-flex justify-content-between align-items-center">
+							Reserviert
+							<span class="badge bg-warning rounded-pill"><?php echo count($reservated_devices); ?></span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
 							Blockiert
 							<span class="badge bg-danger rounded-pill"><?php echo $blocked_devices; ?></span>
 						</li>
@@ -614,20 +618,20 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 		<div id="typeLinks">
 			<?php
 			for ($i = 0; $i < count($devices); $i++) {
-				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
-					if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
-						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+				$blocked = $devices[array_keys($devices)[$i]]['blocked'];
+				$device_tag = $devices[array_keys($devices)[$i]]['tag'];
+				$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
+				$icon_class = "";
+
+				if(in_array($device_tag,$reservated_devices)){ //is reservated
+					if(in_array($device_tag,$reservated_devices) && $blocked != 0){ //is reservated and blocked
+						$background_color = "#000000";
 					}
 					else{
-						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+						$background_color = "#C19410";
 					}
 				}
-				else{
-					$blocked = $devices[array_keys($devices)[$i]]['blocked'];
-					$device_tag = $devices[array_keys($devices)[$i]]['tag'];
-					$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
-					$icon_class = "";
-					
+				else{					
 					switch ($blocked) {
 						case 0: //not blocked
 							$background_color = "#6FB40F"; //green
@@ -656,13 +660,13 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 							$background_color = "#CCCCCC"; //grey
 							break;
 					}
-
-					echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
-							<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
-								<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
-							</div>
-						</a>";
 				}
+
+				echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
+					<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
+						<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
+					</div>
+				</a>";
 			}
 			?>
 		</div>
