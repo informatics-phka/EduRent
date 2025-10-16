@@ -543,9 +543,6 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 				</button>
 			</div>	
 		</div>	
-	</div>
-	<br>
-	<div>
 		<h3 class="d-flex align-items-center gap-2">
 			<?php echo translate('word_deviceList'); ?>
 			<button class="btn bg-secondary text-white rounded-pill px-3 py-1 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#statusSidebar">
