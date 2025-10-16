@@ -253,13 +253,6 @@ if ($result = mysqli_query($link, $sql)) {
             mysqli_stmt_close($stmt);
             ?>
 
-            <!-- max loan duration for the department -->
-            <div class="mb-3">
-                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureationDepartment'); ?>:</label>
-                <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration_department; ?>">
-            </div>
-
-
             <!-- hidden values -->
             <input type="hidden" id="reason" name="reason" value="edit">
             <input type="hidden" id="department_id" name="department_id" value=<?php echo $_GET['depart']; ?>>
