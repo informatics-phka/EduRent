@@ -2,23 +2,8 @@
     global $lang;
     global $lead_time_days;
     global $days_bookable_in_advance;
-    global $max_loan_duration;
+    $max_loan_duration = 30;
     global $link;
-
-    // get max_loan_duration of department if selected_department is set in session
-    if (isset($_SESSION['selected_department'])) {
-        $department_id = $_SESSION['selected_department'];
-
-        $query = "SELECT max_loan_duration FROM department_settings WHERE department_id = ?";
-        if ($stmt = mysqli_prepare($link, $query)) {
-            mysqli_stmt_bind_param($stmt, "s", $department_id);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $max_loan_duration_department);
-            mysqli_stmt_fetch($stmt);
-            mysqli_stmt_close($stmt);
-        }    
-        $max_loan_duration = $max_loan_duration_department;
-    }
 
     if($is_superadmin)
     {
