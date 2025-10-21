@@ -359,9 +359,7 @@
                 }    
             }                           
 
-
             if(!isset($max_loan_duration_department) || empty($max_loan_duration_department)) $max_loan_duration_department = $max_loan_duration;
-            
 
             $days_bookable_in_advance_text="";
             $max_loan_duration_text="";

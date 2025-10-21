@@ -782,27 +782,6 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
 		} else return false
 	}
 
-	//check max_loan_days
-	const loan_days = document.getElementById('max_loan_days');
-	const inputHandler3 = function(e) {
-		var error;
-		var max_span = <?php global $max_loan_duration; echo is_null($max_loan_duration) ? "2" : json_encode($max_loan_duration); ?>;
-		if (!loan_days.value) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
-		if(only_numbers(loan_days.value)) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
-		if(loan_days.value > max_span) error = "Die maximale Ausleihdauer darf nicht größer als " + max_span + " sein.";
-		if (error) {
-			setError(loan_days, error);
-			$('#submit').attr('disabled', 'disabled');
-		} else {
-			setSuccess(loan_days);
-			check();
-		}
-	}
-	loan_days.addEventListener('input', inputHandler3);
-	loan_days.addEventListener('propertychange', inputHandler3);
-
-	setSuccess(loan_days);
-
 	function check() {
 		if (name.parentElement.querySelector('.error').innerText.length == 1 &&
 		loan_days.parentElement.querySelector('.error').innerText.length == 1 &&
