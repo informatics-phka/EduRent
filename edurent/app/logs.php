@@ -31,9 +31,17 @@ foreach ($files as $file) {
         continue;
     }
 }
+//reload language
+global $SESSION;
+
+$_SESSION['lang'] = preg_replace('/[^a-z_]/i', '', $_GET['lang'] ?? $_SESSION['lang'] ?? 'de');
+
+if($_SESSION['lang'] == "de_wp") $_SESSION['lang'] = "de";
+
+require('lang/' . $_SESSION['lang'] . '.php');
 ?>
 
-<html lang="en">
+<html>
 <head>
 	<meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
