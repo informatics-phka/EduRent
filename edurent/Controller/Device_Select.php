@@ -155,13 +155,6 @@
                                     if (strlen(strip_tags($type['tooltip'])) > 0) $info .= "  <a href='#' data-toggle='tooltip' data-html='true' title='" . $type['tooltip'] . "'>" . htmlspecialchars_decode("&#9432;") . "</a>";
                                     echo $info;
                                     echo "</td>";
-
-                                    echo "<td style='text-align:center; vertical-align:middle;'>";
-                                    if($type['max_loan_days'] > 1){
-                                        echo translate('text_rentMultipleDays', ['a' => $type['max_loan_days']]); 
-                                    } else {
-                                        echo translate('text_rentSingleDay'); 
-                                    }
                                 echo "</td>";
                             echo "</tr>";
                         }

@@ -52,7 +52,7 @@
         global $mail;
         global $link;
         $device_type = array();
-        $sql = "SELECT * FROM device_list, device_type WHERE blocked = 0 AND max_loan_days != 0 AND device_list.device_type_id=device_type.device_type_id";
+        $sql = "SELECT * FROM device_list, device_type WHERE blocked = 0 AND device_list.device_type_id=device_type.device_type_id";
         if($result = mysqli_query($link, $sql)){
             if(mysqli_num_rows($result) > 0){
                 while($row = mysqli_fetch_array($result)){
@@ -68,7 +68,6 @@
                         $device_type[$row['home_department']][$row['device_type_id']]['info']=$row['device_type_info'];
                         $device_type[$row['home_department']][$row['device_type_id']]['img_path']=$row['device_type_img_path'];
                         $device_type[$row['home_department']][$row['device_type_id']]['tooltip']=$row['tooltip'];
-                        $device_type[$row['home_department']][$row['device_type_id']]['max_loan_days']=$row['max_loan_days'];
                     }
                 }
                 mysqli_free_result($result);
@@ -84,7 +83,7 @@
         global $mail;
         global $link;
         $device_type = array();
-        $sql = "SELECT DISTINCT device_type_name, device_type_info, device_type_img_path, tooltip, max_loan_days, home_department, device_type_id FROM device_type WHERE max_loan_days != 0";
+        $sql = "SELECT DISTINCT device_type_name, device_type_info, device_type_img_path, tooltip, home_department, device_type_id FROM device_type";
         if($result = mysqli_query($link, $sql)){
             if(mysqli_num_rows($result) > 0){
                 while($row = mysqli_fetch_array($result)){
@@ -100,7 +99,6 @@
                         $device_type[$row['home_department']][$row['device_type_id']]['info']=$row['device_type_info'];
                         $device_type[$row['home_department']][$row['device_type_id']]['img_path']=$row['device_type_img_path'];
                         $device_type[$row['home_department']][$row['device_type_id']]['tooltip']=$row['tooltip'];
-                        $device_type[$row['home_department']][$row['device_type_id']]['max_loan_days']=$row['max_loan_days'];
                     }
                 }
                 mysqli_free_result($result);
