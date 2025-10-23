@@ -78,6 +78,7 @@ $translations = [
     'text_noPickupDayConfigured' => 'Note: Pickup days have not yet been configured.',
     'text_noResult' => 'No result',
     'text_oldPic' => 'Keep old picture',
+    'text_perma_delete' => 'Permanently delete',
     'text_pickup' => 'Create a device type',
     'text_pickupDate' => 'Pickup:',
     'text_pickupDays' => 'Select your pickup and return day:',

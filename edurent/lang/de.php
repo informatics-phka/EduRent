@@ -78,6 +78,7 @@ $translations = [
     'text_noPickupDayConfigured' => 'Hinweis: Abholtage wurden noch nicht konfiguriert.',
     'text_noResult' => 'Kein Ergebnis',
     'text_oldPic' => 'Altes Bild behalten',
+    'text_perma_delete' => 'Dauerhaft löschen',
     'text_pickup' => 'Einen Gerätetypen erstellen',
     'text_pickupDate' => 'Abholung:',
     'text_pickupDays' => 'Wählen Sie Ihren Abhol- und Rückgabetag aus:',

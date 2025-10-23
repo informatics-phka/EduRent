@@ -739,29 +739,8 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 	</div>
 </body>
 <?php
-
 echo $OUTPUT->footer();
 mysqli_close($link);
-
-//Functions PHP
-function get_history_status($status_id)
-{
-	switch ($status_id) {
-		case 4:
-			$status = translate('status_4');
-			break;
-		case 5:
-			$status = translate('status_5');
-			break;
-		case 6:
-			$status = translate('status_6');
-			break;
-		default:
-			$status = "Fehler";
-			break;
-	}
-	return $status;
-}
 ?>
 <script>
 	var added = 0;
