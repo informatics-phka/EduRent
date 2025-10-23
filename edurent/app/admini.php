@@ -300,7 +300,7 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 
 		}
 		catch (exception $e) {
-			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 409 admini: " . $e->getMessage());			
+			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 303 admini: " . $e->getMessage());			
 		}
 		echo "<script>window.location.href = 'admini';</script>";
 	}
