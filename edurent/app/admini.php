@@ -311,25 +311,24 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 		$sql = "UPDATE reservations SET status = ? WHERE reservation_id = ?";
 		$stmt = mysqli_prepare($link, $sql);
 		$status = 6;
-		$text = "Reservierungsanfrage #" . $reservation_id . " wurde von einem Admin storniert.";
 
 		mysqli_stmt_bind_param($stmt, "ii", $status, $reservation_id);
 
 		if (mysqli_stmt_execute($stmt)) {
 			$query = "SELECT u.email FROM reservations r JOIN user u ON r.user_id = u.id WHERE r.reservation_id = ?";
-        if ($stmt_mail = mysqli_prepare($link, $query)) {
-            mysqli_stmt_bind_param($stmt_mail, "i", $reservation_id);
-            mysqli_stmt_execute($stmt_mail);
-            mysqli_stmt_bind_result($stmt_mail, $user_email);
-            mysqli_stmt_fetch($stmt_mail);
-            mysqli_stmt_close($stmt_mail);
-           
-            $messagetext =  translate('text_mailCanceledByAdmin', ['a' => "#" . $reservation_id]) . "<br><br>" . translate('text_regards');
-            sendamail($mail, $user_email, "Reservierungsanfrage #" . $reservation_id . " wurde storniert", $messagetext);
-        }
-
-
-			save_in_logs("INFO: " . $text, $user_firstname, $user_lastname, false);
+			if ($stmt_mail = mysqli_prepare($link, $query)) {
+				mysqli_stmt_bind_param($stmt_mail, "i", $reservation_id);
+				mysqli_stmt_execute($stmt_mail);
+				mysqli_stmt_bind_result($stmt_mail, $user_email);
+				mysqli_stmt_fetch($stmt_mail);
+				mysqli_stmt_close($stmt_mail);
+			
+				$messagetext =  translate('text_mailCanceledByAdmin', ['a' => "#" . $reservation_id]) . "<br><br>" . translate('text_regards');
+				sendamail($mail, $user_email, "Reservierungsanfrage #" . $reservation_id . " wurde storniert", $messagetext);
+			}
+			$text = "INFO: Reservierungsanfrage #" . $reservation_id . " wurde von einem Admin storniert.";
+			save_in_logs($text, $user_firstname, $user_lastname, false);
+			$text = "Reservierungsanfrage #" . $reservation_id . " wurde storniert.";
 			$SESSION->toasttext = $text;
 			session_write_close();
 
