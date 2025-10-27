@@ -289,7 +289,6 @@
                     }
 
                     //user
-                    //echo translate('text_rentMultipleDays', ['a' => $type['max_loan_days']]); 
                     $messagetext = translate('text_resrequest', ['a' => " #".$reservation_id, 'b' => date_format(date_create($date_from), 'd.m.Y'), 'c' => date_format(date_create($date_to), 'd.m.Y')]) . "<br /><br />" . translate('text_questionMail', ['a' => $departments[$department]['mail']]) . "<br /><br />" . translate('text_regards');
                     sendamail($mail, $user_email, translate('word_request') . " #" . $reservation_id, $messagetext);
 
@@ -345,36 +344,15 @@
             <?php 
             if (isset($_POST['selected_department'])) {
                 $_SESSION['selected_department'] = $_POST['selected_department'];
-            }
-            if (isset($_SESSION['selected_department'])) {
-                $department_id = $_SESSION['selected_department'];
-
-                $query = "SELECT max_loan_duration FROM department_settings WHERE department_id = ?";
-                if ($stmt = mysqli_prepare($link, $query)) {
-                    mysqli_stmt_bind_param($stmt, "s", $department_id);
-                    mysqli_stmt_execute($stmt);
-                    mysqli_stmt_bind_result($stmt, $max_loan_duration_department);
-                    mysqli_stmt_fetch($stmt);
-                    mysqli_stmt_close($stmt);
-                }    
-            }                           
-
+            }                        
 
             if(!isset($max_loan_duration_department) || empty($max_loan_duration_department)) $max_loan_duration_department = $max_loan_duration;
-            
 
             $days_bookable_in_advance_text="";
             $max_loan_duration_text="";
-            if($days_bookable_in_advance%30==0){
-                $days_bookable_in_advance_text = $days_bookable_in_advance/30;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Monat";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Monate";
-            }
-            else{
-                $days_bookable_in_advance_text = $days_bookable_in_advance;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
-            }
+            $days_bookable_in_advance_text = $days_bookable_in_advance;
+            if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
+            else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
 
             if($max_loan_duration_department%7==0){
                 $max_loan_duration_text = $max_loan_duration_department/7;
@@ -389,7 +367,6 @@
             require "Controller/Rules.php"; 
             new Rules(translate('text_rules_1'),
             translate('text_rules_2', ['a' => $days_bookable_in_advance_text]),
-            translate('text_rules_3', ['a' => $max_loan_duration_text]),
             translate('text_rules_4'),
             translate('text_rules_5')); ?>
         <br>

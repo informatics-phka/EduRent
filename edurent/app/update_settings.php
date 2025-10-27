@@ -9,18 +9,16 @@ $is_superadmin = is_superadmin($user_username);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (
         isset($_POST['days_bookable_in_advance']) &&
-        isset($_POST['lead_time_days']) &&
-        isset($_POST['max_loan_duration'])
+        isset($_POST['lead_time_days'])
     ) {
         $days_bookable_in_advance = $_POST['days_bookable_in_advance'];
         $lead_time_days = $_POST['lead_time_days'];
-        $max_loan_duration = $_POST['max_loan_duration'];
         $url = $_GET['url'] ?? 'index';
         $debug = $_POST['debug'] == 'on' ? 1 : 0;
 
-        $sql = "UPDATE server SET days_bookable_in_advance=?, lead_time_days=?, max_loan_duration=?, debug=? WHERE id=1";
+        $sql = "UPDATE server SET days_bookable_in_advance=?, lead_time_days=?, debug=? WHERE id=1";
         if ($stmt = mysqli_prepare($link, $sql)) {
-            mysqli_stmt_bind_param($stmt, "iiii", $days_bookable_in_advance, $lead_time_days, $max_loan_duration, $debug);
+            mysqli_stmt_bind_param($stmt, "iii", $days_bookable_in_advance, $lead_time_days, $debug);
             if (mysqli_stmt_execute($stmt)) {
                 $SESSION->toasttext = "Die Einstellungen wurden aktualisiert";
                 echo "<script>window.location.href = 'update_settings';</script>";
@@ -71,11 +69,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-3">
                 <label for="lead_time_days" class="form-label"><?php echo translate('text_leadTimeDays'); ?>:</label>
                 <input type="number" class="form-control" id="lead_time_days" name="lead_time_days" value="<?php echo $lead_time_days; ?>">
-            </div>
-
-            <div class="mb-3">
-                <label for="max_loan_duration" class="form-label"><?php echo translate('text_maxLoanDureation'); ?>:</label>
-                <input type="number" class="form-control" id="max_loan_duration" name="max_loan_duration" value="<?php echo $max_loan_duration; ?>">
             </div>
 
             <div class="form-check form-switch mb-3">

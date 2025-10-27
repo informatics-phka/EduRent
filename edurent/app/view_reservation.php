@@ -136,6 +136,10 @@ if ($is_superadmin) {
                 </button>
             <?php } else if($status == 4 || $status == 6) { //Completed or Cancelled ?>
                 <button type='button' class='btn btn-danger rounded' onclick='order_remove("<?php echo $reservation_id; ?>")'>
+                    <?php echo translate('text_perma_delete'); ?>
+                </button>
+            <?php } else if($status == 7) { //Error ?>
+                <button type='button' class='btn btn-danger rounded' onclick='order_cancel("<?php echo $reservation_id; ?>")'>
                     <?php echo translate('word_delete'); ?>
                 </button>
             <?php }?>

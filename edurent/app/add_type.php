@@ -253,10 +253,8 @@ for ($i = 0; $i < count($combinations); $i++) {
 	const loan_days = document.getElementById('max_loan_days');
 	const inputHandler3 = function(e) {
 		var error;
-		var max_span = <?php global $max_loan_duration; echo is_null($max_loan_duration) ? "2" : json_encode($max_loan_duration); ?>;
 		if (!loan_days.value) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
 		if(only_numbers(loan_days.value)) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
-		if(loan_days.value > max_span) error = "Die maximale Ausleihdauer darf nicht größer als " + max_span + " sein.";
 		if (error) {
 			setError(loan_days, error);
 			$('#submit').attr('disabled', 'disabled');

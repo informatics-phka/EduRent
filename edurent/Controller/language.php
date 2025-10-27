@@ -8,14 +8,7 @@
     //get the selected language of the user
     global $SESSION;
 
-    if(!isset($_SESSION['lang'])){
-        $_SESSION['lang'] = 'de';
-    }
-    else{
-        if(isset($_GET['lang'])){
-            $_SESSION['lang'] = $_GET['lang'];
-        }
-    }
+    $_SESSION['lang'] = preg_replace('/[^a-z_]/i', '', $_GET['lang'] ?? $_SESSION['lang'] ?? 'de');
 
     if($_SESSION['lang'] == "de_wp") $_SESSION['lang'] = "de";
 

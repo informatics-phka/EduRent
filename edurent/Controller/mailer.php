@@ -30,6 +30,14 @@
   try {
     //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
     $mail->SMTPDebug  = SMTP::DEBUG_OFF;
+    $mail->SMTPOptions = [
+        'ssl' => [
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+            'allow_self_signed' => false,
+            'cafile' => __DIR__ . '/cacert.pem',
+        ],
+    ];
     $mail->isSMTP();                                            //Send using SMTP
     $mail->CharSet    = 'UTF-8';
     $mail->Host       = 'HOST';                   //Set the SMTP server to send through
