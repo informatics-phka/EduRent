@@ -120,7 +120,6 @@ if (exists_and_not_empty('reason', $_POST)) {
     }
 }
 
-
 if(exists_and_not_empty('reason', $_GET)){ //type
 	if (mysqli_query($link, $sql)) {
 		$text = "INFO: Das Gerät '" . $type[$_GET['type']]['device_type_name'] . $_GET['type'] . "' wurde bearbeitet";
@@ -238,7 +237,7 @@ for ($i = 0; $i < count($devices); $i++) {
 }
 
 $reservated_devices = array();
-$query = "SELECT DISTINCT device_list.device_tag FROM devices_of_reservations, reservations, device_list WHERE reservations.date_from <= DATE(NOW()) AND reservations.date_to >= DATE(NOW()) AND reservations.reservation_id = devices_of_reservations.reservation_id AND reservations.status = 3 AND devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id = ?;";
+$query = "SELECT DISTINCT device_list.device_tag FROM devices_of_reservations, reservations, device_list WHERE reservations.date_from <= DATE(NOW()) AND reservations.date_to >= DATE(NOW()) AND reservations.reservation_id = devices_of_reservations.reservation_id AND reservations.status != 4 AND reservations.status != 6 AND devices_of_reservations.device_id=device_list.device_id AND device_list.device_type_id = ?;";
 if ($stmt = mysqli_prepare($link, $query)) {
 	mysqli_stmt_bind_param($stmt, "i", $_GET['type']);
 
@@ -458,65 +457,60 @@ $devices_on_site = $not_blocked_devices - count($reservated_devices);
                 //List of departments starting with all departments and no departments and listing all other departments				      		
 			?>
 
+			<select class="form-control js-example-basic-multiple"
+					id="department_select"
+					name="departments[]"
+					multiple="multiple"
+					required>
 
-<select class="form-control js-example-basic-multiple"
-        id="department_select"
-        name="departments[]"
-        multiple="multiple"
-        required>
+				<?php
+					$main_options = [0, -1]; // Alle Institute / Kein Institut
+					foreach ($main_options as $opt) {
+						$isSelected = in_array((string)$opt, $part_of_department) ? 'selected' : '';
+						$label = (get_language() == "de") ? $departments[$opt]['de'] : $departments[$opt]['en'];
+						echo "<option value='{$opt}' {$isSelected}>{$label}</option>";
+					}
 
-    <?php
-    $main_options = [0, -1]; // Alle Institute / Kein Institut
-    foreach ($main_options as $opt) {
-        $isSelected = in_array((string)$opt, $part_of_department) ? 'selected' : '';
-        $label = (get_language() == "de") ? $departments[$opt]['de'] : $departments[$opt]['en'];
-        echo "<option value='{$opt}' {$isSelected}>{$label}</option>";
-    }
+					foreach ($departments as $key => $value) {
+						if ($key == $unassigned_institute || $key == $all_institutes) continue;
+						$isSelected = in_array((string)$key, $part_of_department) ? 'selected' : '';
+						$label = (get_language() == "de") ? $value['de'] : $value['en'];
+						echo "<option value='{$key}' {$isSelected}>{$label}</option>";
+					}
+				?>
+			</select>
+			<script>
+				document.addEventListener("DOMContentLoaded", function() {
+					const $select = $('#department_select');
+					const allValue = "0";
+					const noneValue = "-1";
 
-    foreach ($departments as $key => $value) {
-        if ($key == $unassigned_institute || $key == $all_institutes) continue;
-        $isSelected = in_array((string)$key, $part_of_department) ? 'selected' : '';
-        $label = (get_language() == "de") ? $value['de'] : $value['en'];
-        echo "<option value='{$key}' {$isSelected}>{$label}</option>";
-    }
-    ?>
-</select>
+					// Initialize Select2
+					$select.select2({
+						placeholder: "Institut auswählen",
+						width: '100%',
+						closeOnSelect: false,
+					});
 
-<script>
+					$select.on('change', function () {
+						let selected = $(this).val() || [];
 
-document.addEventListener("DOMContentLoaded", function() {
-    const $select = $('#department_select');
-    const allValue = "0";
-    const noneValue = "-1";
+						// Case 1: "All" selected → keep only "All"
+						if (selected.includes(allValue)) {
+							$select.val([allValue]).trigger('change.select2');
+							showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
+							return;
+						}
 
-	// Initialize Select2
-    $select.select2({
-        placeholder: "Institut auswählen",
-        width: '100%',
-        closeOnSelect: false,
-    });
-
-    $select.on('change', function () {
-        let selected = $(this).val() || [];
-
-        // Case 1: "All" selected → keep only "All"
-        if (selected.includes(allValue)) {
-            $select.val([allValue]).trigger('change.select2');
-            showToast('Es wurde „Alle Institute“ ausgewählt. Andere Optionen wurden entfernt.');
-            return;
-        }
-
-        // Case 2: "Kein" selected → keep only "Kein"
-        if (selected.includes(noneValue)) {
-            $select.val([noneValue]).trigger('change.select2');
-            showToast('Es wurde „Kein Institut“ ausgewählt. Andere Optionen wurden entfernt.');
-            return;
-        }
-
-        
-    });
-});
-</script>
+						// Case 2: "Kein" selected → keep only "Kein"
+						if (selected.includes(noneValue)) {
+							$select.val([noneValue]).trigger('change.select2');
+							showToast('Es wurde „Kein Institut“ ausgewählt. Andere Optionen wurden entfernt.');
+							return;
+						}
+					});
+				});
+			</script>
 
 			<br>
 			<br>
@@ -549,9 +543,6 @@ document.addEventListener("DOMContentLoaded", function() {
 				</button>
 			</div>	
 		</div>	
-	</div>
-	<br>
-	<div>
 		<h3 class="d-flex align-items-center gap-2">
 			<?php echo translate('word_deviceList'); ?>
 			<button class="btn bg-secondary text-white rounded-pill px-3 py-1 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#statusSidebar">
@@ -571,6 +562,10 @@ document.addEventListener("DOMContentLoaded", function() {
 						<li class="list-group-item d-flex justify-content-between align-items-center">
 							Verfügbar
 							<span class="badge bg-success rounded-pill"><?php echo $devices_on_site; ?></span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							Reserviert
+							<span class="badge bg-warning rounded-pill"><?php echo count($reservated_devices); ?></span>
 						</li>
 						<li class="list-group-item d-flex justify-content-between align-items-center">
 							Blockiert
@@ -620,20 +615,20 @@ document.addEventListener("DOMContentLoaded", function() {
 		<div id="typeLinks">
 			<?php
 			for ($i = 0; $i < count($devices); $i++) {
-				if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices)){ //is reservated
-					if(in_array($devices[array_keys($devices)[$i]]['tag'],$reservated_devices) && $devices[array_keys($devices)[$i]]['blocked'] != 0){ //is reservated and blocked
-						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#000000; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+				$blocked = $devices[array_keys($devices)[$i]]['blocked'];
+				$device_tag = $devices[array_keys($devices)[$i]]['tag'];
+				$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
+				$icon_class = "";
+
+				if(in_array($device_tag,$reservated_devices)){ //is reservated
+					if(in_array($device_tag,$reservated_devices) && $blocked != 0){ //is reservated and blocked
+						$background_color = "#000000";
 					}
 					else{
-						echo "<a class='type' href='edit_device.php?type=" . $_GET['type'] . "&device=" . $devices[array_keys($devices)[$i]]['tag'] . "'><p style='border:2px; margin-bottom: 1px; border-radius: 10px; border-style:solid; border-color:#000000; background-color:#C19410; padding-left: 1em;'>" . $type[$_GET['type']]['device_type_indicator'] . $devices[array_keys($devices)[$i]]['tag'] . "</p></a>";
+						$background_color = "#C19410";
 					}
 				}
-				else{
-					$blocked = $devices[array_keys($devices)[$i]]['blocked'];
-					$device_tag = $devices[array_keys($devices)[$i]]['tag'];
-					$device_type_indicator = $type[$_GET['type']]['device_type_indicator'];
-					$icon_class = "";
-					
+				else{					
 					switch ($blocked) {
 						case 0: //not blocked
 							$background_color = "#6FB40F"; //green
@@ -662,13 +657,13 @@ document.addEventListener("DOMContentLoaded", function() {
 							$background_color = "#CCCCCC"; //grey
 							break;
 					}
-
-					echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
-							<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
-								<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
-							</div>
-						</a>";
 				}
+
+				echo "<a class='type' href='edit_device.php?type={$_GET['type']}&device={$device_tag}'>
+					<div style='border: 2px solid #000000; margin-bottom: 1px; border-radius: 10px; background-color:{$background_color}; padding: 5px; display: flex; align-items: center;'>
+						<i class='fas {$icon_class}' style='font-size: 20px; margin-right: 5px;'></i> <p style='margin-bottom: 0;'>{$device_type_indicator}{$device_tag}</p>
+					</div>
+				</a>";
 			}
 			?>
 		</div>
@@ -786,27 +781,6 @@ document.addEventListener("DOMContentLoaded", function() {
 			return true
 		} else return false
 	}
-
-	//check max_loan_days
-	const loan_days = document.getElementById('max_loan_days');
-	const inputHandler3 = function(e) {
-		var error;
-		var max_span = <?php global $max_loan_duration; echo is_null($max_loan_duration) ? "2" : json_encode($max_loan_duration); ?>;
-		if (!loan_days.value) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
-		if(only_numbers(loan_days.value)) error = "<?php echo translate('text_deviceTypeMaxLoanError'); ?>";
-		if(loan_days.value > max_span) error = "Die maximale Ausleihdauer darf nicht größer als " + max_span + " sein.";
-		if (error) {
-			setError(loan_days, error);
-			$('#submit').attr('disabled', 'disabled');
-		} else {
-			setSuccess(loan_days);
-			check();
-		}
-	}
-	loan_days.addEventListener('input', inputHandler3);
-	loan_days.addEventListener('propertychange', inputHandler3);
-
-	setSuccess(loan_days);
 
 	function check() {
 		if (name.parentElement.querySelector('.error').innerText.length == 1 &&

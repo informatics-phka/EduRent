@@ -203,7 +203,24 @@ if (exists_and_not_empty('rem', $_GET) && is_numeric($_GET['rem'])) { // Delete 
 										echo "<td></td>";
 										break;
 								}
-								$status = get_history_status($row['status']);
+
+								switch ($row['status']) {
+								case 1:
+									$status = translate('status_1');
+									break;
+								case 2:
+									$status = translate('status_2');
+									break;
+								case 3:
+									$status = translate('status_3');
+									break;
+								case 7:
+									$status = translate('status_7');
+									break;
+								default:
+									$status = translate('status_4');
+									break;
+							}
 								echo "<td style='vertical-align: middle'>" . $status . "</td>";
 
 								/** hidden infos for searchbar **/
@@ -238,24 +255,4 @@ if (exists_and_not_empty('rem', $_GET) && is_numeric($_GET['rem'])) { // Delete 
 
 echo $OUTPUT->footer();
 mysqli_close($link);
-
-//Functions PHP
-function get_history_status($status_id)
-{
-	switch ($status_id) {
-		case 4:
-			$status = translate('status_4');
-			break;
-		case 5:
-			$status = translate('status_5');
-			break;
-		case 6:
-			$status = translate('status_6');
-			break;
-		default:
-			$status = "Fehler";
-			break;
-	}
-	return $status;
-}
 ?>

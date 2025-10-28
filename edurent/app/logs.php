@@ -9,10 +9,39 @@ if ($debug) {
 check_superadmin($user_username);
 $is_superadmin = is_superadmin($user_username);
 
+// Check lang files for errors
+$langDir = __DIR__ . '/../lang';
+$files = glob($langDir . '/*.php');
 
+foreach ($files as $file) {
+    $output = null;
+    $returnVar = null;
+    exec("php -l " . escapeshellarg($file), $output, $returnVar);
+
+    if ($returnVar !== 0) {
+        save_in_logs("ERROR: Syntaxfehler in " . basename($file));
+        continue;
+    }
+
+    $translations = null;
+    include $file;
+
+    if (!isset($translations) || !is_array($translations)) {
+        save_in_logs("ERROR: translations ist nicht definiert oder kein Array in " . basename($file));
+        continue;
+    }
+}
+//reload language
+global $SESSION;
+
+$_SESSION['lang'] = preg_replace('/[^a-z_]/i', '', $_GET['lang'] ?? $_SESSION['lang'] ?? 'de');
+
+if($_SESSION['lang'] == "de_wp") $_SESSION['lang'] = "de";
+
+require('lang/' . $_SESSION['lang'] . '.php');
 ?>
 
-<html lang="en">
+<html>
 <head>
 	<meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

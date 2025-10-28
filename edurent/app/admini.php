@@ -300,7 +300,7 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 
 		}
 		catch (exception $e) {
-			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 409 admini: " . $e->getMessage());			
+			error_to_superadmin(get_superadmins(), $mail, "ERROR: in 303 admini: " . $e->getMessage());			
 		}
 		echo "<script>window.location.href = 'admini';</script>";
 	}
@@ -580,6 +580,11 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 			</div>
 			<br>
 			<br>
+	<?php
+
+	if ($result = mysqli_query($link, $sql)) {
+		if (mysqli_num_rows($result) > 0) {
+	?>		
 			<div class='table-responsive'>
 				<table class='table results'>
 					<thead>
@@ -599,11 +604,6 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 						</tr>
 					</thead>
 					<tbody>
-	<?php
-
-	if ($result = mysqli_query($link, $sql)) {
-		if (mysqli_num_rows($result) > 0) {
-	?>		
 						<?php
 						while ($row = mysqli_fetch_array($result)) {
 						?>
@@ -734,34 +734,13 @@ if(exists_and_not_empty('org', $_GET)){ //was fetched
 	} else {
 		error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 	}
+	mysqli_close($link);
 			?>
 		</div>
 	</div>
 </body>
 <?php
-
 echo $OUTPUT->footer();
-mysqli_close($link);
-
-//Functions PHP
-function get_history_status($status_id)
-{
-	switch ($status_id) {
-		case 4:
-			$status = translate('status_4');
-			break;
-		case 5:
-			$status = translate('status_5');
-			break;
-		case 6:
-			$status = translate('status_6');
-			break;
-		default:
-			$status = "Fehler";
-			break;
-	}
-	return $status;
-}
 ?>
 <script>
 	var added = 0;

@@ -289,7 +289,6 @@
                     }
 
                     //user
-                    //echo translate('text_rentMultipleDays', ['a' => $type['max_loan_days']]); 
                     $messagetext = translate('text_resrequest', ['a' => " #".$reservation_id, 'b' => date_format(date_create($date_from), 'd.m.Y'), 'c' => date_format(date_create($date_to), 'd.m.Y')]) . "<br /><br />" . translate('text_questionMail', ['a' => $departments[$department]['mail']]) . "<br /><br />" . translate('text_regards');
                     sendamail($mail, $user_email, translate('word_request') . " #" . $reservation_id, $messagetext);
 
@@ -340,72 +339,85 @@
     <div class="main">
         <!-- Titel -->
         <h3 class="title" style='text-align:center; width:100%;'> <?php echo translate('text_welcome', ['a' => " <b>$user_firstname $user_lastname</b> "]); ?> </h3>
-        <br>
-        <br>
+            <br>
+            <br>
             <?php 
+            if (isset($_POST['selected_department'])) {
+                $_SESSION['selected_department'] = $_POST['selected_department'];
+            }                        
+
+            if(!isset($max_loan_duration_department) || empty($max_loan_duration_department)) $max_loan_duration_department = $max_loan_duration;
+
             $days_bookable_in_advance_text="";
             $max_loan_duration_text="";
-            if($days_bookable_in_advance%30==0){
-                $days_bookable_in_advance_text = $days_bookable_in_advance/30;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Monat";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Monate";
-            }
-            else{
-                $days_bookable_in_advance_text = $days_bookable_in_advance;
-                if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
-                else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
-            }
+            $days_bookable_in_advance_text = $days_bookable_in_advance;
+            if($days_bookable_in_advance_text == 1) $days_bookable_in_advance_text = "1 Tag";
+            else $days_bookable_in_advance_text = $days_bookable_in_advance_text . " Tage";
 
-            if($max_loan_duration%7==0){
-                $max_loan_duration_text = $max_loan_duration/7;
+            if($max_loan_duration_department%7==0){
+                $max_loan_duration_text = $max_loan_duration_department/7;
                 if($max_loan_duration_text == 1) $max_loan_duration_text = "1 Woche";
                 else $max_loan_duration_text = $max_loan_duration_text . " Wochen";
             }
             else{
-                $max_loan_duration_text = $max_loan_duration;
+                $max_loan_duration_text = $max_loan_duration_department;
                 if($max_loan_duration_text == 1) $max_loan_duration_text = "1 Tag";
                 else $max_loan_duration_text = $max_loan_duration_text . " Tage";
             }
             require "Controller/Rules.php"; 
             new Rules(translate('text_rules_1'),
             translate('text_rules_2', ['a' => $days_bookable_in_advance_text]),
-            translate('text_rules_3', ['a' => $max_loan_duration_text]),
             translate('text_rules_4'),
             translate('text_rules_5')); ?>
         <br>
-        <form action="index2.php" name="getdepartment" method="post" style="text-align:center; width:100%; margin: 0 auto;" onsubmit="return checkinputs()">
 
+        <?php
+        // Save selected department in session
+        if (isset($_POST['selected_department'])) {
+            $_SESSION['selected_department'] = $_POST['selected_department'];
+        }
+
+        // Reset selected department
+        if (isset($_POST['reset_department'])) {
+            unset($_SESSION['selected_department']);
+        }
+        ?>
+
+        <!-- 1: select Department -->
+        <form method="post" action="index.php" style="text-align:center; width:100%; margin:0 auto;">
             <?php show_department_select(); ?>
             <br>
+            <button type="submit" class="btn btn-primary">Auswahl speichern</button>
+            <br><br>
+        </form>             
+    
+    <!-- Form for selecting devices and time range -->
+    <form action="index2.php" method="post" style="text-align:center; width:100%; margin: 0 auto;" onsubmit="return checkinputs()">
+        
+        <!-- 2: select devices-->
+        <?php show_device_select($device_type, $department_rentable, $departments); ?>
+        <br>
 
-            <div id='step2' name='step2' style='display:none;'>
-                
-                <!-- Device Select -->
-                <?php show_device_select($device_type, $department_rentable, $departments); ?>
-                <br>
-
-                <!-- Timespan Select -->
-                <?php require_once("Controller/Daterange.php"); 
-                show_daterangepicker(is_superadmin($user_username));?>
-
-                <div class='row' style='text-align:center;'>
-                    <div class='col-9'>
-                        <p class='select' style='text-align:left;'><?php echo translate('text_step4')?></p>
-                    </div>
-                    <div class='col'>
-                        <button type="submit" id="submit_button" disabled class="btn btn-primary btn-radius mr-1 mb-1">
-                            <?php echo translate('text_buttonNextPage'); ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-        <?php
-            show_myreservations($user_username, $lang);
-            show_adminbutton($user_username)
+        <!-- 3: select time range -->
+        <?php 
+        require_once("Controller/Daterange.php"); 
+        show_daterangepicker(is_superadmin($user_username)); 
         ?>
-    </div>
+
+        <div class='row' style='text-align:center;'>
+            <div class='col-9'>
+                <p class='select' style='text-align:left;'><?php echo translate('text_step4')?></p>
+            </div>
+            <div class='col'>
+                <button type="submit" id="submit_button" class="btn btn-primary btn-radius mr-1 mb-1">
+                    <?php echo translate('text_buttonNextPage'); ?>
+                </button>
+            </div>
+        </div>
+    </form>
+    
     <script>
+        
         //delete the reservation (userside)
         function order_delete(id) {
             var text = $('#ston_text').val();

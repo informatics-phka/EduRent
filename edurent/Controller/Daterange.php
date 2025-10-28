@@ -2,13 +2,17 @@
     global $lang;
     global $lead_time_days;
     global $days_bookable_in_advance;
-    global $max_loan_duration;
+    $max_loan_duration = 30;
+    global $link;
+
     if($is_superadmin)
     {
         $lead_time_days = 0;
         $days_bookable_in_advance = 365;
         $max_loan_duration = 365;
     }
+        
+
     
 ?>
 

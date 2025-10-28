@@ -11,30 +11,45 @@ check_is_admin($user_username);
 $is_superadmin = is_superadmin($user_username);
 $all_user = get_all_user();
 
-$devices_of_deparment = array();;
-$sql;
-if($is_superadmin){
-	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department ORDER BY home_department";
+$devices_of_deparment = array();
+$sql = "";
+
+if ($is_superadmin) {
+    $sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department ORDER BY home_department";
+} else {
+    
+    if (!isset($department_ids) || !is_array($department_ids)) {
+        $department_ids = array();
+    }
+
+    if (count($department_ids) > 0) {
+        $ids = "(";
+        for ($i = 0; $i < count($department_ids); $i++) {
+            if ($i == 0) {
+                $ids .= "department_id=" . intval($department_ids[$i]);
+            } else {
+                $ids .= " OR department_id=" . intval($department_ids[$i]);
+            }
+        }
+        $ids .= ")";
+        $sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department AND " . $ids . " ORDER BY home_department";
+    } else {
+        $sql = null;
+    }
 }
-else{
-	$ids;
-	for ($i=0; $i < count($department_ids); $i++) {
-		if($i == 0) $ids = "(department_id=" . $department_ids[$i];
-		else $ids .= " OR department_id=" . $department_ids[$i];
-	}
-	$ids .= ")"; 
-	$sql = "SELECT device_type_name, device_type_indicator FROM departments, device_type WHERE department_id=home_department AND " . $ids . " ORDER BY home_department";
+
+if ($sql && ($result = mysqli_query($link, $sql))) {
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_array($result)) {
+            $id = count($devices_of_deparment);
+            $devices_of_deparment[$id]['device_type_name'] = $row['device_type_name'];
+            $devices_of_deparment[$id]['device_type_indicator'] = $row['device_type_indicator'];
+        }
+        mysqli_free_result($result);
+    }
+} elseif ($sql) {
+    error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 }
-if ($result = mysqli_query($link, $sql)) {
-	if (mysqli_num_rows($result) > 0) {
-		while ($row = mysqli_fetch_array($result)) {
-			$id = count($devices_of_deparment);
-			$devices_of_deparment[$id]['device_type_name'] = $row['device_type_name'];
-			$devices_of_deparment[$id]['device_type_indicator'] = $row['device_type_indicator'];
-		}
-		mysqli_free_result($result);
-	}
-} else error_to_superadmin(get_superadmins(), $mail, "ERROR: Could not able to execute: " . $sql . ": " . mysqli_error($link));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
     $reservation_id = $_POST['reservation_id'];
@@ -42,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'])) {
 
     echo "<script>window.location.href = 'edit_reservation';</script>";
     exit;
-} 
+}
 
 $reservation_id = $_SESSION['reservation_id'] ?? null;
 
