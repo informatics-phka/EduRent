@@ -110,6 +110,15 @@ $names = 0;
 
 //getlimits
 $limits = get_limits_of("device_list");
+
+//Edit reservation
+foreach ($_POST as $key => $value){
+  echo "{$key} = {$value}\r\n";
+}
+if ($_POST) {
+    save_in_logs("ERROR: Edit reservation not implemented yet.");
+    save_in_logs($_POST);
+}
 ?>
 
 <body>
@@ -149,6 +158,7 @@ $limits = get_limits_of("device_list");
     <div class="main">
         <?php require_once("app/navbar.php"); ?>   
         <br>
+        <form method="POST" action="edit_reservation" style="display:inline;">
         <?php
         if (isset($reservation_id )) {
             $formatted_from = date_create($date_from)->format('d.m.Y');
@@ -211,8 +221,7 @@ $limits = get_limits_of("device_list");
         }
         ?>
         <br>
-        <!-- Buttons -->        
-        <form method="POST" action="edit_reservation" style="display:inline;">
+            <!-- Buttons -->        
             <input type="hidden" name="reservation_id" value="<?php echo $reservation_id; ?>">
             <div class='col-md-6 mb-3'>
                 <button type='submit' class='btn btn-success btn-block rounded mr-1 mb-1'>
