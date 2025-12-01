@@ -64,7 +64,7 @@ foreach ($_POST as $key => $value){
 
 if (exists_and_not_empty('selected_user', $_POST) && is_numeric($_POST['selected_user'])) { //edited
     try {
-        // --- 1. Get admin and dapartment data ---
+        // --- 1. Get admin and department data ---
         $sql = "SELECT email, mail, departments.department_id 
                 FROM user 
                 JOIN reservations ON id = user_id 
@@ -127,12 +127,11 @@ if (exists_and_not_empty('selected_user', $_POST) && is_numeric($_POST['selected
         $stmt = mysqli_prepare($link, $sql);
         mysqli_stmt_bind_param($stmt, "i", $reservation_id);
         mysqli_stmt_execute($stmt);
-        save_in_logs("4");
 
-        save_in_logs("add devices not working");
-        // --- 4. add devices of reservation ---
+        // --- 4. add old devices of reservation ---
         $new_values = array_filter(explode("|", $_GET['values']));
         $new_indicators = array_filter(explode("|", $_GET['indicators']));
+
         for ($i = 0; $i < count($new_indicators); $i++) {
             $tag = $new_values[$i];
             $indicator = $new_indicators[$i];
@@ -155,10 +154,23 @@ if (exists_and_not_empty('selected_user', $_POST) && is_numeric($_POST['selected
             mysqli_stmt_execute($stmt);
         }
 
-        // --- 5. add devices of reservation ---
+        // --- 5. add new devices of reservation ---
         require_once("Controller/basic.php");
-        $types = explode("|", $_POST['types']);
-        $amounts = explode("|", $_POST['amounts']);
+        $types = [];
+        $amounts = [];
+
+        $i = 1;
+
+        while (true) {
+            if (!isset($_POST['type_' . $i]) || !isset($_POST['amount_' . $i])) {
+                break;
+            }
+
+            $types[] = $_POST['type_' . $i];
+            $amounts[] = $_POST['amount_' . $i];
+
+            $i++;
+        }
         $reservated = get_active_reservations();
         $not_blocked_devices = get_notblockeddevices();
         $id_by_name = get_idbyname();
@@ -189,7 +201,6 @@ if (exists_and_not_empty('selected_user', $_POST) && is_numeric($_POST['selected
         $SESSION->toasttext = "Reservierungsanfrage #$reservation_id wurde bearbeitet.";
         session_write_close();
 
-        save_in_logs("mail not working");
         // --- 7. send mail ---
         $messagetext = "Ihre Reservierung mit der ID #$reservation_id wurde von einem Admin bearbeitet.<br /><br />
         Folgende Informationen sind Ihrer Reservierung zugehörig:<br /><br />
