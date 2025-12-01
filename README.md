@@ -77,7 +77,10 @@ If you encounter any issues during installation or configuration, here are some 
 Double-check the database host configuration in db_connect.php. If using "localhost", ensure your MySQL server is running locally or update the host to the correct database server address.
 
 #### Message could not be sent. Mailer Error
-Verify that the correct SMTP credentials are provided in mailer.php. Ensure you have configured the correct host, port, and security settings (e.g., SSL/TLS).
+Verify that the correct SMTP credentials are provided in mailer.php. Ensure you have configured the correct host, port, login data and security settings (e.g., SSL/TLS).
+
+#### SMTP Error: Could not connect to SMTP host. Failed to connect to server 
+Verify that the correct SMTP credentials are provided in mailer.php. Ensure you have configured the correct host, port, login data and security settings (e.g., SSL/TLS). Check for the newest versoin of Bundle of CA Root Certificates (cacert.pwm).
 
 <!-- CONTRIBUTING -->
 
