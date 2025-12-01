@@ -160,7 +160,7 @@ function available_devices($reservated, $department, $not_blocked_devices, $date
         }
     }
     else{
-        save_in_logs("INFO: no reservated devices");
+        save_in_logs("INFO: no reservations found for this department");
     }
     return $not_blocked_devices;
 }
